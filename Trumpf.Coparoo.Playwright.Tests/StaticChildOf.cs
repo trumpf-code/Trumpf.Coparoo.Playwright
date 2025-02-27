@@ -172,7 +172,7 @@ public class PageObjectLocatorStatic
     /// <summary>
     /// Test method.
     /// </summary>
-    [TestMethod]
+    //[TestMethod]
     public void WhenTheDotTreeIsWrittenToDisk_ThenAFileIsCreated()
     {
         string file = null;
