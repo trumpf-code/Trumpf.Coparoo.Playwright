@@ -38,20 +38,13 @@ jobs:
     - name: Build
       run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }}
 
-    - name: Install dependencies
-      run: |
-        npm install
-
-    - name: Install Playwright browsers
-      run: |
-        npx playwright install
-
     # Execute unit tests (continue on error to allow test results upload if failed)
     - name: Execute Unit Tests
       if: matrix.configuration == 'Debug'
       continue-on-error: false
       run: |
         mkdir -p ${{ env.Test_Results_Dir }}
+        pwsh ${{ env.Test_Project_Path }}/bin/Debug/net8.0/playwright.ps1 install
         dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --verbosity normal --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_${{ matrix.configuration }}.trx"
         echo "Listing files in test results directory:"
         dir ${{ env.Test_Results_Dir }}
