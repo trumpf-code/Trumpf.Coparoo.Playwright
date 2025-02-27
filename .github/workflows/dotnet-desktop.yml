@@ -41,7 +41,7 @@ jobs:
     # Execute unit tests (continue on error to allow test results upload if failed)
     - name: Execute Unit Tests
       if: matrix.configuration == 'Debug'
-      continue-on-error: true
+      continue-on-error: false
       run: |
         mkdir -p ${{ env.Test_Results_Dir }}
         dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --verbosity normal --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_${{ matrix.configuration }}.trx"
