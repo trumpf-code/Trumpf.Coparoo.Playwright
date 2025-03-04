@@ -114,4 +114,17 @@ public class By
     /// <param name="selector">The selector string used to locate the element.</param>
     /// <returns>A <see cref="By"/> object that can be used to locate the element based on the provided selector string.</returns>
     public static implicit operator By(string selector) => new() { _selector = selector, _selectorType = SelectorType.Free };
+
+    /// <summary>
+    /// Implicitly converts a <see cref="By"/> object to a string representation of its selector.
+    /// </summary>
+    /// <param name="by">The <see cref="By"/> object to convert.</param>
+    /// <returns>The selector string.</returns>
+    public static implicit operator string(By by)
+    {
+        if (by == null)
+            throw new ArgumentNullException(nameof(by));
+
+        return by.ToLocator();
+    }
 }
