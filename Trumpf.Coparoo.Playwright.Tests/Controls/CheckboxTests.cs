@@ -31,20 +31,24 @@ public class CheckboxTests
         // Prepare
         var expectedName = "checkbox name";
         var expectedValue = "some value";
-        var expectedIsCheck = false;
+        var expectedIsChecked = false;
 
-        var tab = await Tab.CreateAsync(HtmlContents(expectedName, expectedValue, expectedIsCheck));
+        var tab = await Tab.CreateAsync(HtmlContents(expectedName, expectedValue, expectedIsChecked));
         var checkbox = tab.Find<Checkbox>();
 
         // Act
+        bool exists = await checkbox.Exists();
+        bool isVisible = await checkbox.Visible();
         var actualName = await checkbox.Name;
         var actualValue = await checkbox.Value;
         var actualIsChecked = await checkbox.IsChecked;
 
         // Check
+        exists.Should().BeTrue();
+        isVisible.Should().BeTrue();
         expectedName.Should().Be(actualName);
         expectedValue.Should().Be(actualValue);
-        expectedIsCheck.Should().Be(actualIsChecked);
+        expectedIsChecked.Should().Be(actualIsChecked);
     }
 
     /// <summary>

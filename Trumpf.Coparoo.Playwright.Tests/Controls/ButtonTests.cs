@@ -26,21 +26,45 @@ public class ButtonTests
     /// Test method.
     /// </summary>
     [TestMethod]
+    public async Task ButtonWithNonExistentLocator_ShouldNotExist()
+    {
+        // Prepare
+        var tab = await Tab.CreateAsync(HtmlContents("other text"));
+        var checkbox = tab.Find<Button>("non-existing locator");
+
+        // Act
+        var exists = await checkbox.Exists();
+        var isVisible = await checkbox.Visible();
+
+        // Check
+        exists.Should().BeFalse();
+        isVisible.Should().BeFalse();
+    }
+
+    /// <summary>
+    /// Test method.
+    /// </summary>
+    [TestMethod]
     public async Task WhenAButtonIsAccessed_ThenItCanBeFoundAndThePropertiesFit()
     {
         //Prepare
         var expectedButtonText = "button text";
-        Tab tab = await Tab.CreateAsync($"<button type=\"button\">{expectedButtonText}</button>");
+        Tab tab = await Tab.CreateAsync(HtmlContents(expectedButtonText));
         Button button = tab.Find<Button>();
 
         // Act
         string actualButtonText = await button.Text();
-        var isVisible = button.IsVisibleAsync();
+        var isVisible = button.Node.IsVisibleAsync();
 
         // Log
         Trace.WriteLine($"buttonText: {actualButtonText}");
 
         // Check
         actualButtonText.Should().Be(expectedButtonText);
+    }
+
+    private static string HtmlContents(string expectedButtonText)
+    {
+        return $"<button type=\"button\">{expectedButtonText}</button>";
     }
 }

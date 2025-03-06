@@ -48,7 +48,7 @@ public abstract class UIObject : IUIObjectInternal
     /// <returns>The root page object.</returns>
     ITabObject IUIObjectInternal.Root()
         => this is ITabObject
-            ? this as ITabObject 
+            ? this as ITabObject
             : (Parent as IUIObjectInternal).Root();
 
     /// <summary>
@@ -166,7 +166,7 @@ public abstract class UIObject : IUIObjectInternal
     /// Gets the hash code.
     /// </summary>
     /// <returns>The hash code.</returns>
-    public override int GetHashCode() 
+    public override int GetHashCode()
         => GetType().FullName.GetHashCode();
 
     /// <summary>
@@ -175,7 +175,7 @@ public abstract class UIObject : IUIObjectInternal
     /// <typeparam name="TControl">The control type.</typeparam>
     /// <param name="pattern">The search pattern to locate the control.</param>
     /// <returns>The control object.</returns>
-    public virtual TControl Find<TControl>(By pattern = null) 
+    public virtual TControl Find<TControl>(By pattern = null)
         where TControl : IControlObject
     {
         var result = (TControl)Activator.CreateInstance(((ITabObjectInternal)Root()).UIObjectInterfaceResolver.Resolve<TControl>());
@@ -190,7 +190,7 @@ public abstract class UIObject : IUIObjectInternal
     /// <typeparam name="TControl">The control type.</typeparam>
     /// <param name="pattern">The search pattern to locate the control.</param>
     /// <returns>The control enumeration.</returns>
-    public virtual async IAsyncEnumerable<TControl> FindAll<TControl>(By pattern = null) 
+    public virtual async IAsyncEnumerable<TControl> FindAll<TControl>(By pattern = null)
         where TControl : IControlObject
     {
         int next = 0;

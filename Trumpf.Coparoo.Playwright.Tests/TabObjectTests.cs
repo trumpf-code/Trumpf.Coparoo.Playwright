@@ -35,11 +35,11 @@ public class TabObjectTests
         // Act
         var t1 = tab.Cast<T1>();
         var b1 = t1.On<B1>();
-        var e1 = await b1.IsVisibleAsync();
+        var e1 = await b1.Visible();
 
         var t2 = tab.Cast<T2>();
         var b2 = t2.On<B2>();
-        var e2 = await b2.IsVisibleAsync();
+        var e2 = await b2.Visible();
 
         // Check
         e1.Should().BeTrue();
@@ -62,7 +62,7 @@ public class TabObjectTests
 
         // Act
         var b1 = t3.On<B1>();
-        var e1 = await b1.IsVisibleAsync();
+        var e1 = await b1.Visible();
 
         // Check
         e1.Should().BeTrue();

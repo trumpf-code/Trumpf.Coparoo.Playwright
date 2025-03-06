@@ -34,7 +34,7 @@ public class SelectTests
         var options = await select.Options().ToArrayAsync();
 
         // Act
-        var visible = await select.IsVisibleAsync();
+        var visible = await select.Visible();
         var count = options.Length;
         var values = options.Select(e => e.Value).ToList();
         var selected = options.Select(e => e.IsSelected()).ToList();
