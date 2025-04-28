@@ -48,6 +48,6 @@
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
 
     <PackageReference Include="Microsoft.Playwright" Version="1.50.0" />
-    <PackageReference Include="Stashbox" Version="5.17.1" />
+	<PackageReference Include="Stashbox" Version="2.7.8" />
   </ItemGroup>
 </Project>
