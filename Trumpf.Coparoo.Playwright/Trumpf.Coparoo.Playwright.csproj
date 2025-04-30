@@ -26,7 +26,7 @@
     <NeutralLanguage>en</NeutralLanguage>
     <PackageProjectUrl>https://github.com/trumpf-code/Trumpf.Coparoo.Playwright</PackageProjectUrl>
     <PackageIcon>logo640.png</PackageIcon>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <RepositoryUrl>https://github.com/trumpf-code/Trumpf.Coparoo.Playwright</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
