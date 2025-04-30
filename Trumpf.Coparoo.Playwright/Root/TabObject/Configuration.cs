@@ -15,8 +15,6 @@
 using System;
 using System.Linq.Expressions;
 
-using Stashbox;
-
 namespace Trumpf.Coparoo.Playwright;
 
 /// <summary>
@@ -29,12 +27,4 @@ public class Configuration
     /// </summary>
     internal Configuration()
         => Expression.Empty();
-
-    /// <summary>
-    /// Gets the page test class dependency registrator.
-    /// </summary>
-    public IDependencyRegistrator DependencyRegistrator { get; } = new StashboxContainer();
-
-    internal object Resolve(Type typeFrom)
-        => ((StashboxContainer)DependencyRegistrator).Resolve(typeFrom);
 }
