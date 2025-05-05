@@ -36,7 +36,11 @@
     <Using Include="System.Threading.Tasks" />
   </ItemGroup>
 
-  <!-- reference information -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Playwright" Version="1.50.0" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Include="..\Resources\logo640.png" Pack="true" PackagePath="" />
     <None Include="..\LICENSE" Pack="true" PackagePath="" />
@@ -44,9 +48,5 @@
     <None Include="..\DECOUPLING.md" Pack="true" PackagePath="\" />
     <None Include="..\DEMO.md" Pack="true" PackagePath="\" />
     <None Include="..\PATTERN.md" Pack="true" PackagePath="\" />
-
-    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-
-    <PackageReference Include="Microsoft.Playwright" Version="1.50.0" />
   </ItemGroup>
 </Project>
