@@ -24,5 +24,5 @@ public interface IControlObject : IUIObject
     /// <summary>
     /// Click the control.
     /// </summary>
-    void Click();
+    Task Click();
 }
