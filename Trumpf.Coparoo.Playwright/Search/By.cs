@@ -41,8 +41,7 @@ public class By
     /// <returns>A <see cref="By"/> object that can be used to locate the element based on the provided CSS selector.</returns>
     public static By CssSelector(string selector)
     {
-        var escapedSelector = Regex.Replace(selector, PatternEscapeSymbols, @"\$1");
-        return new By(escapedSelector, SelectorType.CssSelector);
+        return new By(selector, SelectorType.CssSelector);
     }
 
     /// <summary>
