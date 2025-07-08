@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 
 namespace Trumpf.Coparoo.Playwright;
 
@@ -9,6 +10,8 @@ public class By
 {
     private string _selector;
     private SelectorType _selectorType;
+
+    private const string PatternEscapeSymbols = @"(?<!\\)([.#:>[\](){}+~^$|=])";
 
     private enum SelectorType
     {
@@ -38,7 +41,8 @@ public class By
     /// <returns>A <see cref="By"/> object that can be used to locate the element based on the provided CSS selector.</returns>
     public static By CssSelector(string selector)
     {
-        return new By(selector, SelectorType.CssSelector);
+        var escapedSelector = Regex.Replace(selector, PatternEscapeSymbols, @"\$1");
+        return new By(escapedSelector, SelectorType.CssSelector);
     }
 
     /// <summary>
@@ -58,7 +62,8 @@ public class By
     /// <returns>A <see cref="By"/> object that can be used to locate the element based on.</returns>
     public static By Id(string id)
     {
-        return new By($"#{id}", SelectorType.Id);
+        var escapedId = Regex.Replace(id, PatternEscapeSymbols, @"\$1");
+        return new By($"#{escapedId}", SelectorType.Id);
     }
 
     /// <summary>
@@ -78,7 +83,8 @@ public class By
     /// <returns>A <see cref="By"/> object that can be used to locate the element based on the provided class name.</returns>
     public static By ClassName(string className)
     {
-        return new By($".{className}", SelectorType.ClassName);
+        var escapedClassName = Regex.Replace(className, PatternEscapeSymbols, @"\$1");
+        return new By($".{escapedClassName}", SelectorType.ClassName);
     }
 
     /// <summary>
