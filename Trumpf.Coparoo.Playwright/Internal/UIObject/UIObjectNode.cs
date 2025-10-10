@@ -353,6 +353,9 @@ internal class UIObjectNode : IUIObjectNode, IUIObjectNodeInternal
     public ILocator Or(ILocator locator)
         => Root().Result.Or(locator);
 
+    public ILocator Describe(string description)
+        => Root().Result.Describe(description);
+
     public IFrameLocator ContentFrame
         => Root().Result.ContentFrame;
 
