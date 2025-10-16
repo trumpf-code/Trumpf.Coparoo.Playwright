@@ -88,6 +88,12 @@ public abstract class UIObject : IUIObjectInternal
         => node;
 
     /// <summary>
+    /// Gets the locator for this UI object.
+    /// </summary>
+    public Task<ILocator> Locator =>
+        Node.Root();
+
+    /// <summary>
     /// Gets the typed root node of the page object.
     /// This is the object this page object accesses to interact with UI elements.
     /// </summary>
@@ -199,7 +205,7 @@ public abstract class UIObject : IUIObjectInternal
             TControl result = Find<TControl>(pattern);
             (result as IUIObjectInternal).Index = next++;
 
-            var count = await result.Node.CountAsync();
+            var count = await (await result.Node.Root()).CountAsync();
             if (count == 0)
                 break;
 

@@ -54,7 +54,7 @@ public class ButtonTests
 
         // Act
         string actualButtonText = await button.Text();
-        var isVisible = button.Node.IsVisibleAsync();
+        var isVisible = await (await button.Locator).IsVisibleAsync();
 
         // Log
         Trace.WriteLine($"buttonText: {actualButtonText}");

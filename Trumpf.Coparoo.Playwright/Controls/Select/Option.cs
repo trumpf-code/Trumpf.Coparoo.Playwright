@@ -27,19 +27,25 @@ public class Option : ControlObject, IOption
     /// Gets the option value.
     /// </summary>
     public Task<string> Value
-        => Node.GetAttributeAsync("value");
+        => GetValueAsync();
+
+    private async Task<string> GetValueAsync()
+        => await (await Locator).GetAttributeAsync("value");
 
     /// <summary>
     /// Gets the option value.
     /// </summary>
     public Task<string> Text
-        => Node.TextContentAsync();
+        => GetTextAsync();
+
+    private async Task<string> GetTextAsync()
+        => await (await Locator).TextContentAsync();
 
     /// <summary>
     /// Gets a value indicating whether the option is selected.
     /// </summary>
     public async Task<bool> IsSelected()
-        => await Node.EvaluateAsync<bool>("option => option.selected");
+        => await (await Locator).EvaluateAsync<bool>("option => option.selected");
 
     /// <summary>
     /// Select this option.
@@ -48,8 +54,8 @@ public class Option : ControlObject, IOption
     {
         if (!await IsSelected())
         {
-            string value = await Node.GetAttributeAsync("value");
-            await Parent.Node.SelectOptionAsync(value);
+            string value = await (await Locator).GetAttributeAsync("value");
+            await (await Parent.Locator).SelectOptionAsync(value);
         }
     }
 }

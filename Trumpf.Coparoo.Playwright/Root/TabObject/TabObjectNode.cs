@@ -67,7 +67,7 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
 
     /// <summary>
     /// Gets the statistics.
-    /// </summary>
+    /// /// </summary>
     public Statistics Statistics { get; } = new Statistics();
 
     /// <summary>
@@ -87,7 +87,12 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     /// Open the web page.
     /// </summary>
     /// <param name="url">The url to open.</param>
-    public void Open(string url) => Driver().Result.GotoAsync(url);
+    public async Task Open(string url) 
+        => await (await Driver()).GotoAsync(url);
     
-    public void Quit() => Driver().Result.Context.Browser.CloseAsync();
+    /// <summary>
+    /// Quit the browser.
+    /// </summary>
+    public async Task Quit() 
+        => await (await Driver()).Context.Browser.CloseAsync();
 }

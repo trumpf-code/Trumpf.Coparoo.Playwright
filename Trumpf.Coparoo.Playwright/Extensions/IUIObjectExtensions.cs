@@ -14,7 +14,7 @@ public static class IUIObjectExtensions
     /// A boolean indicating whether the source exists (true if count is greater than zero, false otherwise).
     /// </returns>
     public static async Task<bool> Exists(this IUIObject source)
-        => (await source.Node.CountAsync()) > 0;
+        => (await (await source.Node.Root()).CountAsync()) > 0;
 
     /// <summary>
     /// Asynchronously checks if the UI element is visible.
@@ -25,7 +25,7 @@ public static class IUIObjectExtensions
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
 
-        return await source.Node.IsVisibleAsync();
+        return await (await source.Node.Root()).IsVisibleAsync();
     }
 
     /// <summary>
@@ -37,6 +37,6 @@ public static class IUIObjectExtensions
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
 
-        return await source.Node.IsEnabledAsync();
+        return await (await source.Node.Root()).IsEnabledAsync();
     }
 }

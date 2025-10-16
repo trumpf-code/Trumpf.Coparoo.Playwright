@@ -58,7 +58,7 @@ public interface ITabObject : IPageObject
     /// <summary>
     /// Open the web page in a new tab (the browser must already run).
     /// </summary>
-    void Open();
+    Task Open();
 
     /// <summary>
     /// Close the tab.

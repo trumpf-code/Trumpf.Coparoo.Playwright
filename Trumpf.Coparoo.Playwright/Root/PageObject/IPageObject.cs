@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Trumpf.Coparoo.Playwright.Internal;
 
@@ -38,5 +39,5 @@ public interface IPageObject : IUIObject
     /// <summary>
     /// Goto the page object, i.e. perform necessary action to make the page object visible on screen.
     /// </summary>
-    void Goto();
+    Task Goto();
 }

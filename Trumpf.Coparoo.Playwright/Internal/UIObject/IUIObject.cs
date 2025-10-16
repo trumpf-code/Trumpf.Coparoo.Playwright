@@ -39,6 +39,11 @@ public interface IUIObject
     IUIObjectNode Node { get; }
 
     /// <summary>
+    /// Gets the locator for this UI object.
+    /// </summary>
+    Task<ILocator> Locator { get; }
+
+    /// <summary>
     /// Get the specific page object.
     /// </summary>
     /// <param name="condition">The condition that must evaluate true for the resulting page object.</param>

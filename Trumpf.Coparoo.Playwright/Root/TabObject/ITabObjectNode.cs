@@ -48,5 +48,10 @@ internal interface ITabObjectNode : IUIObjectNode
     /// Open the web page.
     /// </summary>
     /// <param name="url">The URL to open.</param>
-    void Open(string url);
+    Task Open(string url);
+
+    /// <summary>
+    /// Quit the browser.
+    /// </summary>
+    Task Quit();
 }

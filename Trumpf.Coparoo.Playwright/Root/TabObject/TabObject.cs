@@ -189,20 +189,20 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     /// <summary>
     /// Opens the tab if this has not yet been done.
     /// </summary>
-    public override void Goto()
+    public override async Task Goto()
     {
         if (!opened)
         {
-            Open();
+            await Open();
         }
     }
 
     /// <summary>
     /// Open the web page in a new tab (will open a new browser).
     /// </summary>
-    public void Open()
+    public async Task Open()
     {
-        ((TabObjectNode)Node).Open(Url);
+        await ((TabObjectNode)Node).Open(Url);
         opened = true;
     }
 
@@ -211,7 +211,7 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     /// </summary>
     public async Task Close()
     {
-        await Node.Page.CloseAsync();
+        await (await Locator).Page.CloseAsync();
         opened = false;
     }
 

@@ -14,8 +14,6 @@
 
 namespace Trumpf.Coparoo.Playwright.Controls;
 
-
-
 /// <summary>
 /// Button control object.
 /// </summary>
@@ -30,11 +28,11 @@ public class Button : ControlObject, IButton
     /// Gets the button text.
     /// </summary>
     public async Task<string> Text()
-        => await Node.TextContentAsync();
+        => await (await Locator).TextContentAsync();
 
     /// <summary>
     /// Sends the return key.
     /// </summary>
-    public async void SendReturn()
-        => await Node.Page.Keyboard.PressAsync("Enter");
+    public async Task SendReturn()
+        => await (await Locator).Page.Keyboard.PressAsync("Enter");
 }

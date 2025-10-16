@@ -62,5 +62,5 @@ public abstract class ControlObject : UIObject, IControlObjectInternal
     /// <summary>
     /// Click the control.
     /// </summary>
-    public virtual async Task Click() => await Node.ClickAsync();
+    public virtual async Task Click() => await (await Locator).ClickAsync();
 }

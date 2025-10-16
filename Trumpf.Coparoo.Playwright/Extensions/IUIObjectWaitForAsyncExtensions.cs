@@ -19,7 +19,7 @@ public static class IUIObjectWaitForAsyncExtensions
         if (timeout != default)
             options.Timeout = timeout.Milliseconds;
 
-        await node.Node.WaitForAsync(options);
+        await (await node.Node.Root()).WaitForAsync(options);
     }
 
     /// <summary>
@@ -29,7 +29,7 @@ public static class IUIObjectWaitForAsyncExtensions
     {
         if (node == null) throw new ArgumentNullException(nameof(node));
 
-        await node.Node.WaitForAsync(new LocatorWaitForOptions
+        await (await node.Node.Root()).WaitForAsync(new LocatorWaitForOptions
         {
             State = WaitForSelectorState.Hidden,
 
@@ -43,7 +43,7 @@ public static class IUIObjectWaitForAsyncExtensions
     {
         if (node == null) throw new ArgumentNullException(nameof(node));
 
-        await node.Node.WaitForAsync(new LocatorWaitForOptions
+        await (await node.Node.Root()).WaitForAsync(new LocatorWaitForOptions
         {
             State = WaitForSelectorState.Detached,
 
@@ -57,7 +57,7 @@ public static class IUIObjectWaitForAsyncExtensions
     {
         if (node == null) throw new ArgumentNullException(nameof(node));
 
-        await node.Node.WaitForAsync(new LocatorWaitForOptions
+        await (await node.Node.Root()).WaitForAsync(new LocatorWaitForOptions
         {
             State = WaitForSelectorState.Attached,
 

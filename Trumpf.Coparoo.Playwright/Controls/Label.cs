@@ -29,5 +29,9 @@ public class Label : ControlObject, ILabel
     /// <summary>
     /// Gets the text.
     /// </summary>
-    public Task<string> Text => Node.TextContentAsync();
+    public Task<string> Text
+        => GetTextAsync();
+
+    private async Task<string> GetTextAsync()
+        => await (await Locator).TextContentAsync();
 }

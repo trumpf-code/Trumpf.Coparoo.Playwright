@@ -27,10 +27,18 @@ public class Link : ControlObject, ILink
     /// <summary>
     /// Gets the link text.
     /// </summary>
-    public Task<string> Text => Node.TextContentAsync();
+    public Task<string> Text
+        => GetTextAsync();
+
+    private async Task<string> GetTextAsync()
+        => await (await Locator).TextContentAsync();
 
     /// <summary>
     /// Gets the link URL.
     /// </summary>
-    public Task<string> URL => Node.GetAttributeAsync("href");
+    public Task<string> URL
+        => GetURLAsync();
+
+    private async Task<string> GetURLAsync()
+        => await (await Locator).GetAttributeAsync("href");
 }

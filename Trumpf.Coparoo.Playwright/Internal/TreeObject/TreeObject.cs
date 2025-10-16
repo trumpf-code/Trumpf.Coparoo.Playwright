@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Trumpf.Coparoo.Playwright.Logging.Tree;
 
@@ -131,7 +132,8 @@ public abstract class TreeObject : UIObject, ITreeObject
     /// <summary>
     /// Goto the page object, i.e. perform necessary action to make the page object visible on screen, do nothing if the page is already visible on screen.
     /// </summary>
-    public virtual void Goto()
+    public virtual Task Goto()
     {
+        return Task.CompletedTask;
     }
 }

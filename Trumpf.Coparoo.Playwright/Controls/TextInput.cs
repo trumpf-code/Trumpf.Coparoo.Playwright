@@ -29,13 +29,13 @@ public class TextInput : ControlObject, ITextInput
     /// Gets or sets the name.
     /// </summary>
     public async Task<string> GetName()
-         => await Node.EvaluateAsync<string>("input => input.name");
+         => await (await Locator).EvaluateAsync<string>("input => input.name");
 
     /// <summary>
     /// Gets or sets the text.
     /// </summary>
     public async Task<string> GetValue()
-         => await Node.EvaluateAsync<string>("input => input.value");
+         => await (await Locator).EvaluateAsync<string>("input => input.value");
 
     /// <summary>
     /// Sets the text content of the element to the specified value.
@@ -50,10 +50,10 @@ public class TextInput : ControlObject, ITextInput
         {
             if (text != string.Empty)
             {
-                await Node.ClearAsync();
+                await (await Locator).ClearAsync();
             }
 
-            await Node.FillAsync(value);
+            await (await Locator).FillAsync(value);
         }
     }
 }

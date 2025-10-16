@@ -42,7 +42,7 @@ public class DEMO
     public async Task OpenAndClose()
     {
         var tab = new MyTab();              // create the root page object
-        tab.Open();                         // open the web page in new tab
+        await tab.Open();                   // open the web page in new tab
         await tab.WaitForVisibleAsync();    // wait until the tab exists
         await tab.Close();                  // close the tab and browser
     }
@@ -50,15 +50,24 @@ public class DEMO
     public class Link : ControlObject
     {
         protected override By SearchPattern => "a";
-        public Task<string> Text => Node.TextContentAsync();
-        public Task<string> URL => Node.GetAttributeAsync("href");
+        public Task<string> Text 
+            => GetTextAsync();
+        
+        private async Task<string> GetTextAsync()
+            => await (await Locator).TextContentAsync();
+        
+        public Task<string> URL 
+            => GetURLAsync();
+        
+        private async Task<string> GetURLAsync()
+            => await (await Locator).GetAttributeAsync("href");
     }
 
     //[TestMethod]
     public async Task PrintLinkTexts()
     {
         var tab = new MyTab();
-        tab.Open();
+        await tab.Open();
         await tab.WaitForVisibleAsync();
         await foreach (var link in tab.FindAll<Link>())
             Trace.WriteLine($"Text: {await link.Text}");
@@ -74,7 +83,7 @@ public class DEMO
     public async Task ClickEventsOnMenu()
     {
         MyTab myTab = new MyTab();              // create the root page object
-        myTab.Open();                           // open a new tab browser with the address 
+        await myTab.Open();                     // open a new tab browser with the address 
         await myTab.On<Menu>().WaitForVisibleAsync();   // wait until the menu is displayed
         await myTab.On<Menu>().Events.Click();        // on the menu click the events link
         await myTab.Close();                    // kill the browser
@@ -90,7 +99,7 @@ public class DEMO
     {
         protected override By SearchPattern => By.ClassName("menu-header");  // some unique search criteria for the menu
         public Link Events => Find<Link>("myId");// some menu link
-        public override async void Goto()
+        public override async Task Goto()
         {
             if (!await this.Visible())       // no actions if the page is already displayed
             {
