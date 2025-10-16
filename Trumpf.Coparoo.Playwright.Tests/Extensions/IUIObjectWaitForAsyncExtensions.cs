@@ -20,6 +20,6 @@ public static class IUIObjectWaitForAsyncExtensions
         if (timeout != default)
             options.Timeout = timeout.Milliseconds;
 
-        await (await node.Node.Root()).WaitForAsync(options);
+        await (await node.Locator).WaitForAsync(options);
     }
 }

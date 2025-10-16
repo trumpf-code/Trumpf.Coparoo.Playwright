@@ -29,16 +29,6 @@ public interface IUIObject
     int Index { set; get; }
 
     /// <summary>
-    /// Gets the parent of this UI object.
-    /// </summary>
-    IUIObject Parent { get; }
-
-    /// <summary>
-    /// Gets the root node.
-    /// </summary>
-    IUIObjectNode Node { get; }
-
-    /// <summary>
     /// Gets the locator for this UI object.
     /// </summary>
     Task<ILocator> Locator { get; }

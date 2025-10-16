@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Trumpf.Coparoo.Playwright.Internal;
+
 namespace Trumpf.Coparoo.Playwright.Controls;
 
 /// <summary>
@@ -55,7 +57,7 @@ public class Option : ControlObject, IOption
         if (!await IsSelected())
         {
             string value = await (await Locator).GetAttributeAsync("value");
-            await (await Parent.Locator).SelectOptionAsync(value);
+            await (await ((UIObject)Parent).Locator).SelectOptionAsync(value);
         }
     }
 }

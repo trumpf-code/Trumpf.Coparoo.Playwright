@@ -27,7 +27,7 @@ public interface IPageObject : IUIObject
     /// <summary>
     /// Gets the parent page object.
     /// </summary>
-    new IPageObject Parent { get; }
+    IPageObject Parent { get; }
 
     /// <summary>
     /// Gets the child page objects.
