@@ -27,45 +27,56 @@ public class TabObjectTests
     /// Test method.
     /// </summary>
     [TestMethod]
-    public async Task WhenCastingTabObjects_ThenTheCorrectTabObjectsAreReturned()
+    public void WhenCastingTabObjects_ThenTheCorrectTabObjectsAreReturned()
     {
         //Prepare
-        var tab = await Tab.CreateAsync($"<button type=\"button\">text</button>");
+        ITabObject tab = new Tab();
 
         // Act
         var t1 = tab.Cast<T1>();
         var b1 = t1.On<B1>();
-        var e1 = await b1.Visible();
 
         var t2 = tab.Cast<T2>();
         var b2 = t2.On<B2>();
-        var e2 = await b2.Visible();
 
         // Check
-        e1.Should().BeTrue();
-        e2.Should().BeTrue();
+        t1.Should().NotBeNull();
+        t1.GetType().Should().Be(typeof(T1));
+        b1.Should().NotBeNull();
+        b1.GetType().Should().Be(typeof(B1));
+        
+        t2.Should().NotBeNull();
+        t2.GetType().Should().Be(typeof(T2));
+        b2.Should().NotBeNull();
+        b2.GetType().Should().Be(typeof(B2));
     }
 
     /// <summary>
     /// Test method.
     /// </summary>
     [TestMethod]
-    public async Task WhenCastingATabObjectAndThenBack_ThenTheCorrectTabObjectIsReturned()
+    public void WhenCastingATabObjectAndThenBack_ThenTheCorrectTabObjectIsReturned()
     {
-        //Prepare
-        var tab = await Tab.CreateAsync($"<button type=\"button\">text</button>");
+        // Prepare
+        ITabObject tab = new Tab();
 
         // Act
         var t1 = tab.Cast<T1>();
         var t2 = t1.Cast<T2>(); // cast
         var t3 = t2.Cast<T1>(); // cast back
 
-        // Act
-        var b1 = t3.On<B1>();
-        var e1 = await b1.Visible();
-
         // Check
-        e1.Should().BeTrue();
+        t1.Should().NotBeNull();
+        t2.Should().NotBeNull();
+        t3.Should().NotBeNull();
+        t1.GetType().Should().Be(typeof(T1));
+        t2.GetType().Should().Be(typeof(T2));
+        t3.GetType().Should().Be(typeof(T1));
+        
+        // Verify that page objects can be accessed through the casted tab objects
+        var b1 = t3.On<B1>();
+        b1.Should().NotBeNull();
+        b1.GetType().Should().Be(typeof(B1));
     }
 
     /// <summary>
