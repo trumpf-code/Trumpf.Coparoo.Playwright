@@ -24,5 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Trumpf.Coparoo.Playwright\Trumpf.Coparoo.Playwright.csproj" />
+    <ProjectReference Include="..\Trumpf.Coparoo.Playwright.Controls\Trumpf.Coparoo.Playwright.Controls.csproj" />
   </ItemGroup>
 </Project>
