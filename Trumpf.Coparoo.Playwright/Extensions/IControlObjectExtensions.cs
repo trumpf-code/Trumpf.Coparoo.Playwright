@@ -15,6 +15,8 @@
 using System;
 using Trumpf.Coparoo.Playwright;
 
+namespace Trumpf.Coparoo.Playwright.Extensions;
+
 /// <summary>
 /// Extensions for IControlObject.
 /// </summary>

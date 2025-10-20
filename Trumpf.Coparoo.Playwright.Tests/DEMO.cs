@@ -19,6 +19,7 @@ using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Trumpf.Coparoo.Playwright;
 using Trumpf.Coparoo.Playwright.Controls;
+using Trumpf.Coparoo.Playwright.Extensions;
 
 /// <summary>
 /// Test class.

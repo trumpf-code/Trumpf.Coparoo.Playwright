@@ -16,6 +16,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
 using Trumpf.Coparoo.Playwright.Controls;
+using Trumpf.Coparoo.Playwright.Extensions;
 
 namespace Trumpf.Coparoo.Tests;
 
