@@ -10,9 +10,9 @@
 
   <PropertyGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">
     <!-- MinVer configuration for automatic versioning from Git tags -->
-    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <MinVerTagPrefix></MinVerTagPrefix>
     <MinVerDefaultPreReleaseIdentifiers>preview</MinVerDefaultPreReleaseIdentifiers>
     <MinVerMinimumMajorMinor>1.0</MinVerMinimumMajorMinor>
-    <MinVerVerbosity>minimal</MinVerVerbosity>
+    <MinVerVerbosity>normal</MinVerVerbosity>
   </PropertyGroup>
 </Project>
