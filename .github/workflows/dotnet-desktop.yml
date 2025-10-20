@@ -2,6 +2,8 @@ name: .NET Core Desktop
 
 on:
   push:
+    tags:
+      - '**'  # Run on all tags
   pull_request:
     branches: [ "main" ]
 
