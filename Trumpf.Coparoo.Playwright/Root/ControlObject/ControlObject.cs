@@ -58,9 +58,4 @@ public abstract class ControlObject : UIObject, IControlObjectInternal
         (result as IUIObjectInternal).Index = NodeInternal.Index;
         return result;
     }
-
-    /// <summary>
-    /// Click the control.
-    /// </summary>
-    public virtual async Task Click() => await (await Locator).ClickAsync();
 }

@@ -1,4 +1,4 @@
-﻿// Copyright 2016 - 2025 TRUMPF Werkzeugmaschinen GmbH + Co. KG.
+// Copyright 2016 - 2025 TRUMPF Werkzeugmaschinen GmbH + Co. KG.
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Trumpf.Coparoo.Playwright.Internal;
-
-namespace Trumpf.Coparoo.Playwright;
+using System;
+using Trumpf.Coparoo.Playwright;
 
 /// <summary>
-/// Control object interface.
+/// Extensions for IControlObject.
 /// </summary>
-public interface IControlObject : IUIObject
+public static class IControlObjectExtensions
 {
+    /// <summary>
+    /// Click the control.
+    /// </summary>
+    /// <param name="source">The control object to click.</param>
+    public static async Task Click(this IControlObject source)
+    {
+        if (source == null) throw new ArgumentNullException(nameof(source));
+
+        await (await source.Locator).ClickAsync();
+    }
 }
