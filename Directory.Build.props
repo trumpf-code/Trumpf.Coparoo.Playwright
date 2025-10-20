@@ -8,6 +8,7 @@
     </PackageReference>
   </ItemGroup>
 
+  
   <PropertyGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">
     <!-- MinVer configuration for automatic versioning from Git tags -->
     <MinVerTagPrefix></MinVerTagPrefix>
