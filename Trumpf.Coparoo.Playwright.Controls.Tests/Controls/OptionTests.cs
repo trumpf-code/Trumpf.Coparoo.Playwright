@@ -29,7 +29,7 @@ public class OptionTests
     public async Task SelectElement_ShouldContainThreeOptions_WithExpectedValues()
     {
         // Prepare
-        var tab = await Tab.CreateAsync(HtmlContents);
+        var tab = await TestTab.CreateAsync(HtmlContents);
         var select = tab.Find<Select>();
 
         // Act

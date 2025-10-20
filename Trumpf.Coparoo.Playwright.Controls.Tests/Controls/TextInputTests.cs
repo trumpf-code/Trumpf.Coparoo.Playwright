@@ -31,7 +31,7 @@ public class TextInputTests
         // Prepare
         var expectedName = "input name";
         var expectedValue = "input value";
-        var tab = await Tab.CreateAsync(HtmlContents(expectedName, expectedValue));
+        var tab = await TestTab.CreateAsync(HtmlContents(expectedName, expectedValue));
 
         // Act
         var textInput = tab.Find<TextInput>();
@@ -57,7 +57,7 @@ public class TextInputTests
         var expectedName = "some name";
         var originalValue = "original value";
         var expectedValue = "expected value";
-        var tab = await Tab.CreateAsync(HtmlContents(expectedName, originalValue));
+        var tab = await TestTab.CreateAsync(HtmlContents(expectedName, originalValue));
 
         // Act
         var textInput = tab.Find<TextInput>();

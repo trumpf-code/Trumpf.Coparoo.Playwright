@@ -30,7 +30,7 @@ public class LabelTests
     {
         // Prepare
         var expectedLabelText = $"hellp";
-        var tab = await Tab.CreateAsync($"<label>{expectedLabelText}</label>");
+        var tab = await TestTab.CreateAsync($"<label>{expectedLabelText}</label>");
         var label = tab.Find<Label>();
 
         // Act

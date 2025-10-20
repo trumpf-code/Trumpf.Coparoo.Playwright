@@ -32,7 +32,7 @@ public class LinkTests
         // Prepare
         var expectedLinkText = "my link";
         var expectedLinkUrl = $"http://link";
-        var tab = await Tab.CreateAsync($"<a href=\"{expectedLinkUrl}\">{expectedLinkText}</a>");
+        var tab = await TestTab.CreateAsync($"<a href=\"{expectedLinkUrl}\">{expectedLinkText}</a>");
         var link = tab.Find<Link>();
 
         // Act
@@ -59,7 +59,7 @@ public class LinkTests
         var firstExpectedLinkUrl = $"http://firstExpectedLinkUrl/";
         var secondExpectedLinkText = "second";
         var secondExpectedLinkUrl = $"http://secondExpectedLinkText/";
-        var tab = await Tab.CreateAsync($"<a href=\"{firstExpectedLinkUrl}\">{firstExpectedLinkText}</a><a href=\"{secondExpectedLinkUrl}\">{secondExpectedLinkText}</a>");
+        var tab = await TestTab.CreateAsync($"<a href=\"{firstExpectedLinkUrl}\">{firstExpectedLinkText}</a><a href=\"{secondExpectedLinkUrl}\">{secondExpectedLinkText}</a>");
 
         // Act
         var links = tab.FindAll<Link>();

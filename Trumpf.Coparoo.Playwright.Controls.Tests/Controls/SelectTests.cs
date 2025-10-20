@@ -29,7 +29,7 @@ public class SelectTests
     public async Task WhenASelectHas3Options_ThenTheOptionEnumerationHas3Items()
     {
         // Prepare
-        var tab = await Tab.CreateAsync(HtmlContents);
+        var tab = await TestTab.CreateAsync(HtmlContents);
         var select = tab.Find<Select>();
         var options = await select.Options().ToArrayAsync();
 
@@ -57,7 +57,7 @@ public class SelectTests
     public async Task WhenTheSecondOptionIsSelected_ThenTheSecondElementReturnIsSelectedTrue()
     {
         // Prepare
-        var tab = await Tab.CreateAsync(HtmlContents);
+        var tab = await TestTab.CreateAsync(HtmlContents);
         var select = tab.Find<Select>();
 
         // Act

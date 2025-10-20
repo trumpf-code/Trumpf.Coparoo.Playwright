@@ -21,11 +21,11 @@ namespace Trumpf.Coparoo.Tests;
 /// <summary>
 /// The tab object.
 /// </summary>
-public class Tab : TabObject
+public class TestTab : TabObject
 {
-    public static async Task<Tab> CreateAsync(string html)
+    public static async Task<TestTab> CreateAsync(string html)
     {
-        var result = new Tab();
+        var result = new TestTab();
         var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
         var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
         var context = await browser.NewContextAsync();
