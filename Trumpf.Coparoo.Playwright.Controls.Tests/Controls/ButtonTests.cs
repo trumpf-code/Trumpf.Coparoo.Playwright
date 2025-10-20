@@ -34,7 +34,7 @@ public class ButtonTests
 
         // Act
         var exists = await checkbox.Exists();
-        var isVisible = await checkbox.Visible();
+        var isVisible = await (await checkbox.Locator).IsVisibleAsync();
 
         // Check
         exists.Should().BeFalse();

@@ -14,18 +14,9 @@ public static class IUIObjectExtensions
     /// A boolean indicating whether the source exists (true if count is greater than zero, false otherwise).
     /// </returns>
     public static async Task<bool> Exists(this IUIObject source)
-        => (await (await source.Locator).CountAsync()) > 0;
-
-    /// <summary>
-    /// Asynchronously checks if the UI element is visible.
-    /// </summary>
-    /// <param name="source">The UI element to check for visibility.</param>
-    /// <returns>A task that resolves to <c>true</c> if the element is visible; otherwise, <c>false</c>.</returns>
-    public static async Task<bool> Visible(this IUIObject source)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-
-        return await (await source.Locator).IsVisibleAsync();
+        var locator = await source.Locator;
+        return await locator.CountAsync() > 0;
     }
 
     /// <summary>
@@ -37,6 +28,7 @@ public static class IUIObjectExtensions
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
 
-        return await (await source.Locator).IsEnabledAsync();
+        var locator = await source.Locator;
+        return await locator.IsEnabledAsync();
     }
 }

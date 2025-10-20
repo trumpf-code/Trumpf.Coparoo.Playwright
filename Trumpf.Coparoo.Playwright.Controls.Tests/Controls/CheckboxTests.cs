@@ -38,7 +38,7 @@ public class CheckboxTests
 
         // Act
         bool exists = await checkbox.Exists();
-        bool isVisible = await checkbox.Visible();
+        bool isVisible = await (await checkbox.Locator).IsVisibleAsync();
         var actualName = await checkbox.Name;
         var actualValue = await checkbox.Value;
         var actualIsChecked = await checkbox.IsChecked;

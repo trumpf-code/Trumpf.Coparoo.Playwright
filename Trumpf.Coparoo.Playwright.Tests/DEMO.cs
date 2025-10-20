@@ -101,7 +101,7 @@ public class DEMO
         public Link Events => Find<Link>("myId");// some menu link
         public override async Task Goto()
         {
-            if (!await this.Visible())       // no actions if the page is already displayed
+            if (!await (await this.Locator).IsVisibleAsync())       // no actions if the page is already displayed
             {
                 await Goto<Header>().SignIn.Click();      // click the sign in button
                 await this.WaitForVisibleAsync();   // wait for the SignInForm to be displayed
