@@ -21,7 +21,7 @@ namespace Trumpf.Coparoo.Playwright;
 /// <summary>
 /// Control object base class.
 /// </summary>
-public abstract class ControlObject : UIObject, IControlObjectInternal
+public abstract class ControlObject : UIObject, IControlObject, IControlObjectInternal
 {
     /// <summary>
     /// Gets the node type of this UI object.
