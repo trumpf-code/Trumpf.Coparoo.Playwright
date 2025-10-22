@@ -57,6 +57,19 @@ Property `SearchPattern` specifies how to locate the control object node in the 
 Properties `Text` and `URL` return the link's display text and the destination, respectively.
 Both values are retrieved through the inherited `Node` property, which implements Playwright's `ILocator` interface used to control DOM elements.
 
+### How to inject a pre-configured page in tests?
+For testing scenarios, you may want to inject an existing Playwright page instance instead of using the `Creator()` method.
+This can be done using the fluent `WithPage()` extension method:
+
+    var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
+    var browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
+    var page = await browser.NewPageAsync();
+    
+    // Use the fluent API to inject the page
+    var tab = new MyTab().WithPage(page);
+
+This is particularly useful when you need to configure the page with specific settings or when sharing a browser context across multiple tests.
+
 ### How to find control objects?
 In order to find a matching element in the DOM tree, tab, control and page objects expose `Find` method.
 Equipped with an opened `tab` object, `tab.Find<Link>()` will, e.g., return a `Link` instance of *some* link in the DOM.

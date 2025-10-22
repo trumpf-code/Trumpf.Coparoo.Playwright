@@ -31,7 +31,7 @@ public class TestTab : TabObject
         var context = await browser.NewContextAsync();
         var page = await context.NewPageAsync();
         await page.SetContentAsync(WrapHtml(html));
-        result.SetPage(page);
+        result.WithPage(page);
         return result;
     }
 

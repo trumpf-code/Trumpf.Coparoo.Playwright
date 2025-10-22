@@ -20,13 +20,18 @@ namespace Trumpf.Coparoo.Playwright;
 public interface ITabObject : IPageObject
 {
     /// <summary>
-    /// Gets the page.
+    /// Gets the page instance for this tab.
     /// </summary>
-    Task<IPage> Page();
+    Task<IPage> Page { get; }
 
     /// <summary>
-    /// Sets the page.
+    /// Sets the page instance (primarily for testing scenarios).
     /// </summary>
+    /// <param name="page">The IPage instance that represents the browser page to interact with.</param>
+    /// <remarks>
+    /// This method is typically used in test setups where you want to inject
+    /// a pre-configured page instance instead of using the Creator() method.
+    /// </remarks>
     void SetPage(IPage page);
 
     /// <summary>

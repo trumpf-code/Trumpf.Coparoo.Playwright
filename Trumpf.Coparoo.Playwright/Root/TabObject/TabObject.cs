@@ -62,15 +62,18 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     protected override By SearchPattern => throw new NotImplementedException();
 
     /// <summary>
-    /// Gets or sets the (static) TestExecute driver.
+    /// Gets the page instance for this tab.
     /// </summary>
-    public Task<IPage> Page()
-            => ((TabObjectNode)Node).Page();
+    public Task<IPage> Page => ((TabObjectNode)Node).Page();
 
     /// <summary>
-    /// Sets the page.
+    /// Sets the page instance (primarily for testing scenarios).
     /// </summary>
     /// <param name="page">The IPage instance that represents the browser page to interact with.</param>
+    /// <remarks>
+    /// This method is typically used in test setups where you want to inject
+    /// a pre-configured page instance instead of using the Creator() method.
+    /// </remarks>
     public void SetPage(IPage page)
     {
         ((TabObjectNode)Node).SetPage(page);

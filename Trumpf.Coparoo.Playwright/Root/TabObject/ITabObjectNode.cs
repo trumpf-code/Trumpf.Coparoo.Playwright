@@ -35,7 +35,7 @@ internal interface ITabObjectNode : IUIObjectNode
     Statistics Statistics { get; }
 
     /// <summary>
-    /// Gets the page.
+    /// Gets the page instance.
     /// </summary>
     Task<IPage> Page();
 
