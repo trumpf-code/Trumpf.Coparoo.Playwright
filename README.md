@@ -6,7 +6,7 @@
 
 The following sign-in/out test scenario illustrates how the framework facilitates writing user interface tests in "natural" way:
     
-    var app = new GitHubWebDriver();                    // create the test driver
+    var app = new GitHubTab();                          // create the tab object
     app.Open();                                         // open the github page in a new browser tab
     app.On<Header>().SignIn.Click();                    // click the sign-in button
     app.On<SignInForm>().SignIn("myUser", "abc");       // enter the user credentials ...
