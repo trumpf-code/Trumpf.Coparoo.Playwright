@@ -28,7 +28,7 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     /// Gets the node representing this tree node in the UI, or null if not found
     /// It's the same as the root process.
     /// </summary>
-    public async override Task<ILocator> Root()
+    public async override Task<ILocator> Locator()
     {
         var x = await Page();
         var result = x.Locator("html");
