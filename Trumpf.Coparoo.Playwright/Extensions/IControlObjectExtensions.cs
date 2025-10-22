@@ -26,7 +26,7 @@ public static class IControlObjectExtensions
     /// Click the control.
     /// </summary>
     /// <param name="source">The control object to click.</param>
-    public static async Task Click(this IControlObject source)
+    public static async Task ClickAsync(this IControlObject source)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
 

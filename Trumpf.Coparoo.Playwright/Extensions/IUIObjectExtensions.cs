@@ -29,7 +29,7 @@ public static class IUIObjectExtensions
     /// <returns>
     /// A boolean indicating whether the source exists (true if count is greater than zero, false otherwise).
     /// </returns>
-    public static async Task<bool> Exists(this IUIObject source)
+    public static async Task<bool> ExistsAsync(this IUIObject source)
     {
         var locator = await source.Locator;
         return await locator.CountAsync() > 0;
