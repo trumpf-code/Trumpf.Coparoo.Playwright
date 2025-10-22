@@ -64,16 +64,16 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     /// <summary>
     /// Gets or sets the (static) TestExecute driver.
     /// </summary>
-    public Task<IPage> Driver()
-            => ((TabObjectNode)Node).Driver();
+    public Task<IPage> Page()
+            => ((TabObjectNode)Node).Page();
 
     /// <summary>
-    /// Sets the driver (IPage) for interacting with the browser.
+    /// Sets the page.
     /// </summary>
-    /// <param name="driver">The IPage instance that represents the browser page to interact with.</param>
-    public void SetDriver(IPage driver)
+    /// <param name="page">The IPage instance that represents the browser page to interact with.</param>
+    public void SetPage(IPage page)
     {
-        ((TabObjectNode)Node).SetDriver(driver);
+        ((TabObjectNode)Node).SetPage(page);
     }
 
     /// <summary>
@@ -167,7 +167,7 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     public TTab Cast<TTab>() where TTab : ITabObject
     {
         TTab result = Resolve<TTab>();
-        result.SetDriver(((TabObjectNode)Node).driver);
+        result.SetPage(((TabObjectNode)Node).page);
         return result;
     }
 
@@ -213,14 +213,5 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     {
         await (await Locator).Page.CloseAsync();
         opened = false;
-    }
-
-    /// <summary>
-    /// Gets or sets the URL of the tab.
-    /// </summary>
-    public async void CurrentURL(string value)
-    {
-        var d = await Driver();
-        await d.GotoAsync(value);
     }
 }

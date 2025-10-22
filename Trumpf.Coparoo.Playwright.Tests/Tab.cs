@@ -30,7 +30,7 @@ public class Tab : TabObject
     {
         var tab = new Tab();
         await tab.Open();
-        var page = await tab.Driver();
+        var page = await tab.Page();
         await page.SetContentAsync(htmlContent);
         await tab.WaitForVisibleAsync();
         return tab;

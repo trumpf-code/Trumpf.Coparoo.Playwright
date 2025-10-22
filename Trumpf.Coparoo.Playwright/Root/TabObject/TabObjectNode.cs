@@ -22,7 +22,7 @@ namespace Trumpf.Coparoo.Playwright;
 /// </summary>
 internal class TabObjectNode : UIObjectNode, ITabObjectNode
 {
-    internal IPage driver;
+    internal IPage page;
 
     /// <summary>
     /// Gets the node representing this tree node in the UI, or null if not found
@@ -30,16 +30,10 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     /// </summary>
     public async override Task<ILocator> Root()
     {
-        var x = await Driver();
+        var x = await Page();
         var result = x.Locator("html");
         return result;
     }
-
-    /// <summary>
-    /// Gets the root node.
-    /// </summary>
-    protected override Task<ILocator> Parent 
-        => throw new InvalidOperationException("A root has no parent");
 
     /// <summary>
     /// Gets the search patter used to locate the node starting from the root.
@@ -71,16 +65,16 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     public Statistics Statistics { get; } = new Statistics();
 
     /// <summary>
-    /// Gets or sets the driver.
+    /// Gets or sets the page.
     /// </summary>
-    public async Task<IPage> Driver()
+    public async Task<IPage> Page()
     {
-        return driver ??= await Creator();
+        return page ??= await Creator();
     }
 
-    public void SetDriver(IPage driver)
+    public void SetPage(IPage page)
     {
-        this.driver = driver;
+        this.page = page;
     }
 
     /// <summary>
@@ -88,11 +82,11 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     /// </summary>
     /// <param name="url">The url to open.</param>
     public async Task Open(string url) 
-        => await (await Driver()).GotoAsync(url);
+        => await (await Page()).GotoAsync(url);
     
     /// <summary>
     /// Quit the browser.
     /// </summary>
     public async Task Quit() 
-        => await (await Driver()).Context.Browser.CloseAsync();
+        => await (await Page()).Context.Browser.CloseAsync();
 }

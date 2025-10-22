@@ -35,12 +35,12 @@ internal interface ITabObjectNode : IUIObjectNode
     Statistics Statistics { get; }
 
     /// <summary>
-    /// Gets or sets the driver.
+    /// Gets the page.
     /// </summary>
-    Task<IPage> Driver();
+    Task<IPage> Page();
 
     /// <summary>
-    /// Gets or sets the Creator().
+    /// Gets the page creator.
     /// </summary>
     Task<IPage> Creator();
 

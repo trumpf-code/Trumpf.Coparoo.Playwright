@@ -20,14 +20,14 @@ namespace Trumpf.Coparoo.Playwright;
 public interface ITabObject : IPageObject
 {
     /// <summary>
-    /// Gets the driver.
+    /// Gets the page.
     /// </summary>
-    Task<IPage> Driver();
+    Task<IPage> Page();
 
     /// <summary>
-    /// Sets the driver.
+    /// Sets the page.
     /// </summary>
-    void SetDriver(IPage driver);
+    void SetPage(IPage page);
 
     /// <summary>
     /// Gets the configuration.
