@@ -30,7 +30,7 @@ In the first step, we create the root (or "tab") object `MyTab` wrapping the web
         protected override string Url => "http://google.de";
     }
 
-The `Creator()` and `Url` properties define the *Playwright driver* that will drive the test and the address to open when the inherited `Open()` method is called.
+The `Creator()` and `Url` properties define the *Playwright page* that will drive the test and the address to open when the inherited `Open()` method is called.
 
 Equipped with this class, we are ready to automate the first and last step of the above goal:
 
@@ -152,7 +152,7 @@ To this end, *page objects* come with a virtual `Goto`-method that can be enrich
 
 We can, e.g., simplify the following somewhat longish *login/logout-test*
 
-    var app = new GitHubWebDriver();                    // create the test driver
+    var app = new GitHubTab();                          // create the tab object
     app.Open();                                         // open the github page in new browser tab
     app.On<Header>().SignIn.Click();                    // click the sign-in button
     app.On<SignInForm>().SignIn("myUser", "abc");       // enter the user credentials ...
@@ -161,7 +161,7 @@ We can, e.g., simplify the following somewhat longish *login/logout-test*
 
 to
 
-    var app = new GitHubWebDriver();                    // create the test driver
+    var app = new GitHubTab();                          // create the tab object
     app.Goto<SignInForm>().SignIn("myUser", "abc");     // enter the user credentials ...
     app.SignOut();                                      // sign out
 

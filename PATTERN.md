@@ -56,7 +56,7 @@ Summed up, using Controls Objects in your code can dramatically improve readabil
 Root Objects are *classes* that wrap the root node of the DOM, hence essentially a *browser tab* that display the web page under test. 
 In contrast to Page and Controls Objects they have no parent in the DOM, nor can they be navigated to, or clicked.
 Instead, a Root Object has things like 
-- a driver from which every search for a page or control objects initially starts, 
+- a page instance from which every search for page or control objects initially starts, 
 - a class to configure settings fitting all page and control objects, and
 - an address that can be opened in a browser via calls to the `Open()` and `Close()` methods.
 
@@ -77,7 +77,7 @@ Automating a web page with Playwright-like tools thus boils down to
 1. *finding* nodes of pages and controls the test interacts with, and 
 1. *invoking* certain operations on these nodes, like clicking it or retrieving its text.
 
-As an example, `WebElement user = driver.findElement(By.id("User"));` will start from the browser tab node `driver` and search for the first occurrence of a node with `id` set to `User`. 
+As an example, `ILocator user = page.Locator("[id='User']");` will start from the browser page and search for the first occurrence of a node with `id` set to `User`. 
 
 ### Why not searching in the most obvious way?
 One way to search for nodes is to specify the entire search path from the browser tab node and just start searching from that node over and over again.
@@ -103,7 +103,7 @@ Exploiting this simplicity enables us to write *maintainable* user interface tes
 Besides ensuring maintainability, taking advantage of the DOM structure can significantly *speed-up test runs*.
 This can be achieved by exploiting the following simple idea: If page `A`'s DOM node `a` is already located, and page `B` is known to be under `a`, then we can start the search of `B`'s DOM node `b` in `a` rather than at the root.
 
-The following example illustrates, why this can significantly speed-up searches in practice, and hence test runs: When we search DOM node `b` from the root `driver` using a breadth first search via `driver.findElement(By.id("b"))`, 11 nodes need to be traversed in total while `a.findElement(By.id("b"))` will traverse just one, namely `b`.
+The following example illustrates, why this can significantly speed-up searches in practice, and hence test runs: When we search DOM node `b` from the root `page` using a breadth first search via `page.Locator("[id='b']")`, 11 nodes need to be traversed in total while `a.Locator("[id='b']")` will traverse just one, namely `b`.
 
 ![fastSearch]
 

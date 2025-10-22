@@ -41,7 +41,7 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     public override By SearchPattern => throw new NotImplementedException();
 
     /// <summary>
-    /// Gets the driver generator.
+    /// Gets the page creator.
     /// </summary>
     private Task<IPage> creator;
     public void SetCreator(Task<IPage> c)

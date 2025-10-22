@@ -106,7 +106,7 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     protected virtual string Url { get; } = null;
 
     /// <summary>
-    /// Gets the driver Creator().
+    /// Gets the page creator function.
     /// </summary>
     protected virtual Task<IPage> Creator()
         => null;
