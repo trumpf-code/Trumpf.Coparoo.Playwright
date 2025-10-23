@@ -84,7 +84,7 @@ public abstract class UIObject : IUIObjectInternal
     /// <summary>
     /// Gets the locator for this UI object.
     /// </summary>
-    public Task<ILocator> Locator =>
+    public ILocator Locator =>
         Node.Locator();
 
     /// <summary>
@@ -199,7 +199,7 @@ public abstract class UIObject : IUIObjectInternal
             TControl result = Find<TControl>(pattern);
             (result as IUIObjectInternal).Index = next++;
 
-            var count = await (await result.Locator).CountAsync();
+            var count = await result.Locator.CountAsync();
             if (count == 0)
                 break;
 

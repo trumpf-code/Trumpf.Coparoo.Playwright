@@ -32,7 +32,7 @@ public class Checkbox : ControlObject, ICheckbox
         => GetValueAsync();
 
     private async Task<string> GetValueAsync()
-        => await (await Locator).GetAttributeAsync("value");
+        => await Locator.GetAttributeAsync("value");
 
     /// <summary>
     /// Gets the name.
@@ -41,7 +41,7 @@ public class Checkbox : ControlObject, ICheckbox
         => GetNameAsync();
 
     private async Task<string> GetNameAsync()
-        => await (await Locator).GetAttributeAsync("name");
+        => await Locator.GetAttributeAsync("name");
 
     /// <summary>
     /// Gets or sets a value indicating whether the checkbox is checked.
@@ -50,7 +50,7 @@ public class Checkbox : ControlObject, ICheckbox
         => GetIsCheckedAsync();
 
     private async Task<bool> GetIsCheckedAsync()
-        => await (await Locator).IsCheckedAsync();
+        => await Locator.IsCheckedAsync();
 
     /// <summary>
     /// Ensures that the element is checked. 
@@ -60,7 +60,7 @@ public class Checkbox : ControlObject, ICheckbox
     public async Task Check()
     {
         if (!await IsChecked)
-            await (await Locator).CheckAsync();
+            await Locator.CheckAsync();
     }
 
     /// <summary>
@@ -71,6 +71,6 @@ public class Checkbox : ControlObject, ICheckbox
     public async Task Uncheck()
     {
         if (await IsChecked)
-            await (await Locator).UncheckAsync();
+            await Locator.UncheckAsync();
     }
 }

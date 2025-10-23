@@ -31,7 +31,7 @@ public interface IUIObject
     /// <summary>
     /// Gets the locator for this UI object.
     /// </summary>
-    Task<ILocator> Locator { get; }
+    ILocator Locator { get; }
 
     /// <summary>
     /// Get the specific page object.

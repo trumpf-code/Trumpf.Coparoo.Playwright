@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using Trumpf.Coparoo.Playwright.Exceptions;
 using Trumpf.Coparoo.Playwright.Internal;
 
 namespace Trumpf.Coparoo.Playwright;
@@ -28,9 +29,14 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     /// Gets the node representing this tree node in the UI, or null if not found
     /// It's the same as the root process.
     /// </summary>
-    public async override Task<ILocator> Locator()
+    public override ILocator Locator()
     {
-        var x = await Page();
+        if (page == null)
+        {
+            throw new TabObjectNotInitializedException("The TabObject has not been initialized with a page. Make sure to set the creator and initialize the TabObject before accessing the Locator.");
+        }
+
+        var x = page;
         var result = x.Locator("html");
         return result;
     }

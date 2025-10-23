@@ -50,14 +50,14 @@ internal class UIObjectNode : IUIObjectNode, IUIObjectNodeInternal
     /// <summary>
     /// Gets the root node.
     /// </summary>
-    protected virtual Task<ILocator> Parent
+    protected virtual ILocator Parent
         => (mParent as IUIObjectNodeInternal).Locator();
 
     /// <summary>
     /// Gets the node representing this tree node in the UI.
     /// </summary>
-    public async virtual Task<ILocator> Locator()
-        => (await Parent).Locator(SearchPattern.ToLocator()).Nth(Index);
+    public virtual ILocator Locator()
+        => Parent.Locator(SearchPattern.ToLocator()).Nth(Index);
 
     /// <summary>
     /// Initialize this object.

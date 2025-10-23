@@ -30,6 +30,7 @@ public static class IControlObjectExtensions
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
 
-        await (await source.Locator).ClickAsync();
+        await source.Locator.ScrollIntoViewIfNeededAsync();
+        await source.Locator.ClickAsync();
     }
 }

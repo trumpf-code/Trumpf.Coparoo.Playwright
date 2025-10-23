@@ -31,7 +31,7 @@ public static class IUIObjectExtensions
     /// </returns>
     public static async Task<bool> ExistsAsync(this IUIObject source)
     {
-        var locator = await source.Locator;
+        var locator = source.Locator;
         return await locator.CountAsync() > 0;
     }
 }
