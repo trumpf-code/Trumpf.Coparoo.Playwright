@@ -304,9 +304,9 @@ No need to modify any existing page objects!
 
 ## 📖 Additional Resources
 
-- [Main Coparoo.Playwright Documentation](../../README.md)
-- [Pattern Overview](../../PATTERN.md)
-- [Decoupling Concepts](../../DECOUPLING.md)
+- [Main Coparoo.Playwright Documentation](../README.md)
+- [Pattern Overview](../PATTERN.md)
+- [Decoupling Concepts](../DECOUPLING.md)
 
 ## 📄 License
 
