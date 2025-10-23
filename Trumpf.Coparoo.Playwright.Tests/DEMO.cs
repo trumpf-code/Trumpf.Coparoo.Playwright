@@ -55,13 +55,13 @@ public class DEMO
             => GetTextAsync();
         
         private async Task<string> GetTextAsync()
-            => await (await Locator).TextContentAsync();
+            => await Locator.TextContentAsync();
         
         public Task<string> URL 
             => GetURLAsync();
         
         private async Task<string> GetURLAsync()
-            => await (await Locator).GetAttributeAsync("href");
+            => await Locator.GetAttributeAsync("href");
     }
 
     //[TestMethod]
@@ -102,7 +102,7 @@ public class DEMO
         public Link Events => Find<Link>("myId");// some menu link
         public override async Task Goto()
         {
-            if (!await (await this.Locator).IsVisibleAsync())       // no actions if the page is already displayed
+            if (!await this.Locator.IsVisibleAsync())       // no actions if the page is already displayed
             {
                 await Goto<Header>().SignIn.ClickAsync();      // click the sign in button
                 await this.WaitForVisibleAsync();   // wait for the SignInForm to be displayed

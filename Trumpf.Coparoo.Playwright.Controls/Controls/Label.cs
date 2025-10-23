@@ -33,5 +33,5 @@ public class Label : ControlObject, ILabel
         => GetTextAsync();
 
     private async Task<string> GetTextAsync()
-        => await (await Locator).TextContentAsync();
+        => await Locator.TextContentAsync();
 }

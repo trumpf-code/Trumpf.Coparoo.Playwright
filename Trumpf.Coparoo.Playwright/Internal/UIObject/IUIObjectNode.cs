@@ -27,7 +27,7 @@ public interface IUIObjectNode
     /// Gets the root locator for this UI object node.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation. The task result contains the root locator.</returns>
-    Task<ILocator> Locator();
+    ILocator Locator();
 
     /// <summary>
     /// Initializes the control object with the specified search pattern.

@@ -31,7 +31,7 @@ public class Link : ControlObject, ILink
         => GetTextAsync();
 
     private async Task<string> GetTextAsync()
-        => await (await Locator).TextContentAsync();
+        => await Locator.TextContentAsync();
 
     /// <summary>
     /// Gets the link URL.
@@ -40,5 +40,5 @@ public class Link : ControlObject, ILink
         => GetURLAsync();
 
     private async Task<string> GetURLAsync()
-        => await (await Locator).GetAttributeAsync("href");
+        => await Locator.GetAttributeAsync("href");
 }

@@ -214,7 +214,7 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     /// </summary>
     public async Task Close()
     {
-        await (await Locator).Page.CloseAsync();
+        await Locator.Page.CloseAsync();
         opened = false;
     }
 }

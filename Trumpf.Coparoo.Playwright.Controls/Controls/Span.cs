@@ -30,5 +30,5 @@ public class Span : ControlObject, ISpan
     /// Gets the text.
     /// </summary>
     public async Task<string> Text()
-        => await (await Locator).InnerTextAsync();
+        => await Locator.InnerTextAsync();
 }

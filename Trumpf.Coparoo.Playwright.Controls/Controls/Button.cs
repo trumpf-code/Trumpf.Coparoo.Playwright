@@ -28,11 +28,11 @@ public class Button : ControlObject, IButton
     /// Gets the button text.
     /// </summary>
     public async Task<string> Text()
-        => await (await Locator).TextContentAsync();
+        => await Locator.TextContentAsync();
 
     /// <summary>
     /// Sends the return key.
     /// </summary>
     public async Task SendReturn()
-        => await (await Locator).Page.Keyboard.PressAsync("Enter");
+        => await Locator.Page.Keyboard.PressAsync("Enter");
 }
