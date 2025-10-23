@@ -86,7 +86,7 @@ public class DEMO
         MyTab myTab = new MyTab();              // create the root page object
         await myTab.Open();                     // open a new tab browser with the address 
         await myTab.On<Menu>().WaitForVisibleAsync();   // wait until the menu is displayed
-        await myTab.On<Menu>().Events.Click();        // on the menu click the events link
+        await myTab.On<Menu>().Events.ClickAsync();        // on the menu click the events link
         await myTab.Close();                    // kill the browser
     }
 
@@ -104,7 +104,7 @@ public class DEMO
         {
             if (!await (await this.Locator).IsVisibleAsync())       // no actions if the page is already displayed
             {
-                await Goto<Header>().SignIn.Click();      // click the sign in button
+                await Goto<Header>().SignIn.ClickAsync();      // click the sign in button
                 await this.WaitForVisibleAsync();   // wait for the SignInForm to be displayed
             }
         }

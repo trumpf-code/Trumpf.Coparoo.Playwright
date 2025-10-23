@@ -85,7 +85,7 @@ public abstract class UIObject : IUIObjectInternal
     /// Gets the locator for this UI object.
     /// </summary>
     public Task<ILocator> Locator =>
-        Node.Root();
+        Node.Locator();
 
     /// <summary>
     /// Gets the typed root node of the page object.

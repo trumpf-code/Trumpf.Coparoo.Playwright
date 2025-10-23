@@ -35,7 +35,7 @@ public class ButtonTests
         var checkbox = tab.Find<Button>("non-existing locator");
 
         // Act
-        var exists = await checkbox.Exists();
+        var exists = await checkbox.ExistsAsync();
         var isVisible = await (await checkbox.Locator).IsVisibleAsync();
 
         // Check

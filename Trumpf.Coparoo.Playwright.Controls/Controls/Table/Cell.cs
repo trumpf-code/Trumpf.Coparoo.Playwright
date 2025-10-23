@@ -40,8 +40,8 @@ public class Cell : ControlObject, ICell
     public Task<bool> IsHeaderCell()
     {
         throw new NotImplementedException();
-        // => Node.Root.GetAttributeAsync().TagName.Equals("th");
-        //string tagName = (await Node.Root.EvaluateAsync<string>("node => node.tagName")).ToLower();
+        // => Node.Locator.GetAttributeAsync().TagName.Equals("th");
+        //string tagName = (await Node.Locator.EvaluateAsync<string>("node => node.tagName")).ToLower();
         //return tagName == "th";
     }
 
@@ -51,8 +51,8 @@ public class Cell : ControlObject, ICell
     public Task<bool> IsDataCell()
     {
         throw new NotImplementedException();
-        //string tagName = (await Node.Root.EvaluateAsync<string>("node => node.tagName")).ToLower();
+        //string tagName = (await Node.Locator.EvaluateAsync<string>("node => node.tagName")).ToLower();
         //return tagName == "th";
-        //=> Node.Root.TagName.Equals("td");
+        //=> Node.Locator.TagName.Equals("td");
     }
 }
