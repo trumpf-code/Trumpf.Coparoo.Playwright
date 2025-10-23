@@ -257,7 +257,7 @@
         function handleAction(action) {
             const statusDiv = document.getElementById('preferences-status');
             const timestamp = new Date().toLocaleTimeString();
-            
+
             switch(action) {
                 case 'save':
                     statusDiv.innerHTML = '<div class=status-item>✓ Preferences saved at ' + timestamp + '</div>';
@@ -276,7 +276,7 @@
                 const statusDiv = document.getElementById('settings-status');
                 const enabledSettings = Array.from(document.querySelectorAll('#page1 input[type=checkbox]:checked'))
                     .map(cb => cb.name);
-                
+
                 if (enabledSettings.length > 0) {
                     statusDiv.innerHTML = '<div class=status-item>✓ Active: ' + enabledSettings.join(', ') + '</div>';
                 } else {
