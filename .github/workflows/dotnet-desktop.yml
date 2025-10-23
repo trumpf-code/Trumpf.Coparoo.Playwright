@@ -21,6 +21,8 @@ jobs:
       Test_Project_Path: Trumpf.Coparoo.Playwright.Tests\Trumpf.Coparoo.Playwright.Tests.csproj
       Controls_Test_Project_Folder: Trumpf.Coparoo.Playwright.Controls.Tests
       Controls_Test_Project_Path: Trumpf.Coparoo.Playwright.Controls.Tests\Trumpf.Coparoo.Playwright.Controls.Tests.csproj
+      Demo_Project_Folder: Trumpf.Coparoo.Playwright.Demo
+      Demo_Project_Path: Trumpf.Coparoo.Playwright.Demo\Trumpf.Coparoo.Playwright.Demo.csproj
       Package_Output_Dir: ${{ github.workspace }}\artifacts
       Test_Results_Dir: ${{ github.workspace }}\test-results
 
@@ -62,6 +64,16 @@ jobs:
       run: |
         pwsh ${{ env.Controls_Test_Project_Folder }}/bin/Debug/net8.0/playwright.ps1 install
         dotnet test ${{ env.Controls_Test_Project_Path }} --configuration ${{ matrix.configuration }} --verbosity normal --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_controls_${{ matrix.configuration }}.trx"
+        echo "Listing files in test results directory:"
+        dir ${{ env.Test_Results_Dir }}
+
+    # Execute demo tests (excluding visual/headed tests using TestCategory filter)
+    - name: Execute Demo Tests (Headless Only)
+      if: matrix.configuration == 'Debug'
+      continue-on-error: false
+      run: |
+        pwsh ${{ env.Demo_Project_Folder }}/bin/Debug/net8.0/playwright.ps1 install
+        dotnet test ${{ env.Demo_Project_Path }} --configuration ${{ matrix.configuration }} --filter "TestCategory!=VisualTest" --verbosity normal --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_demo_${{ matrix.configuration }}.trx"
         echo "Listing files in test results directory:"
         dir ${{ env.Test_Results_Dir }}
 
