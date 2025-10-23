@@ -21,6 +21,7 @@ public class By
         TagName,
         Name,
         ClassName,
+        TestId,
         Free
     }
 
@@ -87,6 +88,16 @@ public class By
     }
 
     /// <summary>
+    /// Creates a <see cref="By"/> object that locates an element by its data-testid attribute.
+    /// </summary>
+    /// <param name="testId">The test ID attribute value used to find the element.</param>
+    /// <returns>A <see cref="By"/> object that can be used to locate the element based on the provided test ID.</returns>
+    public static By TestId(string testId)
+    {
+        return new By(testId, SelectorType.TestId);
+    }
+
+    /// <summary>
     /// Converts the current object to a locator string that can be used to find the element.
     /// </summary>
     /// <returns>A string representation of the locator, suitable for locating the element.</returns>
@@ -106,6 +117,8 @@ public class By
                 return _selector;
             case SelectorType.ClassName:
                 return _selector;
+            case SelectorType.TestId:
+                return $"[data-testid=\"{_selector}\"]";
             case SelectorType.Free:
                 return _selector;
             default:

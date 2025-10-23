@@ -1,5 +1,4 @@
-﻿
-// Copyright 2016 - 2025 TRUMPF Werkzeugmaschinen GmbH + Co. KG.
+﻿// Copyright 2016 - 2025 TRUMPF Werkzeugmaschinen GmbH + Co. KG.
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +15,7 @@
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
+using Trumpf.Coparoo.Playwright;
 using Trumpf.Coparoo.Playwright.Controls;
 using Trumpf.Coparoo.Playwright.Extensions;
 
@@ -65,8 +65,38 @@ public class ButtonTests
         actualButtonText.Should().Be(expectedButtonText);
     }
 
+    /// <summary>
+    /// Test method for By.TestId().
+    /// </summary>
+    [TestMethod]
+    public async Task WhenAButtonIsFoundByTestId_ThenItCanBeFoundAndThePropertiesFit()
+    {
+        // Prepare
+        var expectedTestId = "submit-button";
+        var expectedButtonText = "Submit Form";
+        var tab = await TestTab.CreateAsync(HtmlContentsWithTestId(expectedTestId, expectedButtonText));
+        
+        // Act
+        var button = tab.Find<Button>(By.TestId(expectedTestId));
+        var actualButtonText = await button.Text();
+        var isVisible = await (await button.Locator).IsVisibleAsync();
+
+        // Log
+        Trace.WriteLine($"testId: {expectedTestId}");
+        Trace.WriteLine($"buttonText: {actualButtonText}");
+
+        // Check
+        actualButtonText.Should().Be(expectedButtonText);
+        isVisible.Should().BeTrue();
+    }
+
     private static string HtmlContents(string expectedButtonText)
     {
         return $"<button type=\"button\">{expectedButtonText}</button>";
+    }
+
+    private static string HtmlContentsWithTestId(string testId, string buttonText)
+    {
+        return $"<button type=\"button\" data-testid=\"{testId}\">{buttonText}</button>";
     }
 }
