@@ -1,11 +1,11 @@
 // Copyright 2016 - 2025 TRUMPF Werkzeugmaschinen GmbH + Co. KG.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,16 +20,16 @@ using Trumpf.Coparoo.Playwright.Extensions;
 
 /// <summary>
 /// Page object for the Settings configuration page.
-/// 
+///
 /// IMPORTANT: This page object is intentionally NOT declared as IChildOf&lt;ApplicationShell&gt;.
 /// Instead, the parent-child relationship is registered dynamically in the TabObject constructor.
-/// 
+///
 /// This design pattern demonstrates a realistic scenario where:
 /// - This page object could be maintained by a separate team (Team Settings)
 /// - The team doesn't need to know about or depend on the ApplicationShell implementation
 /// - The page can be developed, tested, and distributed as an independent module
 /// - Integration happens through convention-based registration at runtime
-/// 
+///
 /// In practice, this enables:
 /// - Multiple teams working on different features independently
 /// - Pages distributed across different NuGet packages
@@ -64,7 +64,7 @@ public sealed class SettingsPage : PageObject, ISettingsPage
     /// <returns>True if the page is active, false otherwise.</returns>
     public async Task<bool> IsActiveAsync()
     {
-        var classAttribute = await (await Locator).GetAttributeAsync("class");
+        var classAttribute = await Locator.GetAttributeAsync("class");
         return classAttribute?.Contains("active") ?? false;
     }
 

@@ -1,16 +1,18 @@
 ﻿// Copyright 2016 - 2025 TRUMPF Werkzeugmaschinen GmbH + Co. KG.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+#nullable enable
 
 using System;
 using Trumpf.Coparoo.Playwright.Internal;
@@ -51,7 +53,7 @@ public static class IUIObjectExtensions
     /// guide</a> for more details.
     /// </para>
     /// </remarks>
-    /// <param name="options">Call options</param>
+    /// <param name="source">The UI object to check visibility for.</param>
     public static async Task<bool> IsVisibleAsync(this IUIObject source)
     {
         return await source.Locator.IsVisibleAsync();
@@ -59,9 +61,11 @@ public static class IUIObjectExtensions
 
     /// <summary>
     /// <para>Returns the matching element's attribute value.</para>
+    /// </summary>
+    /// <param name="source">The UI object to get the attribute from.</param>
     /// <param name="name">Attribute name to get the value for.</param>
     /// <param name="options">Call options</param>
-    public static async Task<string> GetAttributeAsync(this IUIObject source, string name, LocatorGetAttributeOptions? options = default)
+    public static async Task<string?> GetAttributeAsync(this IUIObject source, string name, LocatorGetAttributeOptions? options = default)
     {
         return await source.Locator.GetAttributeAsync(name, options);
     }
@@ -78,6 +82,7 @@ public static class IUIObjectExtensions
     /// to configure a different test id attribute if necessary.
     /// </para>
     /// </summary>
+    /// <param name="source">The UI object to search within.</param>
     /// <param name="testId">Id to locate the element by.</param>
     public static ILocator GetByTestId(this IUIObject source, string testId)
     {
@@ -121,6 +126,7 @@ public static class IUIObjectExtensions
     /// values.
     /// </para>
     /// </summary>
+    /// <param name="source">The UI object to search within.</param>
     /// <param name="role">Required aria role.</param>
     /// <param name="options">Call options</param>
     public static ILocator GetByRole(this IUIObject source, AriaRole role, LocatorGetByRoleOptions? options = default)

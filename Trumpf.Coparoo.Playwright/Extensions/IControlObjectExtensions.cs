@@ -1,16 +1,18 @@
 // Copyright 2016 - 2025 TRUMPF Werkzeugmaschinen GmbH + Co. KG.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+#nullable enable
 
 using System;
 using Trumpf.Coparoo.Playwright;
@@ -53,6 +55,7 @@ public static class IControlObjectExtensions
     /// </para>
     /// <para>To send fine-grained keyboard events, use <see cref="ILocator.PressSequentiallyAsync"/>.</para>
     /// </summary>
+    /// <param name="source">The control object to fill.</param>
     /// <param name="value">
     /// Value to set for the <c>&lt;input&gt;</c>, <c>&lt;textarea&gt;</c> or <c>[contenteditable]</c>
     /// element.
@@ -67,7 +70,7 @@ public static class IControlObjectExtensions
     /// Returns the <c>textContent</c> of the element, or <c>null</c> if the element is not found.
     /// See: https://playwright.dev/dotnet/docs/api/class-locator#locator-text-content
     /// </summary>
-    public static Task<string> TextContentAsync(this IControlObject source)
+    public static Task<string?> TextContentAsync(this IControlObject source)
     {
         return source.Locator.TextContentAsync();
     }

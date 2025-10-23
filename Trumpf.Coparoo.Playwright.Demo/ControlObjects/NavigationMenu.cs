@@ -42,7 +42,7 @@ public sealed class NavigationMenu : ControlObject, INavigationMenu
     public async Task NavigateToAsync<TPage>() where TPage : IPageObject
     {
         var pageName = typeof(TPage).Name.TrimStart('I'); // Remove 'I' prefix from interface names
-        var menuItemLocator = (await Locator).Locator($"[data-page='{pageName}']");
+        var menuItemLocator = Locator.Locator($"[data-page='{pageName}']");
         await menuItemLocator.ClickAsync();
     }
 }

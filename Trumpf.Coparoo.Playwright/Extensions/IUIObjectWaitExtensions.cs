@@ -73,7 +73,6 @@ public static class IUIObjectWaitExtensions
     /// <returns>A task that completes when the element reaches the desired state.</returns>
     private static async Task WaitForStateAsync(IUIObject source, WaitForSelectorState state, TimeSpan? timeout)
     {
-        var locator = await source.Locator;
         var options = new LocatorWaitForOptions { State = state };
 
         if (timeout.HasValue)
@@ -81,6 +80,6 @@ public static class IUIObjectWaitExtensions
             options.Timeout = (float)timeout.Value.TotalMilliseconds;
         }
 
-        await locator.WaitForAsync(options);
+        await source.Locator.WaitForAsync(options);
     }
 }
