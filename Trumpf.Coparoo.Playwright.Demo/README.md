@@ -2,13 +2,65 @@
 
 This demo project showcases the powerful capabilities of the **Trumpf.Coparoo.Playwright** framework through a practical example that demonstrates real-world patterns for building maintainable, modular web test automation.
 
-## � Demo in Action
+## 🎬 Demo in Action
 
 ![Coparoo Playwright Demo](demo.gif)
 
 *The demo above shows the framework in action: navigating between pages, interacting with checkboxes and buttons, all through modular, dynamically-composed page objects.*
 
-## �🎯 Key Concepts Demonstrated
+## 💡 Clean Test Code Example
+
+Here's what a typical test looks like with Coparoo.Playwright - notice the clean, readable code with **no delays, no waits, no brittle selectors**:
+
+```csharp
+[TestMethod]
+public async Task DemonstrateModularPageComposition_Headless()
+{
+    var tab = new DemoTabObject(headless: true);
+    try
+    {
+        await tab.Open();
+
+        // Get reference to Settings page - type-safe, no strings!
+        var settingsPage = tab.On<ISettingsPage>();
+
+        // Interact with checkboxes - clean, expressive API
+        await settingsPage.EnableNotifications.Check();
+        (await settingsPage.EnableNotifications.IsChecked).Should().BeTrue();
+
+        await settingsPage.EnableAutoSave.Check();
+        await settingsPage.EnableDarkMode.Check();
+        await settingsPage.EnableAutoSave.Uncheck();
+
+        // Navigate to another page - type-safe navigation
+        var preferencesPage = tab.Goto<IPreferencesPage>();
+        await preferencesPage.WaitForVisibleAsync();
+
+        // Click buttons - no selectors, no waiting logic
+        await preferencesPage.SavePreferences.ClickAsync();
+        await preferencesPage.ResetToDefaults.ClickAsync();
+        await preferencesPage.ExportSettings.ClickAsync();
+
+        // Navigate back - convention-based, clean
+        var settingsPageAgain = tab.Goto<ISettingsPage>();
+        await settingsPageAgain.WaitForVisibleAsync();
+        (await settingsPageAgain.IsActiveAsync()).Should().BeTrue();
+    }
+    finally
+    {
+        await tab.Close();
+    }
+}
+```
+
+**Key Benefits:**
+- ✅ **No CSS selectors** in test code - they're encapsulated in page objects
+- ✅ **No explicit waits** - built into the framework
+- ✅ **Type-safe navigation** - `Goto<ISettingsPage>()` instead of strings
+- ✅ **IntelliSense support** - discover available pages and controls as you type
+- ✅ **Readable and maintainable** - tests read like business requirements
+
+## � Key Concepts Demonstrated
 
 ### 1. Dynamic Page Object Composition
 
