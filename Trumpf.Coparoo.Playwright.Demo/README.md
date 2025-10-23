@@ -2,7 +2,13 @@
 
 This demo project showcases the powerful capabilities of the **Trumpf.Coparoo.Playwright** framework through a practical example that demonstrates real-world patterns for building maintainable, modular web test automation.
 
-## 🎯 Key Concepts Demonstrated
+## � Demo in Action
+
+![Coparoo Playwright Demo](demo.gif)
+
+*The demo above shows the framework in action: navigating between pages, interacting with checkboxes and buttons, all through modular, dynamically-composed page objects.*
+
+## �🎯 Key Concepts Demonstrated
 
 ### 1. Dynamic Page Object Composition
 
