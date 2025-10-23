@@ -17,11 +17,11 @@ namespace Trumpf.Coparoo.Playwright.Demo.ControlObjects.Interfaces;
 /// <summary>
 /// Interface for the navigation menu control that enables page switching.
 /// </summary>
-public interface INavigationMenu : IControlObject
+public interface IMenu : IControlObject
 {
     /// <summary>
     /// Navigates to a page by clicking the corresponding menu item.
-    /// Uses a naming convention where the page type name (e.g., "SettingsPage")
+    /// Uses a naming convention where the page type name (e.g., "Settings")
     /// matches the data-page attribute in the HTML menu item.
     /// </summary>
     /// <typeparam name="TPage">The page object type to navigate to.</typeparam>

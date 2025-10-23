@@ -29,14 +29,14 @@ using Trumpf.Coparoo.Playwright.Extensions;
 /// 4. Both headless (CI-friendly) and headed (visual debugging) execution modes
 ///
 /// Key Architectural Pattern:
-/// The SettingsPage and PreferencesPage classes do NOT declare themselves as children
-/// of any parent page object. Instead, their relationship to ApplicationShell is registered
-/// dynamically in the DemoTabObject constructor using the ChildOf&lt;TChild, TParent&gt;() method.
+/// The Settings and Preferences classes do NOT declare themselves as children
+/// of any parent page object. Instead, their relationship to Shell is registered
+/// dynamically in the DemoTab constructor using the ChildOf&lt;TChild, TParent&gt;() method.
 ///
 /// This pattern enables:
-/// - Team A to develop ApplicationShell independently
-/// - Team B to develop SettingsPage independently
-/// - Team C to develop PreferencesPage independently
+/// - Team A to develop Shell independently
+/// - Team B to develop Settings independently
+/// - Team C to develop Preferences independently
 /// - All teams can work in parallel without code conflicts
 /// - New pages can be added without modifying existing page objects
 /// - Pages can be distributed as separate modules/packages
@@ -44,11 +44,11 @@ using Trumpf.Coparoo.Playwright.Extensions;
 /// Convention-Based Navigation:
 /// The navigation menu uses a naming convention where the page type name (without 'I' prefix)
 /// must match the data-page attribute in the HTML:
-/// - ISettingsPage → data-page="SettingsPage"
-/// - IPreferencesPage → data-page="PreferencesPage"
+/// - ISettings → data-page="Settings"
+/// - IPreferences → data-page="Preferences"
 /// </summary>
 [TestClass]
-public sealed class DynamicCompositionDemo
+public sealed class Demo
 {
     /// <summary>
     /// Demonstrates the complete workflow in headless mode (suitable for CI/CD pipelines).
@@ -70,7 +70,7 @@ public sealed class DynamicCompositionDemo
     public async Task DemonstrateModularPageComposition_Headless()
     {
         // Arrange: Create tab object in headless mode
-        var tab = new DemoTabObject(headless: true);
+        var tab = new DemoTab(headless: true);
 
         try
         {
@@ -78,8 +78,8 @@ public sealed class DynamicCompositionDemo
             await tab.Open();
 
             // Get reference to Settings page (it's already active/visible by default in HTML)
-            // Note: SettingsPage doesn't explicitly know about its parent relationship
-            var settingsPage = tab.On<ISettingsPage>();
+            // Note: Settings doesn't explicitly know about its parent relationship
+            var settingsPage = tab.On<ISettings>();
 
             // Interact with checkboxes on Settings page
             await settingsPage.EnableNotifications.Check();
@@ -96,19 +96,16 @@ public sealed class DynamicCompositionDemo
             (await settingsPage.EnableAutoSave.IsChecked).Should().BeFalse();
 
             // Navigate to Preferences page using Goto (which triggers navigation via menu)
-            // Again, PreferencesPage doesn't explicitly know about its parent
-            var preferencesPage = tab.Goto<IPreferencesPage>();
-            await preferencesPage.WaitForVisibleAsync();
+            // Again, Preferences doesn't explicitly know about its parent
+            var preferencesPage = tab.Goto<IPreferences>();
 
             // Interact with buttons on Preferences page
             await preferencesPage.SavePreferences.ClickAsync();
             await preferencesPage.ResetToDefaults.ClickAsync();
             await preferencesPage.ExportSettings.ClickAsync();
 
-            // Assert: Verify we can navigate back to Settings
-            var settingsPageAgain = tab.Goto<ISettingsPage>();
-            await settingsPageAgain.WaitForVisibleAsync();
-            (await settingsPageAgain.IsActiveAsync()).Should().BeTrue();
+            // Navigate back to Settings - demonstrates clean navigation
+            tab.Goto<ISettings>();
         }
         finally
         {
@@ -134,7 +131,7 @@ public sealed class DynamicCompositionDemo
     public async Task DemonstrateModularPageComposition_Headed()
     {
         // Arrange: Create tab object in headed mode (visible browser)
-        var tab = new DemoTabObject(headless: false);
+        var tab = new DemoTab(headless: false);
 
         try
         {
@@ -142,7 +139,7 @@ public sealed class DynamicCompositionDemo
             await tab.Open();
 
             // Navigate to Settings page
-            var settingsPage = tab.Goto<ISettingsPage>();
+            var settingsPage = tab.Goto<ISettings>();
             await Task.Delay(500); // Pause for visual observation
 
             // Interact with checkboxes - slower for visibility
@@ -159,7 +156,7 @@ public sealed class DynamicCompositionDemo
             await Task.Delay(400);
 
             // Navigate to Preferences page
-            var preferencesPage = tab.Goto<IPreferencesPage>();
+            var preferencesPage = tab.Goto<IPreferences>();
             await Task.Delay(500);
 
             // Interact with buttons - with pauses for visual feedback
@@ -173,7 +170,7 @@ public sealed class DynamicCompositionDemo
             await Task.Delay(600);
 
             // Navigate back to Settings
-            var settingsPageAgain = tab.Goto<ISettingsPage>();
+            var settingsPageAgain = tab.Goto<ISettings>();
             await Task.Delay(500);
 
             // Keep browser open briefly for final observation

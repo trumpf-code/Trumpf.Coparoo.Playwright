@@ -14,41 +14,39 @@ Here's what a typical test looks like with Coparoo.Playwright - notice the clean
 
 ```csharp
 [TestMethod]
-public async Task DemonstrateModularPageComposition_Headless()
+public async Task NavigateBetweenPages()
 {
-    var tab = new DemoTabObject(headless: true);
+    // Arrange: Create browser instance
+    var browser = new DemoTab(headless: true);
     try
     {
-        await tab.Open();
+        await browser.Open();
 
         // Get reference to Settings page - type-safe, no strings!
-        var settingsPage = tab.On<ISettingsPage>();
+        var settings = browser.On<ISettings>();
 
         // Interact with checkboxes - clean, expressive API
-        await settingsPage.EnableNotifications.Check();
-        (await settingsPage.EnableNotifications.IsChecked).Should().BeTrue();
+        await settings.EnableNotifications.Check();
+        (await settings.EnableNotifications.IsChecked).Should().BeTrue();
 
-        await settingsPage.EnableAutoSave.Check();
-        await settingsPage.EnableDarkMode.Check();
-        await settingsPage.EnableAutoSave.Uncheck();
+        await settings.EnableAutoSave.Check();
+        await settings.EnableDarkMode.Check();
+        await settings.EnableAutoSave.Uncheck();
 
         // Navigate to another page - type-safe navigation
-        var preferencesPage = tab.Goto<IPreferencesPage>();
-        await preferencesPage.WaitForVisibleAsync();
+        var preferences = browser.Goto<IPreferences>();
 
         // Click buttons - no selectors, no waiting logic
-        await preferencesPage.SavePreferences.ClickAsync();
-        await preferencesPage.ResetToDefaults.ClickAsync();
-        await preferencesPage.ExportSettings.ClickAsync();
+        await preferences.SavePreferences.ClickAsync();
+        await preferences.ResetToDefaults.ClickAsync();
+        await preferences.ExportSettings.ClickAsync();
 
         // Navigate back - convention-based, clean
-        var settingsPageAgain = tab.Goto<ISettingsPage>();
-        await settingsPageAgain.WaitForVisibleAsync();
-        (await settingsPageAgain.IsActiveAsync()).Should().BeTrue();
+        browser.Goto<ISettings>();
     }
     finally
     {
-        await tab.Close();
+        await browser.Close();
     }
 }
 ```
@@ -56,54 +54,54 @@ public async Task DemonstrateModularPageComposition_Headless()
 **Key Benefits:**
 - ✅ **No CSS selectors** in test code - they're encapsulated in page objects
 - ✅ **No explicit waits** - built into the framework
-- ✅ **Type-safe navigation** - `Goto<ISettingsPage>()` instead of strings
+- ✅ **Type-safe navigation** - `browser.Goto<ISettings>()` instead of strings
 - ✅ **IntelliSense support** - discover available pages and controls as you type
 - ✅ **Readable and maintainable** - tests read like business requirements
 
-## � Key Concepts Demonstrated
+## 🎯 Key Concepts Demonstrated
 
-### 1. Dynamic Page Object Composition
+### Dynamic Page Object Composition
 
 The demo illustrates how page objects can be composed dynamically without requiring explicit parent-child relationship declarations in the page object classes themselves.
 
 **Traditional Approach (Rigid):**
 ```csharp
-public class SettingsPage : PageObject, IChildOf<ApplicationShell> { }
+public class Settings : PageObject, IChildOf<Shell> { }
 ```
 
 **Coparoo Approach (Flexible):**
 ```csharp
-// SettingsPage has NO explicit parent declaration
-public class SettingsPage : PageObject, ISettingsPage { }
+// Settings has NO explicit parent declaration
+public class Settings : PageObject, ISettings { }
 
-// Relationships are registered dynamically in the TabObject
-public DemoTabObject()
+// Relationships are registered dynamically in the root object
+public DemoTab()
 {
-    ChildOf<SettingsPage, ApplicationShell>();
-    ChildOf<PreferencesPage, ApplicationShell>();
+    ChildOf<Settings, Shell>();
+    ChildOf<Preferences, Shell>();
 }
 ```
 
-### 2. Team-Independent Development
+### Team-Independent Development
 
 This pattern enables multiple teams to work on different parts of the application independently:
 
-- **Team A (Core)**: Maintains `DemoTabObject` and `ApplicationShell`
-- **Team B (Settings)**: Develops `SettingsPage` in isolation
-- **Team C (Preferences)**: Develops `PreferencesPage` in isolation
+- **Team A (Core)**: Maintains `DemoTab` and `Shell`
+- **Team B (Settings)**: Develops `Settings` in isolation
+- **Team C (Preferences)**: Develops `Preferences` in isolation
 
 None of the teams need to modify each other's code. Integration happens through convention-based registration at runtime.
 
-### 3. Convention-Based Navigation
+### Convention-Based Navigation
 
 The framework uses naming conventions to enable type-safe navigation without tight coupling:
 
 ```csharp
 // HTML menu item
-<button data-page="SettingsPage">Settings</button>
+<button data-page="Settings">Settings</button>
 
 // C# navigation - type name matches data-page attribute
-var page = tab.Goto<ISettingsPage>();
+var page = browser.Goto<ISettings>();
 ```
 
 This convention allows:
@@ -111,13 +109,13 @@ This convention allows:
 - Type-safe navigation with IntelliSense support
 - Clear mapping between UI and code
 
-### 4. Interface-Based Testing
+### Interface-Based Testing
 
 Tests interact with page objects through interfaces, not concrete implementations:
 
 ```csharp
-ISettingsPage settingsPage = tab.Goto<ISettingsPage>();
-await settingsPage.EnableNotifications.Check();
+ISettings settings = browser.Goto<ISettings>();
+await settings.EnableNotifications.Check();
 ```
 
 Benefits:
@@ -130,22 +128,22 @@ Benefits:
 ```
 Trumpf.Coparoo.Playwright.Demo/
 ├── TabObjects/
-│   └── DemoTabObject.cs          # Root object, configures browser
+│   └── DemoTab.cs                # Root object, configures browser
 ├── PageObjects/
 │   ├── Interfaces/
-│   │   ├── IApplicationShell.cs  # Interface for main app shell
-│   │   ├── ISettingsPage.cs      # Interface for settings page
-│   │   └── IPreferencesPage.cs   # Interface for preferences page
-│   ├── ApplicationShell.cs       # Main app container with menu
-│   ├── SettingsPage.cs           # Settings page (checkboxes)
-│   └── PreferencesPage.cs        # Preferences page (buttons)
+│   │   ├── IShell.cs             # Interface for main app shell
+│   │   ├── ISettings.cs          # Interface for settings page
+│   │   └── IPreferences.cs       # Interface for preferences page
+│   ├── Shell.cs                  # Main app container with menu
+│   ├── Settings.cs               # Settings page (checkboxes)
+│   └── Preferences.cs            # Preferences page (buttons)
 ├── ControlObjects/
 │   ├── Interfaces/
-│   │   └── INavigationMenu.cs    # Interface for menu control
-│   └── NavigationMenu.cs         # Navigation menu implementation
+│   │   └── IMenu.cs              # Interface for menu control
+│   └── Menu.cs                   # Menu implementation
 ├── wwwroot/
 │   └── demo.html                 # Test HTML application
-├── DynamicCompositionDemo.cs     # Test demonstrations
+├── Demo.cs                       # Test demonstrations
 └── README.md                     # This file
 ```
 
@@ -177,12 +175,12 @@ dotnet test --filter "TestCategory=VisualTest"
 
 **Run Specific Test:**
 ```bash
-dotnet test --filter "FullyQualifiedName~DemonstrateModularPageComposition_Headless"
+dotnet test --filter "FullyQualifiedName~NavigateBetweenPages"
 ```
 
 ## 📝 Test Scenarios
 
-### 1. `DemonstrateModularPageComposition_Headless`
+### DemonstrateModularPageComposition_Headless
 
 Runs in headless mode (no visible browser). Demonstrates:
 - Opening the application
@@ -194,61 +192,57 @@ Runs in headless mode (no visible browser). Demonstrates:
 
 **Perfect for:** CI/CD pipelines, automated regression testing
 
-### 2. `DemonstrateModularPageComposition_Headed`
+### DemonstrateModularPageComposition_Headed
 
 Identical functionality but runs with visible browser window. Includes intentional delays for observation.
 
 **Perfect for:** Development, debugging, demonstrations
 
-### 3. `DemonstrateMultiPageNavigation_Headless`
-
-Shows rapid navigation between pages to verify state management and navigation reliability.
-
 ## 🔑 Key Design Patterns
 
-### Pattern 1: No Explicit Parent-Child Declarations
+### Pattern: No Explicit Parent-Child Declarations
 
 ```csharp
 // ❌ Traditional - tightly coupled
-public class SettingsPage : PageObject, IChildOf<ApplicationShell> { }
+public class Settings : PageObject, IChildOf<Shell> { }
 
 // ✅ Coparoo - loosely coupled
-public class SettingsPage : PageObject, ISettingsPage
+public class Settings : PageObject, ISettings
 {
     // No parent declaration - can be used anywhere
 }
 ```
 
-### Pattern 2: Dynamic Registration
+### Pattern: Dynamic Registration
 
 ```csharp
-public DemoTabObject()
+public DemoTab()
 {
     // Register relationships at runtime
-    ChildOf<ApplicationShell, DemoTabObject>();
-    ChildOf<SettingsPage, ApplicationShell>();
-    ChildOf<PreferencesPage, ApplicationShell>();
+    ChildOf<Shell, DemoTab>();
+    ChildOf<Settings, Shell>();
+    ChildOf<Preferences, Shell>();
 }
 ```
 
-### Pattern 3: Convention-Based Navigation
+### Pattern: Convention-Based Navigation
 
 ```csharp
 public override async Task Goto()
 {
     if (!await IsActiveAsync())
     {
-        var shell = Goto<IApplicationShell>();
-        await shell.NavigationMenu.NavigateToAsync<ISettingsPage>();
+        var shell = On<IShell>();
+        await shell.Menu.NavigateToAsync<ISettings>();
         await WaitForVisibleAsync();
     }
 }
 ```
 
-### Pattern 4: Interface Segregation
+### Pattern: Interface Segregation
 
 ```csharp
-public interface ISettingsPage : IPageObject
+public interface ISettings : IPageObject
 {
     Checkbox EnableNotifications { get; }
     Checkbox EnableAutoSave { get; }
@@ -259,19 +253,19 @@ public interface ISettingsPage : IPageObject
 
 ## 🌟 Real-World Benefits
 
-### 1. **Modularity**
+### Modularity
 Page objects can be distributed as separate NuGet packages. Each team can version and release independently.
 
-### 2. **Scalability**
+### Scalability
 New pages can be added without modifying existing code. Simply register the relationship in the TabObject constructor.
 
-### 3. **Maintainability**
+### Maintainability
 Clear separation of concerns. Each page object focuses on its own functionality.
 
-### 4. **Testability**
+### Testability
 Interface-based design enables easy mocking and unit testing.
 
-### 5. **Flexibility**
+### Flexibility
 Different teams can work in parallel without merge conflicts in page object code.
 
 ## 🎨 Control Types Showcased
@@ -282,11 +276,11 @@ Different teams can work in parallel without merge conflicts in page object code
 
 ## 📚 Learning Path
 
-1. **Start with**: `DemoTabObject.cs` - understand browser configuration and dynamic registration
-2. **Then read**: `ApplicationShell.cs` - see the main container structure
-3. **Explore**: `SettingsPage.cs` and `PreferencesPage.cs` - notice the absence of parent declarations
-4. **Understand**: `NavigationMenu.cs` - see how convention-based navigation works
-5. **Run**: `DynamicCompositionDemo.cs` - see everything in action
+1. **Start with**: `DemoTab.cs` - understand browser configuration and dynamic registration
+2. **Then read**: `Shell.cs` - see the main container structure
+3. **Explore**: `Settings.cs` and `Preferences.cs` - notice the absence of parent declarations
+4. **Understand**: `Menu.cs` - see how convention-based navigation works
+5. **Run**: `Demo.cs` - see everything in action
 
 ## 🔧 Extending the Demo
 
@@ -295,9 +289,9 @@ To add a new page:
 1. Create interface in `PageObjects/Interfaces/`
 2. Implement page object in `PageObjects/`
 3. Add menu button in `wwwroot/demo.html` with correct `data-page` attribute
-4. Register relationship in `DemoTabObject` constructor:
+4. Register relationship in `DemoTab` constructor:
    ```csharp
-   ChildOf<YourNewPage, ApplicationShell>();
+   ChildOf<YourNewPage, Shell>();
    ```
 
 No need to modify any existing page objects!

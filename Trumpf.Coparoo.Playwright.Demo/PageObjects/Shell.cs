@@ -21,16 +21,16 @@ using Trumpf.Coparoo.Playwright.Demo.TabObjects;
 
 /// <summary>
 /// Page object representing the main application shell that contains the navigation menu.
-/// This page object is explicitly defined as a child of <see cref="DemoTabObject"/>.
+/// This page object is explicitly defined as a child of <see cref="DemoTab"/>.
 /// 
-/// The ApplicationShell serves as the container for the entire application UI and provides
+/// The Shell serves as the container for the entire application UI and provides
 /// access to the navigation menu. However, it does NOT have explicit knowledge of specific
-/// page implementations (SettingsPage, PreferencesPage) - these relationships are registered
+/// page implementations (Settings, Preferences) - these relationships are registered
 /// dynamically in the TabObject constructor.
 /// 
 /// This separation enables teams to work independently on different sections of the application.
 /// </summary>
-public sealed class ApplicationShell : PageObject, IApplicationShell, IChildOf<DemoTabObject>
+public sealed class Shell : PageObject, IShell, IChildOf<DemoTab>
 {
     /// <summary>
     /// Gets the search pattern for locating the application shell container.
@@ -41,5 +41,5 @@ public sealed class ApplicationShell : PageObject, IApplicationShell, IChildOf<D
     /// <summary>
     /// Gets the navigation menu control for switching between pages.
     /// </summary>
-    public INavigationMenu NavigationMenu => Find<NavigationMenu>();
+    public IMenu Menu => Find<Menu>();
 }

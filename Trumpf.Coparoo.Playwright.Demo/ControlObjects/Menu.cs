@@ -21,7 +21,7 @@ using Trumpf.Coparoo.Playwright.Demo.ControlObjects.Interfaces;
 /// This control demonstrates how to implement navigation logic that doesn't require
 /// explicit knowledge of all possible target pages, enabling modular page object design.
 /// </summary>
-public sealed class NavigationMenu : ControlObject, INavigationMenu
+public sealed class Menu : ControlObject, IMenu
 {
     /// <summary>
     /// Gets the search pattern for locating the navigation menu in the DOM.
@@ -31,11 +31,11 @@ public sealed class NavigationMenu : ControlObject, INavigationMenu
     /// <summary>
     /// Navigates to a page by clicking the menu item that corresponds to the page type.
     ///
-    /// Convention: The page type name (e.g., "SettingsPage") must match the value
+    /// Convention: The page type name (e.g., "Settings") must match the value
     /// of the data-page attribute on the corresponding menu button element.
     ///
-    /// Example: For ISettingsPage interface implemented by SettingsPage class,
-    /// the menu button should have data-page="SettingsPage".
+    /// Example: For ISettings interface implemented by Settings class,
+    /// the menu button should have data-page="Settings".
     /// </summary>
     /// <typeparam name="TPage">The page object type to navigate to.</typeparam>
     /// <returns>A task representing the asynchronous click operation.</returns>

@@ -19,14 +19,14 @@ using Trumpf.Coparoo.Playwright.Demo.PageObjects.Interfaces;
 using Trumpf.Coparoo.Playwright.Extensions;
 
 /// <summary>
-/// Page object for the Preferences page.
+/// Page object for the Settings configuration page.
 ///
-/// IMPORTANT: This page object is intentionally NOT declared as IChildOf&lt;ApplicationShell&gt;.
+/// IMPORTANT: This page object is intentionally NOT declared as IChildOf&lt;Shell&gt;.
 /// Instead, the parent-child relationship is registered dynamically in the TabObject constructor.
 ///
 /// This design pattern demonstrates a realistic scenario where:
-/// - This page object could be maintained by a different team (Team Preferences)
-/// - The team doesn't need to know about or depend on the ApplicationShell implementation
+/// - This page object could be maintained by a separate team (Team Settings)
+/// - The team doesn't need to know about or depend on the Shell implementation
 /// - The page can be developed, tested, and distributed as an independent module
 /// - Integration happens through convention-based registration at runtime
 ///
@@ -34,34 +34,31 @@ using Trumpf.Coparoo.Playwright.Extensions;
 /// - Multiple teams working on different features independently
 /// - Pages distributed across different NuGet packages
 /// - Plugin-style architecture where pages can be added without modifying core code
-///
-/// Note: This page demonstrates different control types (Button) compared to SettingsPage (Checkbox),
-/// showcasing the framework's flexibility in handling various UI elements.
 /// </summary>
-public sealed class PreferencesPage : PageObject, IPreferencesPage
+public sealed class Settings : PageObject, ISettings
 {
     /// <summary>
-    /// Gets the search pattern for locating the preferences page in the DOM.
+    /// Gets the search pattern for locating the settings page in the DOM.
     /// </summary>
-    protected override By SearchPattern => By.CssSelector("[data-testid='preferences-page']");
+    protected override By SearchPattern => By.CssSelector("[data-testid='settings-page']");
 
     /// <summary>
-    /// Gets the button control for saving user preferences.
+    /// Gets the checkbox control for enabling notifications.
     /// </summary>
-    public Button SavePreferences => Find<Button>(By.Id("save-preferences"));
+    public Checkbox EnableNotifications => Find<Checkbox>(By.Id("enable-notifications"));
 
     /// <summary>
-    /// Gets the button control for resetting preferences to default values.
+    /// Gets the checkbox control for enabling auto-save functionality.
     /// </summary>
-    public Button ResetToDefaults => Find<Button>(By.Id("reset-preferences"));
+    public Checkbox EnableAutoSave => Find<Checkbox>(By.Id("enable-autosave"));
 
     /// <summary>
-    /// Gets the button control for exporting user settings.
+    /// Gets the checkbox control for enabling dark mode.
     /// </summary>
-    public Button ExportSettings => Find<Button>(By.Id("export-preferences"));
+    public Checkbox EnableDarkMode => Find<Checkbox>(By.Id("enable-darkmode"));
 
     /// <summary>
-    /// Verifies that the preferences page is currently active and visible.
+    /// Verifies that the settings page is currently active and visible.
     /// The page is considered active when it has the 'active' CSS class.
     /// </summary>
     /// <returns>True if the page is active, false otherwise.</returns>
@@ -72,13 +69,26 @@ public sealed class PreferencesPage : PageObject, IPreferencesPage
     }
 
     /// <summary>
-    /// Navigates to the preferences page by clicking the corresponding menu item.
+    /// Navigates to the settings page by clicking the corresponding menu item.
     /// This override implements the convention-based navigation pattern.
+    /// Waits for the page to become active after navigation.
     /// </summary>
     public override async Task Goto()
     {
-        // Navigate using the parent ApplicationShell's navigation menu
-        var shell = On<IApplicationShell>();
-        await shell.NavigationMenu.NavigateToAsync<IPreferencesPage>();
+        if (!await IsActiveAsync())
+        {
+            var shell = On<IShell>();
+            await shell.Menu.NavigateToAsync<ISettings>();
+
+            // Wait for the page to become active
+            var timeout = 5000; // 5 seconds
+            var interval = 100; // Check every 100ms
+            var elapsed = 0;
+            while (!await IsActiveAsync() && elapsed < timeout)
+            {
+                await Task.Delay(interval);
+                elapsed += interval;
+            }
+        }
     }
 }

@@ -21,10 +21,10 @@ using Trumpf.Coparoo.Playwright.Demo.ControlObjects.Interfaces;
 /// This interface allows tests to interact with the application shell independently
 /// of specific page implementations.
 /// </summary>
-public interface IApplicationShell : IPageObject
+public interface IShell : IPageObject
 {
     /// <summary>
     /// Gets the navigation menu control for navigating between pages.
     /// </summary>
-    INavigationMenu NavigationMenu { get; }
+    IMenu Menu { get; }
 }

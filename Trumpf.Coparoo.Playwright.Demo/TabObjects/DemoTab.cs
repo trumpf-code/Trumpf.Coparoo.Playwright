@@ -29,35 +29,35 @@ using Trumpf.Coparoo.Playwright.Demo.PageObjects;
 /// - Page objects are distributed across different modules/packages
 /// - The main application doesn't need to know about all possible child pages
 /// </summary>
-public sealed class DemoTabObject : TabObject
+public sealed class DemoTab : TabObject
 {
     private readonly bool headless;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DemoTabObject"/> class.
+    /// Initializes a new instance of the <see cref="DemoTab"/> class.
     /// </summary>
     /// <param name="headless">
     /// Determines whether the browser runs in headless mode.
     /// Set to false to see the browser interactions during test execution.
     /// </param>
-    public DemoTabObject(bool headless = true)
+    public DemoTab(bool headless = true)
     {
         this.headless = headless;
 
         // Register page object relationships dynamically.
         // This demonstrates the convention-based composition pattern where:
-        // - ApplicationShell is a child of DemoTabObject
-        // - SettingsPage is a child of ApplicationShell (but defined independently)
-        // - PreferencesPage is a child of ApplicationShell (but defined independently)
+        // - Shell is a child of DemoTab
+        // - Settings is a child of Shell (but defined independently)
+        // - Preferences is a child of Shell (but defined independently)
         //
         // In a real-world scenario with multiple teams:
-        // - Team A maintains DemoTabObject and ApplicationShell
-        // - Team B maintains SettingsPage independently
-        // - Team C maintains PreferencesPage independently
+        // - Team A maintains DemoTab and Shell
+        // - Team B maintains Settings independently
+        // - Team C maintains Preferences independently
         // - Teams B and C don't need to modify Team A's code to integrate their pages
-        ChildOf<ApplicationShell, DemoTabObject>();
-        ChildOf<SettingsPage, ApplicationShell>();
-        ChildOf<PreferencesPage, ApplicationShell>();
+        ChildOf<Shell, DemoTab>();
+        ChildOf<Settings, Shell>();
+        ChildOf<Preferences, Shell>();
     }
 
     /// <summary>

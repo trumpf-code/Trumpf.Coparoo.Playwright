@@ -21,7 +21,7 @@ using Trumpf.Coparoo.Playwright.Controls;
 /// This interface is designed to be implemented by teams working on preferences functionality
 /// without requiring knowledge of the main application structure.
 /// </summary>
-public interface IPreferencesPage : IPageObject
+public interface IPreferences : IPageObject
 {
     /// <summary>
     /// Gets the button for saving user preferences.

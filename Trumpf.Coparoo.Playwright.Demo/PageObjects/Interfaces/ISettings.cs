@@ -21,7 +21,7 @@ using Trumpf.Coparoo.Playwright.Controls;
 /// This interface is designed to be implemented by teams working on settings functionality
 /// without requiring knowledge of the main application structure.
 /// </summary>
-public interface ISettingsPage : IPageObject
+public interface ISettings : IPageObject
 {
     /// <summary>
     /// Gets the checkbox for enabling notifications.
