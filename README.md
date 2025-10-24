@@ -42,9 +42,10 @@ Finally, if things are set up and you want to work on user interface tests in a 
 The demo project shows these principles in practice (dynamic ChildOf registration + interface isolation). See: [Demo README](Trumpf.Coparoo.Playwright.Demo/README.md).
 
 ## Contributors
-Main development by Alexander Kaiser (alexander.kai...@de.trumpf.com or alexander.kai...@cs.ox.ac.uk).
+Main development by Alexander Kaiser.
 
 Ideas and contributions by many more including
+- Gregor Kriwet / *Accenture*
 - Daniel Knorreck, Gerald Waldherr / *Additive Manufacturing, TRUMPF Laser- und Systemtechnik GmbH, Ditzingen*
 - Jochen Lange, Matthias Wetzel, Markus Ament, Bernd Gschwind, Bernd Theissler, Andreas Alavi, Sebastian Mayer, Daniel Boeck / *TRUMPF Werkzeugmaschinen GmbH + Co. KG, Ditzingen*
 - Igor Mikhalev / *Trumpf Laser Marking Systems AG, Schweiz*
