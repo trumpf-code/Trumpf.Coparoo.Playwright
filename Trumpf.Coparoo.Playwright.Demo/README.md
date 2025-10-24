@@ -96,6 +96,51 @@ This pattern enables multiple teams to work on different parts of the applicatio
 
 Each team tests their code in isolation using their own page objects in UI component tests. Only the integration test team needs to know about all page objects from different components. This allows the integration team to use all page and control objects from the different teams without having to fiddle with selectors when the UI changes. Teams **don't need to know or modify each other's code**.
 
+#### Decoupling at a Glance
+
+The following diagram visualizes how teams can evolve their page objects independently while the integration layer (DemoTab + tests) composes them dynamically without introducing compile-time coupling between feature modules:
+
+```mermaid
+flowchart LR
+    subgraph TeamA[Team A - Core]
+        DemoTab((DemoTab))
+        Shell[/Shell PageObject/]
+    end
+    subgraph TeamB[Team B - Settings]
+        Settings[/Settings PageObject/]
+        ISettings[[ISettings Interface]]
+    end
+    subgraph TeamC[Team C - Preferences]
+        Preferences[/Preferences PageObject/]
+        IPreferences[[IPreferences Interface]]
+    end
+
+    DemoTab -- dynamic ChildOf<Settings, Shell> --> Settings
+    DemoTab -- dynamic ChildOf<Preferences, Shell> --> Preferences
+    Shell -. no compile-time reference .-> Settings
+    Shell -. no compile-time reference .-> Preferences
+    Settings --> ISettings
+    Preferences --> IPreferences
+    DemoTab --> Shell
+
+    subgraph IntegrationTests[Integration Tests]
+        Tests[[Tests use interfaces]]
+    end
+    Tests --> DemoTab
+    Tests --> ISettings
+    Tests --> IPreferences
+
+    class DemoTab,Shell,Settings,Preferences node;
+    classDef node fill:#f7f9fc,stroke:#667eea,stroke-width:1px;
+```
+
+Key points:
+- Feature teams (B & C) publish only interfaces + implementations; they do not depend on each other.
+- Core team (A) wires pages together at runtime using `ChildOf<TChild, TParent>()` calls.
+- The shell does not know concrete page types; navigation works via external conventions.
+- Integration tests rely on shared interfaces, not concrete classes, enabling painless UI evolution.
+- Implementations can be loaded dynamically (e.g. separate NuGet packages, plugin discovery) and tests remain stable as long as interfaces stay backward compatible—even if underlying selectors or DOM structure change.
+
 ### Convention-Based Navigation
 
 This demo showcases one possible, lightweight convention for cross-page navigation when the `Shell` page object itself does not (and should not) have compile-time knowledge of concrete page implementations like `Settings` or `Preferences`. The page object classes for `Shell`, `Settings`, and `Preferences` are completely unaware of each other; yet, through a simple external mapping mechanism (here: the HTML `data-page` attribute matching the interface/type name), test code can still instruct the shell to navigate to a page. The linking logic (menu item -> page type) is therefore not embedded inside the `Shell` implementation, making the shell easily extensible: new pages can be plugged in by adding a menu entry that follows the convention—without touching the `Shell` page object.
@@ -199,6 +244,13 @@ Interface-based design enables easy mocking and unit testing.
 
 ### Flexibility
 Different teams can work in parallel without merge conflicts in page object code.
+
+### Stability Through Backward-Compatible Interfaces
+Because tests interact only with published interfaces (`ISettings`, `IPreferences`, etc.), the implementation of a page object can evolve (DOM changes, selector refactoring, control restructuring) without forcing test changes—as long as interface contracts remain backward compatible. This enables:
+- Swapping or upgrading UI components behind the scenes
+- Shipping experimental layouts side-by-side with legacy ones
+- Gradual refactoring of selectors without brittle test fallout
+Dynamic loading (via separate assemblies or NuGet packages) further decouples delivery cadence: integration tests pick up the newest implementations automatically while maintaining reliability through interface stability.
 
 ## 🔧 Extending the Demo
 
