@@ -41,8 +41,8 @@ public class IUIObjectWaitExtensionsTests
 
         // Act & Assert
         await button.WaitForAttachedAsync();
-        var exists = await button.ExistsAsync();
-        exists.Should().BeTrue();
+        var count = await button.Locator.CountAsync();
+        count.Should().BeGreaterThan(0);
 
         // Cleanup
         await tab.Close();
@@ -69,8 +69,8 @@ public class IUIObjectWaitExtensionsTests
 
         // Act & Assert
         await button.WaitForDetachedAsync();
-        var exists = await button.ExistsAsync();
-        exists.Should().BeFalse();
+        var count = await button.Locator.CountAsync();
+        count.Should().Be(0);
 
         // Cleanup
         await tab.Close();
