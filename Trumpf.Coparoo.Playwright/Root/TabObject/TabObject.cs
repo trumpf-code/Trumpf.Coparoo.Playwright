@@ -74,7 +74,7 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     /// This method is typically used in test setups where you want to inject
     /// a pre-configured page instance instead of using the Creator() method.
     /// </remarks>
-    public void SetPage(IPage page)
+    public void WithPage(IPage page)
     {
         ((TabObjectNode)Node).SetPage(page);
     }
@@ -170,7 +170,7 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     public TTab Cast<TTab>() where TTab : ITabObject
     {
         TTab result = Resolve<TTab>();
-        result.SetPage(((TabObjectNode)Node).page);
+        result.WithPage(((TabObjectNode)Node).page);
         return result;
     }
 

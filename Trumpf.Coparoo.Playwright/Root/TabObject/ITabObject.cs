@@ -32,7 +32,7 @@ public interface ITabObject : IPageObject
     /// This method is typically used in test setups where you want to inject
     /// a pre-configured page instance instead of using the Creator() method.
     /// </remarks>
-    void SetPage(IPage page);
+    void WithPage(IPage page);
 
     /// <summary>
     /// Gets the configuration.
