@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 using System;
 using Trumpf.Coparoo.Playwright.Internal;
 using Trumpf.Coparoo.Playwright.Logging.Tree;
@@ -22,7 +21,7 @@ namespace Trumpf.Coparoo.Playwright;
 /// <summary>
 /// Control object base class.
 /// </summary>
-public abstract class ControlObject : UIObject, IControlObjectInternal
+public abstract class ControlObject : UIObject, IControlObject, IControlObjectInternal
 {
     /// <summary>
     /// Gets the node type of this UI object.
@@ -58,9 +57,4 @@ public abstract class ControlObject : UIObject, IControlObjectInternal
         (result as IUIObjectInternal).Index = NodeInternal.Index;
         return result;
     }
-
-    /// <summary>
-    /// Click the control.
-    /// </summary>
-    public virtual async Task Click() => await Node.ClickAsync();
 }

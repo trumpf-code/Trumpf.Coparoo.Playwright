@@ -24,7 +24,7 @@ internal interface IUIObjectNodeInternal
     /// <summary>
     /// Gets the root.
     /// </summary>
-    Task<ILocator> Root();
+    ILocator Locator();
 
     /// <summary>
     /// Gets the process node.

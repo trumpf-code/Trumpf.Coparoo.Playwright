@@ -21,8 +21,4 @@ namespace Trumpf.Coparoo.Playwright;
 /// </summary>
 public interface IControlObject : IUIObject
 {
-    /// <summary>
-    /// Click the control.
-    /// </summary>
-    Task Click();
 }

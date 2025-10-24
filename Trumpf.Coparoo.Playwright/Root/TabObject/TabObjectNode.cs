@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using Trumpf.Coparoo.Playwright.Exceptions;
 using Trumpf.Coparoo.Playwright.Internal;
 
 namespace Trumpf.Coparoo.Playwright;
@@ -22,24 +23,23 @@ namespace Trumpf.Coparoo.Playwright;
 /// </summary>
 internal class TabObjectNode : UIObjectNode, ITabObjectNode
 {
-    internal IPage driver;
+    internal IPage page;
 
     /// <summary>
     /// Gets the node representing this tree node in the UI, or null if not found
     /// It's the same as the root process.
     /// </summary>
-    public async override Task<ILocator> Root()
+    public override ILocator Locator()
     {
-        var x = await Driver();
+        if (page == null)
+        {
+            throw new TabObjectNotInitializedException("The TabObject has not been initialized with a page. Make sure to set the creator and initialize the TabObject before accessing the Locator.");
+        }
+
+        var x = page;
         var result = x.Locator("html");
         return result;
     }
-
-    /// <summary>
-    /// Gets the root node.
-    /// </summary>
-    protected override Task<ILocator> Parent 
-        => throw new InvalidOperationException("A root has no parent");
 
     /// <summary>
     /// Gets the search patter used to locate the node starting from the root.
@@ -47,7 +47,7 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     public override By SearchPattern => throw new NotImplementedException();
 
     /// <summary>
-    /// Gets the driver generator.
+    /// Gets the page creator.
     /// </summary>
     private Task<IPage> creator;
     public void SetCreator(Task<IPage> c)
@@ -67,27 +67,32 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
 
     /// <summary>
     /// Gets the statistics.
-    /// </summary>
+    /// /// </summary>
     public Statistics Statistics { get; } = new Statistics();
 
     /// <summary>
-    /// Gets or sets the driver.
+    /// Gets or sets the page.
     /// </summary>
-    public async Task<IPage> Driver()
+    public async Task<IPage> Page()
     {
-        return driver ??= await Creator();
+        return page ??= await Creator();
     }
 
-    public void SetDriver(IPage driver)
+    public void SetPage(IPage page)
     {
-        this.driver = driver;
+        this.page = page;
     }
 
     /// <summary>
     /// Open the web page.
     /// </summary>
     /// <param name="url">The url to open.</param>
-    public void Open(string url) => Driver().Result.GotoAsync(url);
+    public async Task Open(string url) 
+        => await (await Page()).GotoAsync(url);
     
-    public void Quit() => Driver().Result.Context.Browser.CloseAsync();
+    /// <summary>
+    /// Quit the browser.
+    /// </summary>
+    public async Task Quit() 
+        => await (await Page()).Context.Browser.CloseAsync();
 }

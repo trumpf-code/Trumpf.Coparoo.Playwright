@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- project information -->
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <DocumentationFile>bin\$(Configuration)\$(AssemblyName).xml</DocumentationFile>
+
+    <!-- debugging information -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugType>embedded</DebugType>
+    <Optimize>false</Optimize>
+    <LangVersion>10.0</LangVersion>
+
+    <!-- nupkg information -->
+    <PackageId>Trumpf.Coparoo.Playwright.Extensions</PackageId>
+    <Title>Trumpf.Coparoo.Playwright.Extensions Library for .NET</Title>
+    <Authors>Alexander Kaiser</Authors>
+    <Company>TRUMPF Werkzeugmaschinen GmbH + Co. KG</Company>
+    <Product>Trumpf Coparoo Web</Product>
+    <Description>Trumpf.Coparoo.Playwright.Extensions contains extension methods that enhance the core Trumpf.Coparoo.Playwright API with convenience helpers for UI, control, and tab objects (e.g. waiting, visibility, attribute access, interactions, Playwright locator shortcuts).</Description>
+    <Summary>Extension method collection for Trumpf.Coparoo.Playwright that adds fluent helpers for interaction, state checks and Playwright locator shortcuts on UI/control/tab objects.</Summary>
+    <Copyright>TRUMPF Werkzeugmaschinen GmbH + Co. KG</Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>Playwright, browser, automation, PageObject, test, ui, extensions, helpers</PackageTags>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageProjectUrl>https://github.com/trumpf-code/Trumpf.Coparoo.Playwright</PackageProjectUrl>
+    <PackageIcon>logo640.png</PackageIcon>
+    <!-- Version is managed by MinVer from Git tags -->
+    <RepositoryUrl>https://github.com/trumpf-code/Trumpf.Coparoo.Playwright</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.Playwright" />
+    <Using Include="System.Threading.Tasks" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Playwright" Version="1.54.0" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Trumpf.Coparoo.Playwright\Trumpf.Coparoo.Playwright.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\Resources\logo640.png" Pack="true" PackagePath="" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

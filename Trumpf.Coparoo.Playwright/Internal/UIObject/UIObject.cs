@@ -67,15 +67,9 @@ public abstract class UIObject : IUIObjectInternal
     }
 
     /// <summary>
-    /// Gets the root node.
-    /// </summary>
-    IUIObjectNode IUIObject.Node
-        => node;
-
-    /// <summary>
     /// Gets the parent of this page object.
     /// </summary>
-    public IUIObject Parent
+    protected internal IUIObject Parent
     {
         get;
         private set;
@@ -84,8 +78,14 @@ public abstract class UIObject : IUIObjectInternal
     /// <summary>
     /// Gets the node in the UI tree associated with this object.
     /// </summary>
-    public IUIObjectNode Node
+    protected internal IUIObjectNode Node
         => node;
+
+    /// <summary>
+    /// Gets the locator for this UI object.
+    /// </summary>
+    public ILocator Locator =>
+        Node.Locator();
 
     /// <summary>
     /// Gets the typed root node of the page object.
@@ -151,7 +151,7 @@ public abstract class UIObject : IUIObjectInternal
     internal virtual IUIObject Init(IUIObject parent)
     {
         IUIObjectNode node = CreateNode;
-        ((IUIObjectNodeInternal)node).Init(parent.Node);
+        ((IUIObjectNodeInternal)node).Init(((UIObject)parent).Node);
         Init(parent, node);
 
         return this;
@@ -199,7 +199,7 @@ public abstract class UIObject : IUIObjectInternal
             TControl result = Find<TControl>(pattern);
             (result as IUIObjectInternal).Index = next++;
 
-            var count = await result.Node.CountAsync();
+            var count = await result.Locator.CountAsync();
             if (count == 0)
                 break;
 

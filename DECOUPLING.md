@@ -3,7 +3,7 @@
 We can split the definition of **Process**, **Page**, and **Control Objects** into *assemblies* with interfaces and implementations:
 
 - **Interfaces** define which controls and operations a page provides. For example, the page `LoginWindow` may have a button `Login` and a method `LoginUser(username, password)`.
-  
+
 - **Implementations**, in contrast, specify how these controls are located (e.g., in the DOM tree) and how operations are broken down into action sequences on the page controls or other operations. For example, the button `Login` is located by searching for a control with the tag `a` (a link) and the text "Sign in." A user is logged in via the method `LoginUser`, which involves entering the username and password into the input fields `Username` and `Password`, and finally clicking the button `Login`.
 
 If both layers are separated, the test cases can be defined in another assembly that solely *references the interface layer*, while their implementations are loaded and resolved *dynamically*, i.e., when the test executes.
@@ -11,6 +11,8 @@ If both layers are separated, the test cases can be defined in another assembly 
 ![decoupling]
 
 Thus, test cases and page object implementations are *decoupled*.
+
+See these ideas applied in a concrete sample (dynamic loading, interface-only test assembly, runtime relationship registration) in the demo project: [Demo README](Trumpf.Coparoo.Playwright.Demo/README.md).
 
 ## What's the Benefit of Decoupling Test Cases and Page Objects?
 

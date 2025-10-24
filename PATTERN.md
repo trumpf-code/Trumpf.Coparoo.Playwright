@@ -22,25 +22,25 @@ The main object for using Page Objects is to
 - provide action sequences that require multiple page interactions and occur often in tests.
 
 If `Login` is the page object wrapping a web site's *login dialog*, then a test may
-- read the contents of a text box *Username* via `string username = Login.Username`, 
+- read the contents of a text box *Username* via `string username = Login.Username`,
 - set a check box *Accept* via `Login.Accept = true`, or
 - call `Login.LoginUser(name, password)`, which types the user name and password in the corresponding fields, and then confirms the dialog via a "sign in" button.
 
-In 2009, Simon Stewart introduced the pattern in a Playwright PageObject [wiki entry](https://github.com/PlaywrightHQ/Playwright/wiki/PageObjects) as a means to write good user interface tests. 
-Today, it is extensively used in practice, and applied on a wide range of UI technologies, including desktop applications and mobile apps. 
+In 2009, Simon Stewart introduced the pattern in a Playwright PageObject [wiki entry](https://github.com/PlaywrightHQ/Playwright/wiki/PageObjects) as a means to write good user interface tests.
+Today, it is extensively used in practice, and applied on a wide range of UI technologies, including desktop applications and mobile apps.
 [*Google Trends*](https://trends.google.com/trends/explore?date=all&q=page%20object%20pattern) illustrates the stable interest in the approach since its emergence around 2009.
 
 ## What are Control Objects and why do we need them?
 When it comes to maintainability, the Page Object Pattern has certain limitations.
-This is due to the fact that page objects expose *properties of their controls*, yet these controls tend to appear frequently. 
+This is due to the fact that page objects expose *properties of their controls*, yet these controls tend to appear frequently.
 As an example, a Page Object with a text box *Username* may have methods to
 - write and read the text: `string UsernameText { get; set; }`
 - check its visibility: `bool IsUsernameVisible { get; }`
 - click it: `void ClickUsername()`.
 
 For other text boxes on that page, e.g. for entering the *password*, or different pages these properties and methods would have to be repeated again and again.
-In practice, it is therefore desirable to treat *pages* and *controls* separately: 
-- Pages are wrapped by "Page Objects", 
+In practice, it is therefore desirable to treat *pages* and *controls* separately:
+- Pages are wrapped by "Page Objects",
 - Controls by "Control Objects".
 
 The `username` and `password` text boxes used in the previous example, could, e.g., be exposed though a `TextBox`-Control Object class with properties `string Text { get; set; }` and `bool IsVisible { get; }`, and method `void Click()`. Hence, the two text boxes turn into *two instantiations* of exactly that Control Object class.
@@ -53,10 +53,10 @@ On the other hand, clicking a page object in general makes no sense, while it do
 Summed up, using Controls Objects in your code can dramatically improve readability and shrink code size.
 
 ## Finally, what are Root Objects?
-Root Objects are *classes* that wrap the root node of the DOM, hence essentially a *browser tab* that display the web page under test. 
+Root Objects are *classes* that wrap the root node of the DOM, hence essentially a *browser tab* that display the web page under test.
 In contrast to Page and Controls Objects they have no parent in the DOM, nor can they be navigated to, or clicked.
-Instead, a Root Object has things like 
-- a driver from which every search for a page or control objects initially starts, 
+Instead, a Root Object has things like
+- a page instance from which every search for page or control objects initially starts,
 - a class to configure settings fitting all page and control objects, and
 - an address that can be opened in a browser via calls to the `Open()` and `Close()` methods.
 
@@ -73,11 +73,11 @@ Each page object has one or more control objects, e.g. the info message box page
 
 ## How can we benefit from this approach?
 Recall that web browser render pages into a [DOM tree](https://en.wikipedia.org/wiki/Document_Object_Model) wherein each node is an object, e.g. a control, page or layout element.
-Automating a web page with Playwright-like tools thus boils down to 
-1. *finding* nodes of pages and controls the test interacts with, and 
+Automating a web page with Playwright-like tools thus boils down to
+1. *finding* nodes of pages and controls the test interacts with, and
 1. *invoking* certain operations on these nodes, like clicking it or retrieving its text.
 
-As an example, `WebElement user = driver.findElement(By.id("User"));` will start from the browser tab node `driver` and search for the first occurrence of a node with `id` set to `User`. 
+As an example, `ILocator user = page.Locator("[id='User']");` will start from the browser page and search for the first occurrence of a node with `id` set to `User`.
 
 ### Why not searching in the most obvious way?
 One way to search for nodes is to specify the entire search path from the browser tab node and just start searching from that node over and over again.
@@ -103,7 +103,7 @@ Exploiting this simplicity enables us to write *maintainable* user interface tes
 Besides ensuring maintainability, taking advantage of the DOM structure can significantly *speed-up test runs*.
 This can be achieved by exploiting the following simple idea: If page `A`'s DOM node `a` is already located, and page `B` is known to be under `a`, then we can start the search of `B`'s DOM node `b` in `a` rather than at the root.
 
-The following example illustrates, why this can significantly speed-up searches in practice, and hence test runs: When we search DOM node `b` from the root `driver` using a breadth first search via `driver.findElement(By.id("b"))`, 11 nodes need to be traversed in total while `a.findElement(By.id("b"))` will traverse just one, namely `b`.
+The following example illustrates, why this can significantly speed-up searches in practice, and hence test runs: When we search DOM node `b` from the root `page` using a breadth first search via `page.Locator("[id='b']")`, 11 nodes need to be traversed in total while `a.Locator("[id='b']")` will traverse just one, namely `b`.
 
 ![fastSearch]
 
@@ -111,7 +111,7 @@ The same applies when we search the node of a control of that page, and moreover
 Since page objects are usually attached to unique node in the DOM, these are well suited for a user-transparent *caching*, i.e. the user gets the caching and speed-up for free, viz. as a side-effect of structuring the page objects in a tree.
 
 Strictly speaking, the Page Object Tree does not really have to be a tree.
-It can take the form of a cycle-free graph if the same Page Object appears in different places in the DOM tree. 
+It can take the form of a cycle-free graph if the same Page Object appears in different places in the DOM tree.
 This is the case, for example, if a page can be "docked" in different places as can often be found on dashboards.
 
 ### So, how can we derive the Coparoo Graph from the DOM?
@@ -126,6 +126,8 @@ When you have identified these page objects, you can follow this simple rule to 
 ### Getting started...
 As a next step, consider reading [this code example](DEMO.md).
 It illustrates how the *Coparoo* framework helps you putting these ideas into practice.
+
+If you prefer a more feature-complete showcase (dynamic runtime relationship registration, interface-driven decoupling, navigation conventions), jump to the **demo project**: [Demo README](Trumpf.Coparoo.Playwright.Demo/README.md).
 
 [tree]: ./Resources/pageObjectTree.png "Coparoo tree"
 [fastSearch]: ./Resources/fastSearch.PNG "Finding faster"

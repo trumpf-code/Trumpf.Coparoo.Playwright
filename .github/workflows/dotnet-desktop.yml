@@ -2,7 +2,10 @@ name: .NET Core Desktop
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - '**'
+    tags:
+      - '**'
   pull_request:
     branches: [ "main" ]
 
@@ -16,6 +19,10 @@ jobs:
       Solution_Name: Trumpf.Coparoo.Playwright.sln
       Test_Project_Folder: Trumpf.Coparoo.Playwright.Tests
       Test_Project_Path: Trumpf.Coparoo.Playwright.Tests\Trumpf.Coparoo.Playwright.Tests.csproj
+      Controls_Test_Project_Folder: Trumpf.Coparoo.Playwright.Controls.Tests
+      Controls_Test_Project_Path: Trumpf.Coparoo.Playwright.Controls.Tests\Trumpf.Coparoo.Playwright.Controls.Tests.csproj
+      Demo_Project_Folder: Trumpf.Coparoo.Playwright.Demo
+      Demo_Project_Path: Trumpf.Coparoo.Playwright.Demo\Trumpf.Coparoo.Playwright.Demo.csproj
       Package_Output_Dir: ${{ github.workspace }}\artifacts
       Test_Results_Dir: ${{ github.workspace }}\test-results
 
@@ -39,14 +46,34 @@ jobs:
     - name: Build
       run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }}
 
-    # Execute unit tests (continue on error to allow test results upload if failed)
-    - name: Execute Unit Tests
+    # Execute unit tests for Trumpf.Coparoo.Playwright.Tests (continue on error to allow test results upload if failed)
+    - name: Execute Playwright Tests
       if: matrix.configuration == 'Debug'
       continue-on-error: false
       run: |
         mkdir -p ${{ env.Test_Results_Dir }}
         pwsh ${{ env.Test_Project_Folder }}/bin/Debug/net8.0/playwright.ps1 install
-        dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --verbosity normal --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_${{ matrix.configuration }}.trx"
+        dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --verbosity normal --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_playwright_${{ matrix.configuration }}.trx"
+        echo "Listing files in test results directory:"
+        dir ${{ env.Test_Results_Dir }}
+
+    # Execute unit tests for Trumpf.Coparoo.Playwright.Controls.Tests
+    - name: Execute Controls Tests
+      if: matrix.configuration == 'Debug'
+      continue-on-error: false
+      run: |
+        pwsh ${{ env.Controls_Test_Project_Folder }}/bin/Debug/net8.0/playwright.ps1 install
+        dotnet test ${{ env.Controls_Test_Project_Path }} --configuration ${{ matrix.configuration }} --verbosity normal --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_controls_${{ matrix.configuration }}.trx"
+        echo "Listing files in test results directory:"
+        dir ${{ env.Test_Results_Dir }}
+
+    # Execute demo tests (excluding visual/headed tests using TestCategory filter)
+    - name: Execute Demo Tests (Headless Only)
+      if: matrix.configuration == 'Debug'
+      continue-on-error: false
+      run: |
+        pwsh ${{ env.Demo_Project_Folder }}/bin/Debug/net8.0/playwright.ps1 install
+        dotnet test ${{ env.Demo_Project_Path }} --configuration ${{ matrix.configuration }} --filter "TestCategory!=VisualTest" --verbosity normal --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_demo_${{ matrix.configuration }}.trx"
         echo "Listing files in test results directory:"
         dir ${{ env.Test_Results_Dir }}
 
@@ -55,19 +82,29 @@ jobs:
       if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results
-        path: ${{ env.Test_Results_Dir }}\test_result_${{ matrix.configuration }}.trx
+        name: test-results-${{ matrix.configuration }}
+        path: ${{ env.Test_Results_Dir }}\*.trx
 
-    # Generate NuGet package in Release configuration only if all steps succeed
+    # Generate NuGet packages for both projects in Release configuration only if all steps succeed
     - name: Generate NuGet Package
       if: matrix.configuration == 'Release' && success()
       run: |
         dotnet pack ${{ env.Solution_Name }} --configuration Release --no-build --output ${{ env.Package_Output_Dir }}
+        echo "Listing NuGet packages:"
+        dir ${{ env.Package_Output_Dir }}
 
-    # Upload the NuGet package as an artifact
+    # Upload the NuGet packages as artifacts
     - name: Upload NuGet Package
       if: matrix.configuration == 'Release' && success()
       uses: actions/upload-artifact@v4
       with:
-        name: nuget-package
+        name: nuget-packages
         path: ${{ env.Package_Output_Dir }}\*.nupkg
+
+    # Push NuGet packages to nuget.org (only on tag pushes)
+    - name: Push NuGet Packages to nuget.org
+      if: matrix.configuration == 'Release' && success() && startsWith(github.ref, 'refs/tags/')
+      run: |
+        dotnet nuget push "${{ env.Package_Output_Dir }}\*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

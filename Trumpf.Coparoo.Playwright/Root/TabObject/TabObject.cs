@@ -62,18 +62,21 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     protected override By SearchPattern => throw new NotImplementedException();
 
     /// <summary>
-    /// Gets or sets the (static) TestExecute driver.
+    /// Gets the page instance for this tab.
     /// </summary>
-    public Task<IPage> Driver()
-            => ((TabObjectNode)Node).Driver();
+    public Task<IPage> Page => ((TabObjectNode)Node).Page();
 
     /// <summary>
-    /// Sets the driver (IPage) for interacting with the browser.
+    /// Sets the page instance (primarily for testing scenarios).
     /// </summary>
-    /// <param name="driver">The IPage instance that represents the browser page to interact with.</param>
-    public void SetDriver(IPage driver)
+    /// <param name="page">The IPage instance that represents the browser page to interact with.</param>
+    /// <remarks>
+    /// This method is typically used in test setups where you want to inject
+    /// a pre-configured page instance instead of using the Creator() method.
+    /// </remarks>
+    public void WithPage(IPage page)
     {
-        ((TabObjectNode)Node).SetDriver(driver);
+        ((TabObjectNode)Node).SetPage(page);
     }
 
     /// <summary>
@@ -106,7 +109,7 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     protected virtual string Url { get; } = null;
 
     /// <summary>
-    /// Gets the driver Creator().
+    /// Gets the page creator function.
     /// </summary>
     protected virtual Task<IPage> Creator()
         => null;
@@ -167,7 +170,7 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     public TTab Cast<TTab>() where TTab : ITabObject
     {
         TTab result = Resolve<TTab>();
-        result.SetDriver(((TabObjectNode)Node).driver);
+        result.WithPage(((TabObjectNode)Node).page);
         return result;
     }
 
@@ -189,20 +192,20 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     /// <summary>
     /// Opens the tab if this has not yet been done.
     /// </summary>
-    public override void Goto()
+    public override async Task Goto()
     {
         if (!opened)
         {
-            Open();
+            await Open();
         }
     }
 
     /// <summary>
     /// Open the web page in a new tab (will open a new browser).
     /// </summary>
-    public void Open()
+    public async Task Open()
     {
-        ((TabObjectNode)Node).Open(Url);
+        await ((TabObjectNode)Node).Open(Url);
         opened = true;
     }
 
@@ -211,16 +214,7 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     /// </summary>
     public async Task Close()
     {
-        await Node.Page.CloseAsync();
+        await Locator.Page.CloseAsync();
         opened = false;
-    }
-
-    /// <summary>
-    /// Gets or sets the URL of the tab.
-    /// </summary>
-    public async void CurrentURL(string value)
-    {
-        var d = await Driver();
-        await d.GotoAsync(value);
     }
 }

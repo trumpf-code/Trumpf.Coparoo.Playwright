@@ -35,12 +35,12 @@ internal interface ITabObjectNode : IUIObjectNode
     Statistics Statistics { get; }
 
     /// <summary>
-    /// Gets or sets the driver.
+    /// Gets the page instance.
     /// </summary>
-    Task<IPage> Driver();
+    Task<IPage> Page();
 
     /// <summary>
-    /// Gets or sets the Creator().
+    /// Gets the page creator.
     /// </summary>
     Task<IPage> Creator();
 
@@ -48,5 +48,10 @@ internal interface ITabObjectNode : IUIObjectNode
     /// Open the web page.
     /// </summary>
     /// <param name="url">The URL to open.</param>
-    void Open(string url);
+    Task Open(string url);
+
+    /// <summary>
+    /// Quit the browser.
+    /// </summary>
+    Task Quit();
 }

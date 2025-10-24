@@ -29,14 +29,9 @@ public interface IUIObject
     int Index { set; get; }
 
     /// <summary>
-    /// Gets the parent of this UI object.
+    /// Gets the locator for this UI object.
     /// </summary>
-    IUIObject Parent { get; }
-
-    /// <summary>
-    /// Gets the root node.
-    /// </summary>
-    IUIObjectNode Node { get; }
+    ILocator Locator { get; }
 
     /// <summary>
     /// Get the specific page object.

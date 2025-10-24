@@ -14,18 +14,23 @@
 
 
 using System;
+using Microsoft.Playwright;
 
 namespace Trumpf.Coparoo.Playwright.Internal;
 
 /// <summary>
 /// The UI node interface.
 /// </summary>
-public interface IUIObjectNode : ILocator
+public interface IUIObjectNode
 {
-    internal Task<ILocator> Root();
+    /// <summary>
+    /// Gets the root locator for this UI object node.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the root locator.</returns>
+    ILocator Locator();
 
     /// <summary>
-    /// Initialize the control object.
+    /// Initializes the control object with the specified search pattern.
     /// </summary>
     /// <param name="pattern">The search pattern used to locate the control.</param>
     void Init(By pattern);

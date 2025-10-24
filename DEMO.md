@@ -1,6 +1,7 @@
 # Tutorial
 
 ## A minimal code example
+For a larger multi-page sample with dynamic relationships and interface-based navigation, see the separate demo project: [Demo README](Trumpf.Coparoo.Playwright.Demo/README.md).
 The goal of this contrived code example is to demonstrate how root, control and page object classes can be created and used, rather than to write a meaningful test case.
 
 ### Goal of the example
@@ -10,7 +11,7 @@ The following general steps shall be automated for some web page:
 1. Close the browser.
 
 ### Setting up a project
-Before getting started, we need to create a C# project, e.g. of type "unit testing". 
+Before getting started, we need to create a C# project, e.g. of type "unit testing".
 Then we add a NuGet package reference to [Trumpf.Coparoo.Playwright](https://www.nuget.org/packages/Trumpf.Coparoo.Playwright/), which will also add a reference to the [Microsoft.Playwright](https://www.nuget.org/packages/Microsoft.Playwright/) NuGet package.
 
 The base classes and extension methods of the *Coparoo* library is available after adding `using Trumpf.Coparoo.Playwright` to the preamble of your C# sources.
@@ -30,7 +31,7 @@ In the first step, we create the root (or "tab") object `MyTab` wrapping the web
         protected override string Url => "http://google.de";
     }
 
-The `Creator()` and `Url` properties define the *Playwright driver* that will drive the test and the address to open when the inherited `Open()` method is called.
+The `Creator()` and `Url` properties define the *Playwright page* that will drive the test and the address to open when the inherited `Open()` method is called.
 
 Equipped with this class, we are ready to automate the first and last step of the above goal:
 
@@ -56,6 +57,19 @@ Property `SearchPattern` specifies how to locate the control object node in the 
 
 Properties `Text` and `URL` return the link's display text and the destination, respectively.
 Both values are retrieved through the inherited `Node` property, which implements Playwright's `ILocator` interface used to control DOM elements.
+
+### How to inject a pre-configured page in tests?
+For testing scenarios, you may want to inject an existing Playwright page instance instead of using the `Creator()` method.
+This can be done using the fluent `WithPage()` extension method:
+
+    var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
+    var browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
+    var page = await browser.NewPageAsync();
+
+    // Use the fluent API to inject the page
+    var tab = new MyTab().WithPage(page);
+
+This is particularly useful when you need to configure the page with specific settings or when sharing a browser context across multiple tests.
 
 ### How to find control objects?
 In order to find a matching element in the DOM tree, tab, control and page objects expose `Find` method.
@@ -95,7 +109,7 @@ Due to criteria chaining, the returned instance will be `a`-tagged, with display
 ### How to access tab and page objects from a test?
 Page (and tab) objects can be accessed though the `On` method exposed by tab, control and page objects.
 Equipped with an opened `MyTab` object `myTab` the following code will yield a ready-for-use `Menu` instance.
-    
+
     Menu menu = myTab.On<Menu>();
 
 Due to their uniqueness-property, and in contrast to control objects, page object's DOM nodes are cached "aggressively", i.e. across `On`-calls.
@@ -107,12 +121,12 @@ Now that we have defined a root, control and page object, we can automate the th
     public async Task ClickEventsOnMenu()
     {
         MyTab myTab = new MyTab();              // create the root page object
-        myTab.Open();                           // open a new tab browser with the address 
+        myTab.Open();                           // open a new tab browser with the address
         await myTab.On<Menu>().WaitForVisibleAsync();   // wait until the menu is displayed
         myTab.On<Menu>().Events.Click();        // on the menu click the events link
         await myTab.Close();                    // kill the browser
     }
- 
+
 ## Visualizing the *Coparoo graph*
 As the number of page objects grows, question like these arise:
 - Where should a new page object be added to the graph?
@@ -131,7 +145,7 @@ By calling the `WriteGraph` method of the tab object the graph can be generated 
 
     new MyTab().WriteGraph();
 
-For a slight extension of the previous example the graph looks like this: 
+For a slight extension of the previous example the graph looks like this:
 
 ![tree]
 
@@ -152,7 +166,7 @@ To this end, *page objects* come with a virtual `Goto`-method that can be enrich
 
 We can, e.g., simplify the following somewhat longish *login/logout-test*
 
-    var app = new GitHubWebDriver();                    // create the test driver
+    var app = new GitHubTab();                          // create the tab object
     app.Open();                                         // open the github page in new browser tab
     app.On<Header>().SignIn.Click();                    // click the sign-in button
     app.On<SignInForm>().SignIn("myUser", "abc");       // enter the user credentials ...
@@ -161,7 +175,7 @@ We can, e.g., simplify the following somewhat longish *login/logout-test*
 
 to
 
-    var app = new GitHubWebDriver();                    // create the test driver
+    var app = new GitHubTab();                          // create the tab object
     app.Goto<SignInForm>().SignIn("myUser", "abc");     // enter the user credentials ...
     app.SignOut();                                      // sign out
 
@@ -178,7 +192,7 @@ The navigation action of the sign-in form needs, e.g., be defined in `SignInForm
 
 The `Goto` method of the `ProfileDrowndown` and `Header` page object is similar.
 Notably, the `Header.Goto` method needs to ensure that browser tab is opened once, which can be achieved by calling `Parent.Goto()` assuming `Parent` is the root object.
-    
+
 Observe that the codes line count has halved from 6 to 3, and how readability and robustness have increased. A dream.
 
 [tree]: ./Resources/tree480.png "page object tree"

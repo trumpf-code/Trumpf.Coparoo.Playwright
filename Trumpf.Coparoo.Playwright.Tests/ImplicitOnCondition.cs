@@ -72,7 +72,7 @@ public class ConditionalOn
         /// <summary>
         /// Gets a value indicating whether the expected type is the parent.
         /// </summary>
-        public Task<bool> IsDisplayed => Task.FromResult(Parent.GetType().Equals(ExpectedParentType));
+        public bool IsDisplayed => Parent.GetType().Equals(ExpectedParentType);
 
         protected override By SearchPattern => null;
     }
@@ -85,12 +85,12 @@ public class ConditionalOn
         /// <summary>
         /// Gets a value indicating whether the expected type is the parent.
         /// </summary>
-        protected override bool OnCondition =>  IsDisplayed.Result;
+        protected override bool OnCondition => IsDisplayed;
 
         /// <summary>
         /// Gets a value indicating whether the expected type is the parent.
         /// </summary>
-        public Task<bool> IsDisplayed => (Parent as C).IsDisplayed;
+        public bool IsDisplayed => (Parent as C).IsDisplayed;
 
         protected override By SearchPattern => null;
     }

@@ -15,6 +15,7 @@
 namespace Trumpf.Coparoo.Tests;
 
 using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Trumpf.Coparoo.Playwright;
@@ -29,24 +30,25 @@ public class ExplicitOnCondition
     /// Test method.
     /// </summary>
     [TestMethod]
-    public void WhenMultiplePathsToAPageObjectExistInThePageObjectTree_ThenTheExplicitOnConditionIsEffective()
+    public async Task WhenMultiplePathsToAPageObjectExistInThePageObjectTree_ThenTheExplicitOnConditionIsEffective()
     {
-        SetAndCheck(typeof(A));
-        SetAndCheck(typeof(B));
+        await SetAndCheckAsync(typeof(A));
+        await SetAndCheckAsync(typeof(B));
     }
 
     /// <summary>
     /// Set the expected type and check the ON-method.
     /// </summary>
     /// <param name="expectedParentType">The expected parent type.</param>
-    private void SetAndCheck(Type expectedParentType)
+    private async Task SetAndCheckAsync(Type expectedParentType)
     {
         // Act
         C.T = expectedParentType;
-        var visibleOnScreen = new A().On<C>(e => e.IsDisplayed.Result);
+        var visibleOnScreen = new A().On<C>(e => e.IsDisplayed);
 
         // Check
         visibleOnScreen.Parent.GetType().Should().Be(expectedParentType);
+        await Task.CompletedTask; // Placeholder to make this properly async
     }
 
     /// <summary>
@@ -77,7 +79,7 @@ public class ExplicitOnCondition
         /// <summary>
         /// Gets a value indicating whether the expected type is the parent.
         /// </summary>
-        public Task<bool> IsDisplayed => Task.FromResult(Parent.GetType().Equals(T));
+        public bool IsDisplayed => Parent.GetType().Equals(T);
 
         /// <summary>
         /// Gets the search pattern.

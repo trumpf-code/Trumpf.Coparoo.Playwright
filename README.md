@@ -1,12 +1,17 @@
-﻿# Trumpf.Coparoo.Playwright Library for .NET 
+﻿# Trumpf.Coparoo.Playwright Library for .NET
 ![logo640]
 
 ## Description
 *Trumpf.Coparoo.Playwright is a .NET library for C# that helps you write fast, maintainable, robust and fluent Playwright-driven web tests based on the **co**ntrol/**pa**ge/**ro**ot-**o**bject (Coparoo) pattern.*
 
+## Demo Animation
+An animated walkthrough of a minimal multi-page setup (dynamic relationships, interface-based navigation, checkbox + button interactions):
+
+![Coparoo demo animation](Trumpf.Coparoo.Playwright.Demo/demo.gif)
+
 The following sign-in/out test scenario illustrates how the framework facilitates writing user interface tests in "natural" way:
-    
-    var app = new GitHubWebDriver();                    // create the test driver
+
+    var app = new GitHubTab();                          // create the tab object
     app.Open();                                         // open the github page in a new browser tab
     app.On<Header>().SignIn.Click();                    // click the sign-in button
     app.On<SignInForm>().SignIn("myUser", "abc");       // enter the user credentials ...
@@ -14,8 +19,16 @@ The following sign-in/out test scenario illustrates how the framework facilitate
     app.On<ProfileDrowndown>().SignOut.Click();         // sign out
 
 ## NuGet Package Information
-To make it easier for you to develop with the *Trumpf Coparoo Web* library we release it as NuGet package. The latest library is available on [https://www.nuget.org/packages/Trumpf.Coparoo.Playwright](https://www.nuget.org/packages/Trumpf.Coparoo.Playwright).
-To install, just type `Install-Package Trumpf.Coparoo.Playwright` in the [Package Manager Console](https://docs.nuget.org/docs/start-here/using-the-package-manager-console).
+To make it easier for you to develop with the *Trumpf Coparoo Web* library we release it as NuGet packages:
+
+- Core: [Trumpf.Coparoo.Playwright](https://www.nuget.org/packages/Trumpf.Coparoo.Playwright)
+- Controls library: [Trumpf.Coparoo.Playwright.Controls](https://www.nuget.org/packages/Trumpf.Coparoo.Playwright.Controls)
+- NEW: Extension helpers: [Trumpf.Coparoo.Playwright.Extensions](https://www.nuget.org/packages/Trumpf.Coparoo.Playwright.Extensions)
+
+Installation examples (Package Manager Console):
+`Install-Package Trumpf.Coparoo.Playwright`
+`Install-Package Trumpf.Coparoo.Playwright.Controls`
+`Install-Package Trumpf.Coparoo.Playwright.Extensions`
 
 ## Getting Started
 If you want to learn more about the *control/page/root-object pattern*, the idea behind this framework, consider reading [the design pattern introduction](PATTERN.md).
@@ -23,12 +36,16 @@ It illustrates how the framework can help you at writing maintainable and fast-r
 
 If you can't wait getting started and want see some code, have a look at [this code example](DEMO.md).
 
+For a richer, multi-page sample illustrating dynamic page object relationships, team decoupling, and interface-based testing, explore the dedicated demo: [Full Demo README](Trumpf.Coparoo.Playwright.Demo/README.md).
+
 Finally, if things are set up and you want to work on user interface tests in a collaborative setup consisting of many possibly independent teams, or write test cases even before the user interfaces ready to execute (say, directly after the UX team is done) consider reading [this tutorial](DECOUPLING.md).
+The demo project shows these principles in practice (dynamic ChildOf registration + interface isolation). See: [Demo README](Trumpf.Coparoo.Playwright.Demo/README.md).
 
 ## Contributors
-Main development by Alexander Kaiser (alexander.kai...@de.trumpf.com or alexander.kai...@cs.ox.ac.uk).
+Main development by Alexander Kaiser.
 
 Ideas and contributions by many more including
+- Gregor Kriwet / *Accenture*
 - Daniel Knorreck, Gerald Waldherr / *Additive Manufacturing, TRUMPF Laser- und Systemtechnik GmbH, Ditzingen*
 - Jochen Lange, Matthias Wetzel, Markus Ament, Bernd Gschwind, Bernd Theissler, Andreas Alavi, Sebastian Mayer, Daniel Boeck / *TRUMPF Werkzeugmaschinen GmbH + Co. KG, Ditzingen*
 - Igor Mikhalev / *Trumpf Laser Marking Systems AG, Schweiz*
