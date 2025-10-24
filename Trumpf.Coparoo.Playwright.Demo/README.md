@@ -60,21 +60,25 @@ public async Task NavigateBetweenPages()
 
 ## 🎯 Key Concepts Demonstrated
 
-### Dynamic Page Object Composition
+### Dynamic Page Object Relationships
 
-The demo illustrates how page objects can be composed dynamically without requiring explicit parent-child relationship declarations in the page object classes themselves.
+The demo illustrates how page objects can be composed dynamically without requiring explicit parent-child relationship declarations in the page object classes themselves. This is particularly helpful when the parent type is not available at compile time, such as when page objects are distributed across different NuGet packages or when teams develop components independently.
 
-**Traditional Approach (Rigid):**
+Coparoo supports both approaches - you can choose which one fits your needs:
+
 ```csharp
+// Approach 1: Explicit parent declaration - tightly coupled
 public class Settings : PageObject, IChildOf<Shell> { }
+
+// Approach 2: No parent declaration - loosely coupled
+public class Settings : PageObject, ISettings
+{
+    // No parent declaration - can be used anywhere
+}
 ```
 
-**Coparoo Approach (Flexible):**
+In this demo, we use the loosely coupled approach (Approach 2). The relationships between page objects are registered dynamically at runtime in the TabObject constructor using the `ChildOf<TChild, TParent>()` method. The `DemoTab` represents the tab of the entire application and is used to perform integration tests across all modules, giving you full flexibility to compose your page object hierarchy as needed:
 ```csharp
-// Settings has NO explicit parent declaration
-public class Settings : PageObject, ISettings { }
-
-// Relationships are registered dynamically in the root object
 public DemoTab()
 {
     ChildOf<Settings, Shell>();
@@ -84,17 +88,17 @@ public DemoTab()
 
 ### Team-Independent Development
 
-This pattern enables multiple teams to work on different parts of the application independently:
+This pattern enables multiple teams to work on different parts of the application independently without needing to know each other's code:
 
 - **Team A (Core)**: Maintains `DemoTab` and `Shell`
-- **Team B (Settings)**: Develops `Settings` in isolation
-- **Team C (Preferences)**: Develops `Preferences` in isolation
+- **Team B (Settings)**: Develops `Settings` in isolation, tests it independently with UI component tests
+- **Team C (Preferences)**: Develops `Preferences` in isolation, tests it independently with UI component tests
 
-None of the teams need to modify each other's code. Integration happens through convention-based registration at runtime.
+Each team tests their code in isolation using their own page objects in UI component tests. Only the integration test team needs to know about all page objects from different components. This allows the integration team to use all page and control objects from the different teams without having to fiddle with selectors when the UI changes. Teams **don't need to know or modify each other's code**.
 
 ### Convention-Based Navigation
 
-The framework uses naming conventions to enable type-safe navigation without tight coupling:
+This demo showcases one possible, lightweight convention for cross-page navigation when the `Shell` page object itself does not (and should not) have compile-time knowledge of concrete page implementations like `Settings` or `Preferences`. The page object classes for `Shell`, `Settings`, and `Preferences` are completely unaware of each other; yet, through a simple external mapping mechanism (here: the HTML `data-page` attribute matching the interface/type name), test code can still instruct the shell to navigate to a page. The linking logic (menu item -> page type) is therefore not embedded inside the `Shell` implementation, making the shell easily extensible: new pages can be plugged in by adding a menu entry that follows the convention—without touching the `Shell` page object.
 
 ```csharp
 // HTML menu item
@@ -178,78 +182,6 @@ dotnet test --filter "TestCategory=VisualTest"
 dotnet test --filter "FullyQualifiedName~NavigateBetweenPages"
 ```
 
-## 📝 Test Scenarios
-
-### DemonstrateModularPageComposition_Headless
-
-Runs in headless mode (no visible browser). Demonstrates:
-- Opening the application
-- Navigating to Settings page via `Goto<T>` pattern
-- Interacting with multiple checkboxes
-- Navigating to Preferences page
-- Clicking action buttons
-- Verifying page state
-
-**Perfect for:** CI/CD pipelines, automated regression testing
-
-### DemonstrateModularPageComposition_Headed
-
-Identical functionality but runs with visible browser window. Includes intentional delays for observation.
-
-**Perfect for:** Development, debugging, demonstrations
-
-## 🔑 Key Design Patterns
-
-### Pattern: No Explicit Parent-Child Declarations
-
-```csharp
-// ❌ Traditional - tightly coupled
-public class Settings : PageObject, IChildOf<Shell> { }
-
-// ✅ Coparoo - loosely coupled
-public class Settings : PageObject, ISettings
-{
-    // No parent declaration - can be used anywhere
-}
-```
-
-### Pattern: Dynamic Registration
-
-```csharp
-public DemoTab()
-{
-    // Register relationships at runtime
-    ChildOf<Shell, DemoTab>();
-    ChildOf<Settings, Shell>();
-    ChildOf<Preferences, Shell>();
-}
-```
-
-### Pattern: Convention-Based Navigation
-
-```csharp
-public override async Task Goto()
-{
-    if (!await IsActiveAsync())
-    {
-        var shell = On<IShell>();
-        await shell.Menu.NavigateToAsync<ISettings>();
-        await WaitForVisibleAsync();
-    }
-}
-```
-
-### Pattern: Interface Segregation
-
-```csharp
-public interface ISettings : IPageObject
-{
-    Checkbox EnableNotifications { get; }
-    Checkbox EnableAutoSave { get; }
-    Checkbox EnableDarkMode { get; }
-    Task<bool> IsActiveAsync();
-}
-```
 
 ## 🌟 Real-World Benefits
 
@@ -267,20 +199,6 @@ Interface-based design enables easy mocking and unit testing.
 
 ### Flexibility
 Different teams can work in parallel without merge conflicts in page object code.
-
-## 🎨 Control Types Showcased
-
-- **Checkboxes** (Settings Page): Demonstrates state management (checked/unchecked)
-- **Buttons** (Preferences Page): Demonstrates action triggering with visual feedback
-- **Navigation Menu**: Custom control with convention-based page switching
-
-## 📚 Learning Path
-
-1. **Start with**: `DemoTab.cs` - understand browser configuration and dynamic registration
-2. **Then read**: `Shell.cs` - see the main container structure
-3. **Explore**: `Settings.cs` and `Preferences.cs` - notice the absence of parent declarations
-4. **Understand**: `Menu.cs` - see how convention-based navigation works
-5. **Run**: `Demo.cs` - see everything in action
 
 ## 🔧 Extending the Demo
 
