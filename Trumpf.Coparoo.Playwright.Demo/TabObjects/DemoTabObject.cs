@@ -46,18 +46,18 @@ public sealed class DemoTabObject : TabObject
 
         // Register page object relationships dynamically.
         // This demonstrates the convention-based composition pattern where:
-        // - ApplicationShell is a child of DemoTabObject
-        // - Settings is a child of ApplicationShell (but defined independently)
-        // - Preferences is a child of ApplicationShell (but defined independently)
+    // - Shell is a child of DemoTabObject
+    // - Settings is a child of Shell (but defined independently)
+    // - Preferences is a child of Shell (but defined independently)
         //
         // In a real-world scenario with multiple teams:
-        // - Team A maintains DemoTabObject and ApplicationShell
+    // - Team A maintains DemoTabObject and Shell
         // - Team B maintains Settings independently
         // - Team C maintains Preferences independently
         // - Teams B and C don't need to modify Team A's code to integrate their pages
-        ChildOf<ApplicationShell, DemoTabObject>();
-        ChildOf<Settings, ApplicationShell>();
-        ChildOf<Preferences, ApplicationShell>();
+    ChildOf<Shell, DemoTabObject>();
+    ChildOf<Settings, Shell>();
+    ChildOf<Preferences, Shell>();
     }
 
     /// <summary>

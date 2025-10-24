@@ -19,8 +19,16 @@ The following sign-in/out test scenario illustrates how the framework facilitate
     app.On<ProfileDrowndown>().SignOut.Click();         // sign out
 
 ## NuGet Package Information
-To make it easier for you to develop with the *Trumpf Coparoo Web* library we release it as NuGet package. The latest library is available on [https://www.nuget.org/packages/Trumpf.Coparoo.Playwright](https://www.nuget.org/packages/Trumpf.Coparoo.Playwright).
-To install, just type `Install-Package Trumpf.Coparoo.Playwright` in the [Package Manager Console](https://docs.nuget.org/docs/start-here/using-the-package-manager-console).
+To make it easier for you to develop with the *Trumpf Coparoo Web* library we release it as NuGet packages:
+
+- Core: [Trumpf.Coparoo.Playwright](https://www.nuget.org/packages/Trumpf.Coparoo.Playwright)
+- Controls library: [Trumpf.Coparoo.Playwright.Controls](https://www.nuget.org/packages/Trumpf.Coparoo.Playwright.Controls)
+- NEW: Extension helpers: [Trumpf.Coparoo.Playwright.Extensions](https://www.nuget.org/packages/Trumpf.Coparoo.Playwright.Extensions)
+
+Installation examples (Package Manager Console):
+`Install-Package Trumpf.Coparoo.Playwright`
+`Install-Package Trumpf.Coparoo.Playwright.Controls`
+`Install-Package Trumpf.Coparoo.Playwright.Extensions`
 
 ## Getting Started
 If you want to learn more about the *control/page/root-object pattern*, the idea behind this framework, consider reading [the design pattern introduction](PATTERN.md).
