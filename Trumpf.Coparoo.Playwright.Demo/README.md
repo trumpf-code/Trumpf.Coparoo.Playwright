@@ -4,11 +4,28 @@ This demo project showcases the powerful capabilities of the **Trumpf.Coparoo.Pl
 
 ## 🎬 Demo in Action
 
-![Coparoo Playwright Demo](demo.gif)
+The animated GIF has moved to the main repository README for broader visibility. (See top-level: `README.md`).
 
-*The demo above shows the framework in action: navigating between pages, interacting with checkboxes and buttons, all through modular, dynamically-composed page objects.*
+Summary: This demo exercises dynamic page object relationships, interface-only test access, and convention-based navigation between Settings and Preferences pages.
 
-## 💡 Clean Test Code Example
+## 🗂️ Table of Contents
+
+- [Clean Test Code Example](#-clean-test-code-example)
+- [Key Concepts Demonstrated](#-key-concepts-demonstrated)
+- [Team-Independent Development](#team-independent-development)
+- [Component-Level UI Testing](#component-level-ui-testing)
+- [Decoupling at a Glance](#decoupling-at-a-glance)
+- [Convention-Based Navigation](#convention-based-navigation)
+- [Interface-Based Testing](#interface-based-testing)
+- [Project Structure](#-project-structure)
+- [Quick Start](#-quick-start)
+- [Running the Demo](#-running-the-demo)
+- [Real-World Benefits](#-real-world-benefits)
+- [Extending the Demo](#-extending-the-demo)
+- [Additional Resources](#-additional-resources)
+- [License](#-license)
+
+## � Clean Test Code Example
 
 Here's what a typical test looks like with Coparoo.Playwright - notice the clean, readable code with **no delays, no waits, no brittle selectors**:
 
@@ -51,7 +68,7 @@ public async Task NavigateBetweenPages()
 }
 ```
 
-**Key Benefits:**
+**Key Benefits (at a glance):**
 - ✅ **No CSS selectors** in test code - they're encapsulated in page objects
 - ✅ **No explicit waits** - built into the framework
 - ✅ **Type-safe navigation** - `browser.Goto<ISettings>()` instead of strings
@@ -95,6 +112,10 @@ This pattern enables multiple teams to work on different parts of the applicatio
 - **Team C (Preferences)**: Develops `Preferences` in isolation, tests it independently with UI component tests
 
 Each team tests their code in isolation using their own page objects in UI component tests. Only the integration test team needs to know about all page objects from different components. This allows the integration team to use all page and control objects from the different teams without having to fiddle with selectors when the UI changes. Teams **don't need to know or modify each other's code**.
+
+### Component-Level UI Testing
+
+The page object implementations of each feature module can be used directly in that team's **UI component tests**. This yields high-quality, focused tests at the component level. The integration test team benefits twice: existing component tests act as a safety net during refactorings, and the same interfaces can be reused unchanged in integration / end-to-end tests. This facilitates a well layered test strategy—catching real defects early at the cheapest level and reducing reliance on slow, brittle system tests.
 
 #### Decoupling at a Glance
 
@@ -194,6 +215,18 @@ Trumpf.Coparoo.Playwright.Demo/
 │   └── demo.html                 # Test HTML application
 ├── Demo.cs                       # Test demonstrations
 └── README.md                     # This file
+```
+
+## ⚡ Quick Start
+
+```bash
+dotnet build
+dotnet test --filter "TestCategory!=VisualTest"
+```
+
+Optional: install browsers first (only once):
+```bash
+pwsh bin/Debug/net8.0/playwright.ps1 install
 ```
 
 ## 🚀 Running the Demo
