@@ -205,25 +205,27 @@ This architecture provides several practical advantages for real-world projects:
 
 ## Project Structure
 
+This demo consolidates all components into a single project for simplicity. In real-world scenarios, these would typically be distributed across separate NuGet packages to enable team-independent development:
+
 ```
 Trumpf.Coparoo.Playwright.Demo/
 ├── TabObjects/
-│   └── DemoTab.cs                # Root object, configures browser
+│   └── DemoTab.cs                # Root object, configures browser (Integration package)
 ├── PageObjects/
 │   ├── Interfaces/
-│   │   ├── IShell.cs             # Interface for main app shell
-│   │   ├── ISettings.cs          # Interface for settings page
-│   │   └── IPreferences.cs       # Interface for preferences page
-│   ├── Shell.cs                  # Main app container with menu
-│   ├── Settings.cs               # Settings page (checkboxes)
-│   └── Preferences.cs            # Preferences page (buttons)
+│   │   ├── IShell.cs             # Interface for main app shell (Shared interfaces package)
+│   │   ├── ISettings.cs          # Interface for settings page (Shared interfaces package)
+│   │   └── IPreferences.cs       # Interface for preferences page (Shared interfaces package)
+│   ├── Shell.cs                  # Main app container with menu (Core team package)
+│   ├── Settings.cs               # Settings page (checkboxes) (Settings team package)
+│   └── Preferences.cs            # Preferences page (buttons) (Preferences team package)
 ├── ControlObjects/
 │   ├── Interfaces/
-│   │   └── IMenu.cs              # Interface for menu control
-│   └── Menu.cs                   # Menu implementation
+│   │   └── IMenu.cs              # Interface for menu control (Shared interfaces package)
+│   └── Menu.cs                   # Menu implementation (Core team package)
 ├── wwwroot/
 │   └── demo.html                 # Test HTML application
-├── Demo.cs                       # Test demonstrations
+├── Demo.cs                       # Test demonstrations (Integration tests package)
 └── README.md                     # This file
 ```
 
