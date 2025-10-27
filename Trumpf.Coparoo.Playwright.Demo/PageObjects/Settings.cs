@@ -58,24 +58,13 @@ public sealed class Settings : PageObject, ISettings
     public Checkbox EnableDarkMode => Find<Checkbox>(By.Id("enable-darkmode"));
 
     /// <summary>
-    /// Verifies that the settings page is currently active and visible.
-    /// The page is considered active when it has the 'active' CSS class.
-    /// </summary>
-    /// <returns>True if the page is active, false otherwise.</returns>
-    public async Task<bool> IsActiveAsync()
-    {
-        var classAttribute = await Locator.GetAttributeAsync("class");
-        return classAttribute?.Contains("active") ?? false;
-    }
-
-    /// <summary>
     /// Navigates to the settings page by clicking the corresponding menu item.
     /// This override implements the convention-based navigation pattern.
-    /// Waits for the page to become active after navigation.
+    /// Waits for the page to become visible after navigation.
     /// </summary>
     public override async Task Goto()
     {
-        if (!await IsActiveAsync())
+        if (!await Locator.IsVisibleAsync())
         {
             await On<IShell>().Menu.NavigateToAsync(this);
             await this.WaitForVisibleAsync();

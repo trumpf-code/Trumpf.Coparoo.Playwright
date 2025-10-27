@@ -37,10 +37,4 @@ public interface ISettings : IPageObject
     /// Gets the checkbox for enabling dark mode.
     /// </summary>
     Checkbox EnableDarkMode { get; }
-
-    /// <summary>
-    /// Verifies that the settings page is currently active and visible.
-    /// </summary>
-    /// <returns>True if the page is active, false otherwise.</returns>
-    Task<bool> IsActiveAsync();
 }

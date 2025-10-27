@@ -37,10 +37,4 @@ public interface IPreferences : IPageObject
     /// Gets the button for exporting settings.
     /// </summary>
     Button ExportSettings { get; }
-
-    /// <summary>
-    /// Verifies that the preferences page is currently active and visible.
-    /// </summary>
-    /// <returns>True if the page is active, false otherwise.</returns>
-    Task<bool> IsActiveAsync();
 }
