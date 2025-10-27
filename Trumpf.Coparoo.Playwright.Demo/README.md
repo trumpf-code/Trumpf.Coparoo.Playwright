@@ -4,9 +4,9 @@ This demo project showcases the powerful capabilities of the **Trumpf.Coparoo.Pl
 
 ## 🎬 Demo in Action
 
-The animated GIF has moved to the main repository README for broader visibility. (See top-level: `README.md`).
+![Coparoo demo animation](demo.gif)
 
-Summary: This demo exercises dynamic page object relationships, interface-only test access, and convention-based navigation between Settings and Preferences pages.
+This demo exercises dynamic page object relationships, interface-only test access, and convention-based navigation between Settings and Preferences pages.
 
 ## 🗂️ Table of Contents
 

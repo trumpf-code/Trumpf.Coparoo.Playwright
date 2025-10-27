@@ -9,7 +9,9 @@ An animated walkthrough of a minimal multi-page setup (dynamic relationships, in
 
 ![Coparoo demo animation](Trumpf.Coparoo.Playwright.Demo/demo.gif)
 
-The following sign-in/out test scenario illustrates how the framework facilitates writing user interface tests in "natural" way:
+For a detailed walkthrough of this demo, including the complete source code and step-by-step explanations, see [Demo README](Trumpf.Coparoo.Playwright.Demo/README.md).
+
+For a simpler introductory example, the following sign-in/out test scenario illustrates how the framework facilitates writing user interface tests in a "natural" way to automate interactions on the GitHub web page:
 
     var app = new GitHubTab();                          // create the tab object
     app.Open();                                         // open the github page in a new browser tab
