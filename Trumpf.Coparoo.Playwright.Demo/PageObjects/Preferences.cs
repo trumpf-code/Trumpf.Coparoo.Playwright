@@ -12,9 +12,9 @@ public sealed class Preferences : PageObject, IPreferences
 {
     protected override By SearchPattern => By.TestId("preferences-page");
 
-    public Button SavePreferences => Find<Button>(By.Id("save-preferences"));
-    public Button ResetToDefaults => Find<Button>(By.Id("reset-preferences"));
-    public Button ExportSettings => Find<Button>(By.Id("export-preferences"));
+    public Button SavePreferences => Find<Button>(By.TestId("save-preferences"));
+    public Button ResetToDefaults => Find<Button>(By.TestId("reset-preferences"));
+    public Button ExportSettings => Find<Button>(By.TestId("export-preferences"));
 
     public override async Task Goto()
     {

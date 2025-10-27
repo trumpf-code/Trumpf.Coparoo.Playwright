@@ -13,9 +13,9 @@ public sealed class Settings : PageObject, ISettings
 {
     protected override By SearchPattern => By.TestId("settings-page");
 
-    public Checkbox EnableNotifications => Find<Checkbox>(By.Id("enable-notifications"));
-    public Checkbox EnableAutoSave => Find<Checkbox>(By.Id("enable-autosave"));
-    public Checkbox EnableDarkMode => Find<Checkbox>(By.Id("enable-darkmode"));
+    public Checkbox EnableNotifications => Find<Checkbox>(By.TestId("enable-notifications"));
+    public Checkbox EnableAutoSave => Find<Checkbox>(By.TestId("enable-autosave"));
+    public Checkbox EnableDarkMode => Find<Checkbox>(By.TestId("enable-darkmode"));
 
     public override async Task Goto()
     {

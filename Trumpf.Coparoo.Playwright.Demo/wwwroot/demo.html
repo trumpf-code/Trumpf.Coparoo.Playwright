@@ -199,15 +199,15 @@
                     </p>
                     <div class="checkbox-group">
                         <div class="checkbox-item">
-                            <input type="checkbox" id="enable-notifications" name="notifications" value="enabled">
+                            <input type="checkbox" id="enable-notifications" data-testid="enable-notifications" name="notifications" value="enabled">
                             <label for="enable-notifications">Enable Notifications</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="enable-autosave" name="autosave" value="enabled">
+                            <input type="checkbox" id="enable-autosave" data-testid="enable-autosave" name="autosave" value="enabled">
                             <label for="enable-autosave">Enable Auto-Save</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="enable-darkmode" name="darkmode" value="enabled">
+                            <input type="checkbox" id="enable-darkmode" data-testid="enable-darkmode" name="darkmode" value="enabled">
                             <label for="enable-darkmode">Enable Dark Mode</label>
                         </div>
                     </div>
@@ -224,13 +224,13 @@
                         This page demonstrates button controls.
                     </p>
                     <div class="button-group">
-                        <button class="action-button" id="save-preferences" onclick="handleAction('save')">
+                        <button class="action-button" id="save-preferences" data-testid="save-preferences" onclick="handleAction('save')">
                             💾 Save Preferences
                         </button>
-                        <button class="action-button" id="reset-preferences" onclick="handleAction('reset')">
+                        <button class="action-button" id="reset-preferences" data-testid="reset-preferences" onclick="handleAction('reset')">
                             🔄 Reset to Defaults
                         </button>
-                        <button class="action-button" id="export-preferences" onclick="handleAction('export')">
+                        <button class="action-button" id="export-preferences" data-testid="export-preferences" onclick="handleAction('export')">
                             📤 Export Settings
                         </button>
                     </div>
