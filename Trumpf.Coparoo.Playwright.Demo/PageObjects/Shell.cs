@@ -11,7 +11,7 @@ using Trumpf.Coparoo.Playwright.Demo.TabObjects;
 /// </summary>
 public sealed class Shell : PageObject, IShell, IChildOf<DemoTab>
 {
-    protected override By SearchPattern => By.CssSelector(".container");
+    protected override By SearchPattern => By.TestId("app-shell");
 
     public IMenu Menu => Find<Menu>();
 }
