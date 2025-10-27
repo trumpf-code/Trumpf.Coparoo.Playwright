@@ -11,27 +11,28 @@ An animated walkthrough of a minimal multi-page setup (dynamic relationships, in
 
 For a detailed walkthrough of this demo, including the complete source code and step-by-step explanations, see [Demo README](Trumpf.Coparoo.Playwright.Demo/README.md).
 
-For a simpler introductory example, here's the basic pattern illustrated in the demo above - notice how naturally the test reads:
+Here's the basic pattern illustrated in the demo above - notice how naturally the test reads:
 
-    var browser = new DemoTab();                        // create the browser tab
-    await browser.Open();                               // open the application
+    var tab = new DemoTab();                                   // create the browser tab
+    await tab.Open();                                          // open the application
 
-    var settings = browser.On<ISettings>();             // access the Settings page
-    await settings.EnableNotifications.Check();         // interact with a checkbox
-    await settings.EnableAutoSave.Check();              // check another option
+    await tab.On<ISettings>().EnableNotifications.Check();     // interact with a checkbox
+    await tab.On<ISettings>().EnableAutoSave.Check();          // check another option
 
-    var prefs = browser.Goto<IPreferences>();           // navigate to Preferences page
-    await prefs.SavePreferences.ClickAsync();           // click a button
-    await prefs.ExportSettings.ClickAsync();            // click another button
+    tab.Goto<IPreferences>();                                  // navigate to Preferences page
+    await tab.On<IPreferences>().SavePreferences.ClickAsync(); // click a button
+    await tab.On<IPreferences>().ExportSettings.ClickAsync();  // click another button
 
-    await browser.Close();                              // cleanup
+    await tab.Close();                                         // cleanup
+
+The library ships with built-in control wrappers for common HTML elements, making it easy to interact with various UI components. These include `Checkbox`, `Button`, `TextBox`, `DropDown`, `Table`, `RadioButton`, and many more. In the example above, checkboxes are used for the notification and auto-save settings, demonstrating how these controls provide clean, type-safe APIs for interaction without dealing with raw locators or CSS selectors.
 
 ## NuGet Package Information
 To make it easier for you to develop with the *Trumpf Coparoo Web* library we release it as NuGet packages:
 
 - Core: [Trumpf.Coparoo.Playwright](https://www.nuget.org/packages/Trumpf.Coparoo.Playwright)
 - Controls library: [Trumpf.Coparoo.Playwright.Controls](https://www.nuget.org/packages/Trumpf.Coparoo.Playwright.Controls)
-- NEW: Extension helpers: [Trumpf.Coparoo.Playwright.Extensions](https://www.nuget.org/packages/Trumpf.Coparoo.Playwright.Extensions)
+- Extension helpers: [Trumpf.Coparoo.Playwright.Extensions](https://www.nuget.org/packages/Trumpf.Coparoo.Playwright.Extensions)
 
 Installation examples (Package Manager Console):
 `Install-Package Trumpf.Coparoo.Playwright`
