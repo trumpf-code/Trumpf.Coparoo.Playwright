@@ -10,7 +10,7 @@ This demo exercises dynamic page object relationships, interface-only test acces
 
 ## Clean Test Code Example
 
-Here's what a typical test looks like with Coparoo.Playwright - notice the clean, readable code with **no delays, no waits, no brittle selectors**. The example uses [Awesome Assertions](https://github.com/awesome-inc/awesome-assertions) for expressive assertion checking.
+Here's what a typical test looks like with Coparoo.Playwright - notice the clean, readable code with **no delays, no waits, no brittle selectors**. The example uses [Awesome Assertions](https://awesomeassertions.org/) for expressive assertion checking.
 
 See the full test implementation in [Demo.cs](Demo.cs):
 
