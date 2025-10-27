@@ -37,11 +37,11 @@ public sealed class Menu : ControlObject, IMenu
     /// Example: For ISettings interface implemented by Settings class,
     /// the menu button should have data-page="Settings".
     /// </summary>
-    /// <typeparam name="TPage">The page object type to navigate to.</typeparam>
+    /// <param name="pageObject">The page object to navigate to.</param>
     /// <returns>A task representing the asynchronous click operation.</returns>
-    public async Task NavigateToAsync<TPage>() where TPage : IPageObject
+    public async Task NavigateToAsync(IPageObject pageObject)
     {
-        var pageName = typeof(TPage).Name.TrimStart('I'); // Remove 'I' prefix from interface names
+        var pageName = pageObject.GetType().Name.TrimStart('I'); // Remove 'I' prefix from interface names
         var menuItemLocator = Locator.Locator($"[data-page='{pageName}']");
         await menuItemLocator.ClickAsync();
     }

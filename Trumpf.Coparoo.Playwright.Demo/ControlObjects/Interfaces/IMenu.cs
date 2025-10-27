@@ -24,7 +24,7 @@ public interface IMenu : IControlObject
     /// Uses a naming convention where the page type name (e.g., "Settings")
     /// matches the data-page attribute in the HTML menu item.
     /// </summary>
-    /// <typeparam name="TPage">The page object type to navigate to.</typeparam>
+    /// <param name="pageObject">The page object to navigate to.</param>
     /// <returns>A task representing the asynchronous click operation.</returns>
-    Task NavigateToAsync<TPage>() where TPage : IPageObject;
+    Task NavigateToAsync(IPageObject pageObject);
 }

@@ -77,18 +77,8 @@ public sealed class Settings : PageObject, ISettings
     {
         if (!await IsActiveAsync())
         {
-            var shell = On<IShell>();
-            await shell.Menu.NavigateToAsync<ISettings>();
-
-            // Wait for the page to become active
-            var timeout = 5000; // 5 seconds
-            var interval = 100; // Check every 100ms
-            var elapsed = 0;
-            while (!await IsActiveAsync() && elapsed < timeout)
-            {
-                await Task.Delay(interval);
-                elapsed += interval;
-            }
+            await On<IShell>().Menu.NavigateToAsync(this);
+            await this.WaitForVisibleAsync();
         }
     }
 }
