@@ -2,32 +2,15 @@
 
 This demo project showcases the powerful capabilities of the **Trumpf.Coparoo.Playwright** framework through a practical example that demonstrates real-world patterns for building maintainable, modular web test automation.
 
-## 🎬 Demo in Action
+## Demo in Action
 
 ![Coparoo demo animation](demo.gif)
 
 This demo exercises dynamic page object relationships, interface-only test access, and convention-based navigation between Settings and Preferences pages.
 
-## 🗂️ Table of Contents
+## Clean Test Code Example
 
-- [Clean Test Code Example](#-clean-test-code-example)
-- [Key Concepts Demonstrated](#-key-concepts-demonstrated)
-- [Team-Independent Development](#team-independent-development)
-- [Component-Level UI Testing](#component-level-ui-testing)
-- [Decoupling at a Glance](#decoupling-at-a-glance)
-- [Convention-Based Navigation](#convention-based-navigation)
-- [Interface-Based Testing](#interface-based-testing)
-- [Project Structure](#-project-structure)
-- [Quick Start](#-quick-start)
-- [Running the Demo](#-running-the-demo)
-- [Real-World Benefits](#-real-world-benefits)
-- [Extending the Demo](#-extending-the-demo)
-- [Additional Resources](#-additional-resources)
-- [License](#-license)
-
-## � Clean Test Code Example
-
-Here's what a typical test looks like with Coparoo.Playwright - notice the clean, readable code with **no delays, no waits, no brittle selectors**:
+Here's what a typical test looks like with Coparoo.Playwright - notice the clean, readable code with **no delays, no waits, no brittle selectors**. The example uses [Awesome Assertions](https://github.com/awesome-inc/awesome-assertions) for expressive assertion checking:
 
 ```csharp
 [TestMethod]
@@ -69,13 +52,13 @@ public async Task NavigateBetweenPages()
 ```
 
 **Key Benefits (at a glance):**
-- ✅ **No CSS selectors** in test code - they're encapsulated in page objects
-- ✅ **No explicit waits** - built into the framework
-- ✅ **Type-safe navigation** - `browser.Goto<ISettings>()` instead of strings
-- ✅ **IntelliSense support** - discover available pages and controls as you type
-- ✅ **Readable and maintainable** - tests read like business requirements
+- **No CSS selectors** in test code - they're encapsulated in page objects
+- **No explicit waits** - built into the framework
+- **Type-safe navigation** - `browser.Goto<ISettings>()` instead of strings
+- **IntelliSense support** - discover available pages and controls as you type
+- **Readable and maintainable** - tests read like business requirements
 
-## 🎯 Key Concepts Demonstrated
+## Key Concepts Demonstrated
 
 ### Dynamic Page Object Relationships
 
@@ -117,7 +100,7 @@ Each team tests their code in isolation using their own page objects in UI compo
 
 The page object implementations of each feature module can be used directly in that team's **UI component tests**. This yields high-quality, focused tests at the component level. The integration test team benefits twice: existing component tests act as a safety net during refactorings, and the same interfaces can be reused unchanged in integration / end-to-end tests. This facilitates a well layered test strategy—catching real defects early at the cheapest level and reducing reliance on slow, brittle system tests.
 
-#### Decoupling at a Glance
+### Decoupling at a Glance
 
 The following diagram visualizes how teams can evolve their page objects independently while the integration layer (DemoTab + tests) composes them dynamically without introducing compile-time coupling between feature modules:
 
@@ -188,12 +171,40 @@ ISettings settings = browser.Goto<ISettings>();
 await settings.EnableNotifications.Check();
 ```
 
-Benefits:
+This interface-based design provides several key benefits:
+
+**Decoupling and Flexibility**
 - Tests are decoupled from implementation details
 - Easier to mock for unit testing
 - Supports multiple implementations (e.g., different themes/layouts)
 
-## 🏗️ Project Structure
+**Stability Through Backward Compatibility**
+
+Because tests interact only with published interfaces (`ISettings`, `IPreferences`, etc.), the implementation of a page object can evolve (DOM changes, selector refactoring, control restructuring) without forcing test changes—as long as interface contracts remain backward compatible. This enables:
+- Swapping or upgrading UI components behind the scenes
+- Shipping experimental layouts side-by-side with legacy ones
+- Gradual refactoring of selectors without brittle test fallout
+
+Dynamic loading (via separate assemblies or NuGet packages) further decouples delivery cadence: integration tests pick up the newest implementations automatically while maintaining reliability through interface stability.
+
+## Real-World Benefits
+
+### Modularity
+Page objects can be distributed as separate NuGet packages. Each team can version and release independently.
+
+### Scalability
+New pages can be added without modifying existing code. Simply register the relationship in the TabObject constructor.
+
+### Maintainability
+Clear separation of concerns. Each page object focuses on its own functionality.
+
+### Testability
+Interface-based design enables easy mocking and unit testing.
+
+### Flexibility
+Different teams can work in parallel without merge conflicts in page object code.
+
+## Project Structure
 
 ```
 Trumpf.Coparoo.Playwright.Demo/
@@ -217,7 +228,7 @@ Trumpf.Coparoo.Playwright.Demo/
 └── README.md                     # This file
 ```
 
-## ⚡ Quick Start
+## Quick Start
 
 ```bash
 dotnet build
@@ -229,7 +240,7 @@ Optional: install browsers first (only once):
 pwsh bin/Debug/net8.0/playwright.ps1 install
 ```
 
-## 🚀 Running the Demo
+## Running the Demo
 
 ### Prerequisites
 
@@ -260,52 +271,13 @@ dotnet test --filter "TestCategory=VisualTest"
 dotnet test --filter "FullyQualifiedName~NavigateBetweenPages"
 ```
 
-
-## 🌟 Real-World Benefits
-
-### Modularity
-Page objects can be distributed as separate NuGet packages. Each team can version and release independently.
-
-### Scalability
-New pages can be added without modifying existing code. Simply register the relationship in the TabObject constructor.
-
-### Maintainability
-Clear separation of concerns. Each page object focuses on its own functionality.
-
-### Testability
-Interface-based design enables easy mocking and unit testing.
-
-### Flexibility
-Different teams can work in parallel without merge conflicts in page object code.
-
-### Stability Through Backward-Compatible Interfaces
-Because tests interact only with published interfaces (`ISettings`, `IPreferences`, etc.), the implementation of a page object can evolve (DOM changes, selector refactoring, control restructuring) without forcing test changes—as long as interface contracts remain backward compatible. This enables:
-- Swapping or upgrading UI components behind the scenes
-- Shipping experimental layouts side-by-side with legacy ones
-- Gradual refactoring of selectors without brittle test fallout
-Dynamic loading (via separate assemblies or NuGet packages) further decouples delivery cadence: integration tests pick up the newest implementations automatically while maintaining reliability through interface stability.
-
-## 🔧 Extending the Demo
-
-To add a new page:
-
-1. Create interface in `PageObjects/Interfaces/`
-2. Implement page object in `PageObjects/`
-3. Add menu button in `wwwroot/demo.html` with correct `data-page` attribute
-4. Register relationship in `DemoTab` constructor:
-   ```csharp
-   ChildOf<YourNewPage, Shell>();
-   ```
-
-No need to modify any existing page objects!
-
-## 📖 Additional Resources
+## Additional Resources
 
 - [Main Coparoo.Playwright Documentation](../README.md)
 - [Pattern Overview](../PATTERN.md)
 - [Decoupling Concepts](../DECOUPLING.md)
 
-## 📄 License
+## License
 
 Copyright 2016 - 2025 TRUMPF Werkzeugmaschinen GmbH + Co. KG
 
