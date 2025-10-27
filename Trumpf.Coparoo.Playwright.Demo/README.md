@@ -30,7 +30,6 @@ public async Task NavigateBetweenPages()
         (await settings.EnableNotifications.IsChecked).Should().BeTrue();
 
         await settings.EnableAutoSave.Check();
-        await settings.EnableDarkMode.Check();
         await settings.EnableAutoSave.Uncheck();
 
         // Navigate to another page - type-safe navigation
@@ -39,7 +38,6 @@ public async Task NavigateBetweenPages()
         // Click buttons - no selectors, no waiting logic
         await preferences.SavePreferences.ClickAsync();
         await preferences.ResetToDefaults.ClickAsync();
-        await preferences.ExportSettings.ClickAsync();
 
         // Navigate back - convention-based, clean
         browser.Goto<ISettings>();
@@ -57,6 +55,10 @@ public async Task NavigateBetweenPages()
 - **Type-safe navigation** - `browser.Goto<ISettings>()` instead of strings
 - **IntelliSense support** - discover available pages and controls as you type
 - **Readable and maintainable** - tests read like business requirements
+
+## Running the Demo
+
+To run this example yourself: First, install Playwright browsers with, e.g., `pwsh bin/Debug/net8.0/playwright.ps1 install` (only needed once). Then, build the project with `dotnet build`. Finally, run the tests using `dotnet test`.
 
 ## Key Concepts Demonstrated
 
@@ -189,20 +191,17 @@ Dynamic loading (via separate assemblies or NuGet packages) further decouples de
 
 ## Real-World Benefits
 
-### Modularity
-Page objects can be distributed as separate NuGet packages. Each team can version and release independently.
+This architecture provides several practical advantages for real-world projects:
 
-### Scalability
-New pages can be added without modifying existing code. Simply register the relationship in the TabObject constructor.
+**Modularity:** Page objects can be distributed as separate NuGet packages. Each team can version and release independently.
 
-### Maintainability
-Clear separation of concerns. Each page object focuses on its own functionality.
+**Scalability:** New pages can be added without modifying existing code. Simply register the relationship in the TabObject constructor.
 
-### Testability
-Interface-based design enables easy mocking and unit testing.
+**Maintainability:** Clear separation of concerns. Each page object focuses on its own functionality.
 
-### Flexibility
-Different teams can work in parallel without merge conflicts in page object code.
+**Testability:** Interface-based design enables easy mocking and unit testing.
+
+**Flexibility:** Different teams can work in parallel without merge conflicts in page object code.
 
 ## Project Structure
 
@@ -226,49 +225,6 @@ Trumpf.Coparoo.Playwright.Demo/
 │   └── demo.html                 # Test HTML application
 ├── Demo.cs                       # Test demonstrations
 └── README.md                     # This file
-```
-
-## Quick Start
-
-```bash
-dotnet build
-dotnet test --filter "TestCategory!=VisualTest"
-```
-
-Optional: install browsers first (only once):
-```bash
-pwsh bin/Debug/net8.0/playwright.ps1 install
-```
-
-## Running the Demo
-
-### Prerequisites
-
-1. Install Playwright browsers:
-   ```bash
-   pwsh bin/Debug/net8.0/playwright.ps1 install
-   ```
-
-2. Build the project:
-   ```bash
-   dotnet build
-   ```
-
-### Run Tests
-
-**Headless Mode (CI-friendly):**
-```bash
-dotnet test --filter "TestCategory!=VisualTest"
-```
-
-**Headed Mode (Visual Debugging):**
-```bash
-dotnet test --filter "TestCategory=VisualTest"
-```
-
-**Run Specific Test:**
-```bash
-dotnet test --filter "FullyQualifiedName~NavigateBetweenPages"
 ```
 
 ## Additional Resources
