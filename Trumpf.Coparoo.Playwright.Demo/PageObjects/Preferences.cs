@@ -43,7 +43,7 @@ public sealed class Preferences : PageObject, IPreferences
     /// <summary>
     /// Gets the search pattern for locating the preferences page in the DOM.
     /// </summary>
-    protected override By SearchPattern => By.CssSelector("[data-testid='preferences-page']");
+    protected override By SearchPattern => By.TestId("preferences-page");
 
     /// <summary>
     /// Gets the button control for saving user preferences.

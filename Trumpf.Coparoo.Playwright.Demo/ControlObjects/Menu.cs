@@ -26,7 +26,7 @@ public sealed class Menu : ControlObject, IMenu
     /// <summary>
     /// Gets the search pattern for locating the navigation menu in the DOM.
     /// </summary>
-    protected override By SearchPattern => By.CssSelector("[data-testid='main-menu']");
+    protected override By SearchPattern => By.TestId("main-menu");
 
     /// <summary>
     /// Navigates to a page by clicking the menu item that corresponds to the page type.

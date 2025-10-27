@@ -40,7 +40,7 @@ public sealed class Settings : PageObject, ISettings
     /// <summary>
     /// Gets the search pattern for locating the settings page in the DOM.
     /// </summary>
-    protected override By SearchPattern => By.CssSelector("[data-testid='settings-page']");
+    protected override By SearchPattern => By.TestId("settings-page");
 
     /// <summary>
     /// Gets the checkbox control for enabling notifications.
