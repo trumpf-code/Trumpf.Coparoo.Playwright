@@ -21,10 +21,10 @@ using Trumpf.Coparoo.Playwright.Internal;
 namespace Trumpf.Coparoo.Playwright.Extensions;
 
 /// <summary>
-/// Extension methods providing all Playwright action methods for IControlObject.
+/// Extension methods providing all Playwright action methods for IUIObject.
 /// These methods delegate to the underlying ILocator to perform user interactions.
 /// </summary>
-public static class IControlObjectActionExtensions
+public static class IUIObjectActionExtensions
 {
     /// <summary>
     /// Click the control.
@@ -33,7 +33,7 @@ public static class IControlObjectActionExtensions
     /// </summary>
     /// <param name="source">The control object to click.</param>
     /// <param name="options">Click options such as button, click count, delay, position, modifiers, etc.</param>
-    public static async Task ClickAsync(this IControlObject source, LocatorClickOptions? options = null)
+    public static async Task ClickAsync(this IUIObject source, LocatorClickOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.ClickAsync(options);
@@ -44,7 +44,7 @@ public static class IControlObjectActionExtensions
     /// </summary>
     /// <param name="source">The control object to double-click.</param>
     /// <param name="options">Double-click options.</param>
-    public static async Task DblClickAsync(this IControlObject source, LocatorDblClickOptions? options = null)
+    public static async Task DblClickAsync(this IUIObject source, LocatorDblClickOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.DblClickAsync(options);
@@ -55,7 +55,7 @@ public static class IControlObjectActionExtensions
     /// </summary>
     /// <param name="source">The control object to tap.</param>
     /// <param name="options">Tap options.</param>
-    public static async Task TapAsync(this IControlObject source, LocatorTapOptions? options = null)
+    public static async Task TapAsync(this IUIObject source, LocatorTapOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.TapAsync(options);
@@ -85,7 +85,7 @@ public static class IControlObjectActionExtensions
     /// element.
     /// </param>
     /// <param name="options">Fill options.</param>
-    public static async Task FillAsync(this IControlObject source, string value, LocatorFillOptions? options = null)
+    public static async Task FillAsync(this IUIObject source, string value, LocatorFillOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.FillAsync(value, options);
@@ -99,7 +99,7 @@ public static class IControlObjectActionExtensions
     /// <param name="text">Text to type.</param>
     /// <param name="options">Type options including delay between key presses.</param>
     [Obsolete("Use FillAsync for most cases, or PressSequentiallyAsync for precise key events.")]
-    public static async Task TypeAsync(this IControlObject source, string text, LocatorTypeOptions? options = null)
+    public static async Task TypeAsync(this IUIObject source, string text, LocatorTypeOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.TypeAsync(text, options);
@@ -111,7 +111,7 @@ public static class IControlObjectActionExtensions
     /// <param name="source">The control object to press keys on.</param>
     /// <param name="key">Key name or character to press (e.g., "Enter", "ArrowLeft", "a", "A").</param>
     /// <param name="options">Press options including delay.</param>
-    public static async Task PressAsync(this IControlObject source, string key, LocatorPressOptions? options = null)
+    public static async Task PressAsync(this IUIObject source, string key, LocatorPressOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.PressAsync(key, options);
@@ -124,7 +124,7 @@ public static class IControlObjectActionExtensions
     /// <param name="source">The control object to type into.</param>
     /// <param name="text">Text to press sequentially.</param>
     /// <param name="options">Press sequentially options including delay between key presses.</param>
-    public static async Task PressSequentiallyAsync(this IControlObject source, string text, LocatorPressSequentiallyOptions? options = null)
+    public static async Task PressSequentiallyAsync(this IUIObject source, string text, LocatorPressSequentiallyOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.PressSequentiallyAsync(text, options);
@@ -136,7 +136,7 @@ public static class IControlObjectActionExtensions
     /// </summary>
     /// <param name="source">The control object to check.</param>
     /// <param name="options">Check options.</param>
-    public static async Task CheckAsync(this IControlObject source, LocatorCheckOptions? options = null)
+    public static async Task CheckAsync(this IUIObject source, LocatorCheckOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.CheckAsync(options);
@@ -148,7 +148,7 @@ public static class IControlObjectActionExtensions
     /// </summary>
     /// <param name="source">The control object to uncheck.</param>
     /// <param name="options">Uncheck options.</param>
-    public static async Task UncheckAsync(this IControlObject source, LocatorUncheckOptions? options = null)
+    public static async Task UncheckAsync(this IUIObject source, LocatorUncheckOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.UncheckAsync(options);
@@ -160,7 +160,7 @@ public static class IControlObjectActionExtensions
     /// <param name="source">The control object.</param>
     /// <param name="checkedState">True to check, false to uncheck.</param>
     /// <param name="options">Set checked options.</param>
-    public static async Task SetCheckedAsync(this IControlObject source, bool checkedState, LocatorSetCheckedOptions? options = null)
+    public static async Task SetCheckedAsync(this IUIObject source, bool checkedState, LocatorSetCheckedOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.SetCheckedAsync(checkedState, options);
@@ -173,7 +173,7 @@ public static class IControlObjectActionExtensions
     /// <param name="values">Value(s) to select.</param>
     /// <param name="options">Select option options.</param>
     /// <returns>List of selected option values.</returns>
-    public static async Task<IReadOnlyList<string>> SelectOptionAsync(this IControlObject source, string values, LocatorSelectOptionOptions? options = null)
+    public static async Task<IReadOnlyList<string>> SelectOptionAsync(this IUIObject source, string values, LocatorSelectOptionOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         return await source.Locator.SelectOptionAsync(values, options);
@@ -186,7 +186,7 @@ public static class IControlObjectActionExtensions
     /// <param name="values">Multiple values to select.</param>
     /// <param name="options">Select option options.</param>
     /// <returns>List of selected option values.</returns>
-    public static async Task<IReadOnlyList<string>> SelectOptionAsync(this IControlObject source, IEnumerable<string> values, LocatorSelectOptionOptions? options = null)
+    public static async Task<IReadOnlyList<string>> SelectOptionAsync(this IUIObject source, IEnumerable<string> values, LocatorSelectOptionOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         return await source.Locator.SelectOptionAsync(values, options);
@@ -199,7 +199,7 @@ public static class IControlObjectActionExtensions
     /// <param name="values">SelectOptionValue to select (can specify by value, label, or index).</param>
     /// <param name="options">Select option options.</param>
     /// <returns>List of selected option values.</returns>
-    public static async Task<IReadOnlyList<string>> SelectOptionAsync(this IControlObject source, SelectOptionValue values, LocatorSelectOptionOptions? options = null)
+    public static async Task<IReadOnlyList<string>> SelectOptionAsync(this IUIObject source, SelectOptionValue values, LocatorSelectOptionOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         return await source.Locator.SelectOptionAsync(values, options);
@@ -212,7 +212,7 @@ public static class IControlObjectActionExtensions
     /// <param name="values">Multiple SelectOptionValue objects.</param>
     /// <param name="options">Select option options.</param>
     /// <returns>List of selected option values.</returns>
-    public static async Task<IReadOnlyList<string>> SelectOptionAsync(this IControlObject source, IEnumerable<SelectOptionValue> values, LocatorSelectOptionOptions? options = null)
+    public static async Task<IReadOnlyList<string>> SelectOptionAsync(this IUIObject source, IEnumerable<SelectOptionValue> values, LocatorSelectOptionOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         return await source.Locator.SelectOptionAsync(values, options);
@@ -225,7 +225,7 @@ public static class IControlObjectActionExtensions
     /// <param name="values">Element handle of the option to select.</param>
     /// <param name="options">Select option options.</param>
     /// <returns>List of selected option values.</returns>
-    public static async Task<IReadOnlyList<string>> SelectOptionAsync(this IControlObject source, IElementHandle values, LocatorSelectOptionOptions? options = null)
+    public static async Task<IReadOnlyList<string>> SelectOptionAsync(this IUIObject source, IElementHandle values, LocatorSelectOptionOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         return await source.Locator.SelectOptionAsync(values, options);
@@ -238,7 +238,7 @@ public static class IControlObjectActionExtensions
     /// <param name="values">Element handles of options to select.</param>
     /// <param name="options">Select option options.</param>
     /// <returns>List of selected option values.</returns>
-    public static async Task<IReadOnlyList<string>> SelectOptionAsync(this IControlObject source, IEnumerable<IElementHandle> values, LocatorSelectOptionOptions? options = null)
+    public static async Task<IReadOnlyList<string>> SelectOptionAsync(this IUIObject source, IEnumerable<IElementHandle> values, LocatorSelectOptionOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         return await source.Locator.SelectOptionAsync(values, options);
@@ -250,7 +250,7 @@ public static class IControlObjectActionExtensions
     /// <param name="source">The control object (file input).</param>
     /// <param name="files">File path to upload.</param>
     /// <param name="options">Set input files options.</param>
-    public static async Task SetInputFilesAsync(this IControlObject source, string files, LocatorSetInputFilesOptions? options = null)
+    public static async Task SetInputFilesAsync(this IUIObject source, string files, LocatorSetInputFilesOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.SetInputFilesAsync(files, options);
@@ -262,7 +262,7 @@ public static class IControlObjectActionExtensions
     /// <param name="source">The control object (file input).</param>
     /// <param name="files">File paths to upload.</param>
     /// <param name="options">Set input files options.</param>
-    public static async Task SetInputFilesAsync(this IControlObject source, IEnumerable<string> files, LocatorSetInputFilesOptions? options = null)
+    public static async Task SetInputFilesAsync(this IUIObject source, IEnumerable<string> files, LocatorSetInputFilesOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.SetInputFilesAsync(files, options);
@@ -274,7 +274,7 @@ public static class IControlObjectActionExtensions
     /// <param name="source">The control object (file input).</param>
     /// <param name="files">File payload with name, mime type, and buffer.</param>
     /// <param name="options">Set input files options.</param>
-    public static async Task SetInputFilesAsync(this IControlObject source, FilePayload files, LocatorSetInputFilesOptions? options = null)
+    public static async Task SetInputFilesAsync(this IUIObject source, FilePayload files, LocatorSetInputFilesOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.SetInputFilesAsync(files, options);
@@ -286,7 +286,7 @@ public static class IControlObjectActionExtensions
     /// <param name="source">The control object (file input).</param>
     /// <param name="files">Multiple file payloads.</param>
     /// <param name="options">Set input files options.</param>
-    public static async Task SetInputFilesAsync(this IControlObject source, IEnumerable<FilePayload> files, LocatorSetInputFilesOptions? options = null)
+    public static async Task SetInputFilesAsync(this IUIObject source, IEnumerable<FilePayload> files, LocatorSetInputFilesOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.SetInputFilesAsync(files, options);
@@ -297,7 +297,7 @@ public static class IControlObjectActionExtensions
     /// </summary>
     /// <param name="source">The control object to hover over.</param>
     /// <param name="options">Hover options including position, modifiers, force, etc.</param>
-    public static async Task HoverAsync(this IControlObject source, LocatorHoverOptions? options = null)
+    public static async Task HoverAsync(this IUIObject source, LocatorHoverOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.HoverAsync(options);
@@ -308,7 +308,7 @@ public static class IControlObjectActionExtensions
     /// </summary>
     /// <param name="source">The control object to focus.</param>
     /// <param name="options">Focus options.</param>
-    public static async Task FocusAsync(this IControlObject source, LocatorFocusOptions? options = null)
+    public static async Task FocusAsync(this IUIObject source, LocatorFocusOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.FocusAsync(options);
@@ -320,7 +320,7 @@ public static class IControlObjectActionExtensions
     /// <param name="source">The control object to drag.</param>
     /// <param name="target">Target locator to drop onto.</param>
     /// <param name="options">Drag to options.</param>
-    public static async Task DragToAsync(this IControlObject source, ILocator target, LocatorDragToOptions? options = null)
+    public static async Task DragToAsync(this IUIObject source, ILocator target, LocatorDragToOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.DragToAsync(target, options);
@@ -331,7 +331,7 @@ public static class IControlObjectActionExtensions
     /// </summary>
     /// <param name="source">The control object to scroll into view.</param>
     /// <param name="options">Scroll into view options.</param>
-    public static async Task ScrollIntoViewIfNeededAsync(this IControlObject source, LocatorScrollIntoViewIfNeededOptions? options = null)
+    public static async Task ScrollIntoViewIfNeededAsync(this IUIObject source, LocatorScrollIntoViewIfNeededOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.ScrollIntoViewIfNeededAsync(options);
@@ -344,7 +344,7 @@ public static class IControlObjectActionExtensions
     /// <param name="type">Event type (e.g., "click", "dragstart").</param>
     /// <param name="eventInit">Optional event initialization object.</param>
     /// <param name="options">Dispatch event options.</param>
-    public static async Task DispatchEventAsync(this IControlObject source, string type, object? eventInit = null, LocatorDispatchEventOptions? options = null)
+    public static async Task DispatchEventAsync(this IUIObject source, string type, object? eventInit = null, LocatorDispatchEventOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.DispatchEventAsync(type, eventInit, options);
@@ -354,7 +354,7 @@ public static class IControlObjectActionExtensions
     /// Highlight the control for debugging purposes (draws a red border around it).
     /// </summary>
     /// <param name="source">The control object to highlight.</param>
-    public static async Task HighlightAsync(this IControlObject source)
+    public static async Task HighlightAsync(this IUIObject source)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.HighlightAsync();
@@ -365,9 +365,10 @@ public static class IControlObjectActionExtensions
     /// </summary>
     /// <param name="source">The control object.</param>
     /// <param name="options">Select text options.</param>
-    public static async Task SelectTextAsync(this IControlObject source, LocatorSelectTextOptions? options = null)
+    public static async Task SelectTextAsync(this IUIObject source, LocatorSelectTextOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         await source.Locator.SelectTextAsync(options);
     }
 }
+

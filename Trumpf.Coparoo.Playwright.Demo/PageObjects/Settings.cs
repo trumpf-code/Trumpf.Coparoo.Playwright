@@ -64,7 +64,7 @@ public sealed class Settings : PageObject, ISettings
     /// </summary>
     public override async Task Goto()
     {
-        if (!await Locator.IsVisibleAsync())
+        if (!await this.IsVisibleAsync())
         {
             await On<IShell>().Menu.NavigateToAsync(this);
             await this.WaitForVisibleAsync();

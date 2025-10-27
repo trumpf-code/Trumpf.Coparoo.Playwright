@@ -35,8 +35,8 @@ public class ButtonTests
         var checkbox = tab.Find<Button>("non-existing locator");
 
         // Act
-        var count = await checkbox.Locator.CountAsync();
-        var isVisible = await checkbox.Locator.IsVisibleAsync();
+        var count = await checkbox.CountAsync();
+        var isVisible = await checkbox.IsVisibleAsync();
 
         // Check
         count.Should().Be(0);
@@ -56,7 +56,7 @@ public class ButtonTests
 
         // Act
         string actualButtonText = await button.Text();
-        var isVisible = await button.Locator.IsVisibleAsync();
+        var isVisible = await button.IsVisibleAsync();
 
         // Log
         Trace.WriteLine($"buttonText: {actualButtonText}");
@@ -79,7 +79,7 @@ public class ButtonTests
         // Act
         var button = tab.Find<Button>(By.TestId(expectedTestId));
         var actualButtonText = await button.Text();
-        var isVisible = await button.Locator.IsVisibleAsync();
+        var isVisible = await button.IsVisibleAsync();
 
         // Log
         Trace.WriteLine($"testId: {expectedTestId}");

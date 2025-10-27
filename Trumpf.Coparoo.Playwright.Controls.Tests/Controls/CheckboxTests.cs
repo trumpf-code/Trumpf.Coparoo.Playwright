@@ -38,8 +38,8 @@ public class CheckboxTests
         var checkbox = tab.Find<Checkbox>();
 
         // Act
-        int count = await checkbox.Locator.CountAsync();
-        bool isVisible = await checkbox.Locator.IsVisibleAsync();
+        int count = await checkbox.CountAsync();
+        bool isVisible = await checkbox.IsVisibleAsync();
         var actualName = await checkbox.Name;
         var actualValue = await checkbox.Value;
         var actualIsChecked = await checkbox.IsChecked;

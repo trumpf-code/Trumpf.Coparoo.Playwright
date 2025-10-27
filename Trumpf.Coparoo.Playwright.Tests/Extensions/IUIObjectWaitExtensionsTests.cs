@@ -97,7 +97,7 @@ public class IUIObjectWaitExtensionsTests
 
         // Act & Assert
         await button.WaitForVisibleAsync();
-        var isVisible = await button.Locator.IsVisibleAsync();
+        var isVisible = await button.IsVisibleAsync();
         isVisible.Should().BeTrue();
 
         // Cleanup
@@ -125,7 +125,7 @@ public class IUIObjectWaitExtensionsTests
 
         // Act & Assert
         await button.WaitForHiddenAsync();
-        var isVisible = await button.Locator.IsVisibleAsync();
+        var isVisible = await button.IsVisibleAsync();
         isVisible.Should().BeFalse();
 
         // Cleanup
