@@ -10,7 +10,9 @@ This demo exercises dynamic page object relationships, interface-only test acces
 
 ## Clean Test Code Example
 
-Here's what a typical test looks like with Coparoo.Playwright - notice the clean, readable code with **no delays, no waits, no brittle selectors**. The example uses [Awesome Assertions](https://github.com/awesome-inc/awesome-assertions) for expressive assertion checking:
+Here's what a typical test looks like with Coparoo.Playwright - notice the clean, readable code with **no delays, no waits, no brittle selectors**. The example uses [Awesome Assertions](https://github.com/awesome-inc/awesome-assertions) for expressive assertion checking.
+
+See the full test implementation in [Demo.cs](Demo.cs):
 
 ```csharp
 [TestMethod]
@@ -80,6 +82,9 @@ public class Settings : PageObject, ISettings
 ```
 
 In this demo, we use the loosely coupled approach (Approach 2). The relationships between page objects are registered dynamically at runtime in the TabObject constructor using the `ChildOf<TChild, TParent>()` method. The `DemoTab` represents the tab of the entire application and is used to perform integration tests across all modules, giving you full flexibility to compose your page object hierarchy as needed:
+
+See how this is implemented in [DemoTab.cs](TabObjects/DemoTab.cs):
+
 ```csharp
 public DemoTab()
 {
@@ -87,6 +92,8 @@ public DemoTab()
     ChildOf<Preferences, Shell>();
 }
 ```
+
+The page objects themselves ([Settings.cs](PageObjects/Settings.cs), [Preferences.cs](PageObjects/Preferences.cs)) have no explicit parent declarations, making them reusable across different contexts.
 
 ### Team-Independent Development
 
@@ -151,6 +158,8 @@ Key points:
 
 This demo showcases one possible, lightweight convention for cross-page navigation when the `Shell` page object itself does not (and should not) have compile-time knowledge of concrete page implementations like `Settings` or `Preferences`. The page object classes for `Shell`, `Settings`, and `Preferences` are completely unaware of each other; yet, through a simple external mapping mechanism (here: the HTML `data-page` attribute matching the interface/type name), test code can still instruct the shell to navigate to a page. The linking logic (menu item -> page type) is therefore not embedded inside the `Shell` implementation, making the shell easily extensible: new pages can be plugged in by adding a menu entry that follows the convention—without touching the `Shell` page object.
 
+See the navigation implementation in [Menu.cs](ControlObjects/Menu.cs) and the HTML structure in [demo.html](wwwroot/demo.html):
+
 ```csharp
 // HTML menu item
 <button data-page="Settings">Settings</button>
@@ -166,7 +175,9 @@ This convention allows:
 
 ### Interface-Based Testing
 
-Tests interact with page objects through interfaces, not concrete implementations:
+Tests interact with page objects through interfaces, not concrete implementations.
+
+See the interfaces defined in [PageObjects/Interfaces/](PageObjects/Interfaces/):
 
 ```csharp
 ISettings settings = browser.Goto<ISettings>();
@@ -179,6 +190,8 @@ This interface-based design provides several key benefits:
 - Tests are decoupled from implementation details
 - Easier to mock for unit testing
 - Supports multiple implementations (e.g., different themes/layouts)
+
+Compare the interface definitions ([ISettings.cs](PageObjects/Interfaces/ISettings.cs), [IPreferences.cs](PageObjects/Interfaces/IPreferences.cs)) with their implementations ([Settings.cs](PageObjects/Settings.cs), [Preferences.cs](PageObjects/Preferences.cs)) to see this pattern in action.
 
 **Stability Through Backward Compatibility**
 
