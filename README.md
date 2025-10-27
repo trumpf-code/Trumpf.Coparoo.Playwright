@@ -4,7 +4,7 @@
 ## Description
 *Trumpf.Coparoo.Playwright is a .NET library for C# that helps you write fast, maintainable, robust and fluent Playwright-driven web tests based on the **co**ntrol/**pa**ge/**ro**ot-**o**bject (Coparoo) pattern.*
 
-## Demo Animation
+## Quick Start Example
 An animated walkthrough of a minimal multi-page setup (dynamic relationships, interface-based navigation, checkbox + button interactions):
 
 ![Coparoo demo animation](Trumpf.Coparoo.Playwright.Demo/demo.gif)
