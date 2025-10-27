@@ -11,14 +11,20 @@ An animated walkthrough of a minimal multi-page setup (dynamic relationships, in
 
 For a detailed walkthrough of this demo, including the complete source code and step-by-step explanations, see [Demo README](Trumpf.Coparoo.Playwright.Demo/README.md).
 
-For a simpler introductory example, the following sign-in/out test scenario illustrates how the framework facilitates writing user interface tests in a "natural" way to automate interactions on the GitHub web page:
+For a simpler introductory example, here's the basic pattern illustrated in the demo above - notice how naturally the test reads:
 
-    var app = new GitHubTab();                          // create the tab object
-    app.Open();                                         // open the github page in a new browser tab
-    app.On<Header>().SignIn.Click();                    // click the sign-in button
-    app.On<SignInForm>().SignIn("myUser", "abc");       // enter the user credentials ...
-    app.On<Header>().Profile.Click();                   // open the user profile
-    app.On<ProfileDrowndown>().SignOut.Click();         // sign out
+    var browser = new DemoTab();                        // create the browser tab
+    await browser.Open();                               // open the application
+
+    var settings = browser.On<ISettings>();             // access the Settings page
+    await settings.EnableNotifications.Check();         // interact with a checkbox
+    await settings.EnableAutoSave.Check();              // check another option
+
+    var prefs = browser.Goto<IPreferences>();           // navigate to Preferences page
+    await prefs.SavePreferences.ClickAsync();           // click a button
+    await prefs.ExportSettings.ClickAsync();            // click another button
+
+    await browser.Close();                              // cleanup
 
 ## NuGet Package Information
 To make it easier for you to develop with the *Trumpf Coparoo Web* library we release it as NuGet packages:
