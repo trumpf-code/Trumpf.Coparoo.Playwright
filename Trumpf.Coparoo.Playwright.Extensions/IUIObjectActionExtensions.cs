@@ -16,6 +16,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Playwright;
 using Trumpf.Coparoo.Playwright.Internal;
 
 namespace Trumpf.Coparoo.Playwright.Extensions;
@@ -36,28 +38,33 @@ public static class IUIObjectActionExtensions
     public static async Task ClickAsync(this IUIObject source, LocatorClickOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
+        await source.Locator.ScrollIntoViewIfNeededAsync();
         await source.Locator.ClickAsync(options);
     }
 
     /// <summary>
     /// Double-click the control.
+    /// This method scrolls the element into view if needed before performing the double-click.
     /// </summary>
     /// <param name="source">The control object to double-click.</param>
     /// <param name="options">Double-click options.</param>
     public static async Task DblClickAsync(this IUIObject source, LocatorDblClickOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
+        await source.Locator.ScrollIntoViewIfNeededAsync();
         await source.Locator.DblClickAsync(options);
     }
 
     /// <summary>
     /// Tap the control (mobile/touch gesture).
+    /// This method scrolls the element into view if needed before performing the tap.
     /// </summary>
     /// <param name="source">The control object to tap.</param>
     /// <param name="options">Tap options.</param>
     public static async Task TapAsync(this IUIObject source, LocatorTapOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
+        await source.Locator.ScrollIntoViewIfNeededAsync();
         await source.Locator.TapAsync(options);
     }
 
@@ -78,6 +85,7 @@ public static class IUIObjectActionExtensions
     /// the control will be filled instead.
     /// </para>
     /// <para>To send fine-grained keyboard events, use <see cref="PressSequentiallyAsync"/>.</para>
+    /// <para>The element is automatically scrolled into view if needed before filling.</para>
     /// </summary>
     /// <param name="source">The control object to fill.</param>
     /// <param name="value">
@@ -88,6 +96,7 @@ public static class IUIObjectActionExtensions
     public static async Task FillAsync(this IUIObject source, string value, LocatorFillOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
+        await source.Locator.ScrollIntoViewIfNeededAsync();
         await source.Locator.FillAsync(value, options);
     }
 
@@ -294,28 +303,33 @@ public static class IUIObjectActionExtensions
 
     /// <summary>
     /// Hover over the control.
+    /// This method scrolls the element into view if needed before hovering.
     /// </summary>
     /// <param name="source">The control object to hover over.</param>
     /// <param name="options">Hover options including position, modifiers, force, etc.</param>
     public static async Task HoverAsync(this IUIObject source, LocatorHoverOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
+        await source.Locator.ScrollIntoViewIfNeededAsync();
         await source.Locator.HoverAsync(options);
     }
 
     /// <summary>
     /// Focus the control.
+    /// This method scrolls the element into view if needed before focusing.
     /// </summary>
     /// <param name="source">The control object to focus.</param>
     /// <param name="options">Focus options.</param>
     public static async Task FocusAsync(this IUIObject source, LocatorFocusOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
+        await source.Locator.ScrollIntoViewIfNeededAsync();
         await source.Locator.FocusAsync(options);
     }
 
     /// <summary>
     /// Drag the control to a target locator (drag and drop).
+    /// This method scrolls the source element into view if needed before dragging.
     /// </summary>
     /// <param name="source">The control object to drag.</param>
     /// <param name="target">Target locator to drop onto.</param>
@@ -323,6 +337,7 @@ public static class IUIObjectActionExtensions
     public static async Task DragToAsync(this IUIObject source, ILocator target, LocatorDragToOptions? options = null)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
+        await source.Locator.ScrollIntoViewIfNeededAsync();
         await source.Locator.DragToAsync(target, options);
     }
 
