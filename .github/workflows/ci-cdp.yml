@@ -1,0 +1,116 @@
+name: CI - Build, Test, CDP
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test-windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    env:
+      SOLUTION_FILE: Trumpf.Coparoo.Playwright.sln
+      CONFIGURATION: Release
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            7.0.x
+
+      - name: Restore
+        run: dotnet restore $env:SOLUTION_FILE
+        shell: pwsh
+
+      - name: Build
+        run: dotnet build $env:SOLUTION_FILE --configuration $env:CONFIGURATION --no-restore
+        shell: pwsh
+
+      - name: Start Browser with CDP (9222)
+        shell: pwsh
+        run: |
+          # Try Edge first (available on all Windows runners), then Chrome
+          $browserCandidates = @(
+            "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+            "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+            "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+            "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+          )
+
+          $browserPath = $null
+          foreach ($p in $browserCandidates) {
+            if (Test-Path $p) { $browserPath = $p; break }
+          }
+          if (-not $browserPath) {
+            try { $browserPath = (Get-Command msedge -ErrorAction Stop).Source } catch {}
+          }
+          if (-not $browserPath) {
+            try { $browserPath = (Get-Command chrome -ErrorAction Stop).Source } catch {}
+          }
+          if (-not $browserPath) {
+            Write-Error "No Chromium-based browser (Edge/Chrome) found on runner."; exit 1
+          }
+
+          Write-Host "Starting browser from: $browserPath"
+          $args = @(
+            "--remote-debugging-port=9222",
+            "--headless=new",
+            "--disable-gpu",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "about:blank"
+          )
+
+          $proc = Start-Process -FilePath $browserPath -ArgumentList $args -WindowStyle Hidden -PassThru
+          Write-Host "Browser PID: $($proc.Id)"
+
+          # Wait until CDP endpoint is ready
+          $maxRetries = 60
+          $retries = 0
+          $url = "http://127.0.0.1:9222/json/version"
+          while ($retries -lt $maxRetries) {
+            try {
+              $resp = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 2
+              if ($resp.StatusCode -eq 200) { Write-Host "CDP endpoint ready."; break }
+            } catch {}
+            Start-Sleep -Seconds 1
+            $retries++
+          }
+
+          if ($retries -ge $maxRetries) {
+            Write-Error "CDP endpoint not reachable at $url"; exit 1
+          }
+
+      - name: Test (includes CDP tests)
+        env:
+          CDP_ENDPOINT: http://127.0.0.1:9222
+        run: |
+          dotnet test $env:SOLUTION_FILE `
+            --configuration $env:CONFIGURATION `
+            --no-build `
+            --logger "trx;LogFileName=testresults.trx"
+        shell: pwsh
+
+      - name: Stop Browser
+        if: always()
+        shell: pwsh
+        run: |
+          Get-Process msedge -ErrorAction SilentlyContinue | Stop-Process -Force
+          Get-Process chrome -ErrorAction SilentlyContinue | Stop-Process -Force
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-windows
+          path: |
+            **/TestResults/*.trx
+            **/TestResults/**/*.xml

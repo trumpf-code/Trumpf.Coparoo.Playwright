@@ -16,6 +16,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
 {
     using System;
     using System.IO;
+    using System.Net.Http;
     using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Trumpf.Coparoo.Playwright.Pooling;
@@ -36,7 +37,8 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             //   var settings = new CefSettings { RemoteDebuggingPort = 9223 };
             // Then use: _cdpEndpoint = "http://127.0.0.1:9223";
             
-            _cdpEndpoint = "http://localhost:9222"; // Mock endpoint for non-CDP tests
+            // Prefer env var if provided (e.g., in CI), else default to localhost:9222
+            _cdpEndpoint = Environment.GetEnvironmentVariable("CDP_ENDPOINT") ?? "http://localhost:9222"; // Default for CI setup
 
             // Create test HTML file
             var htmlPath = Path.Combine(
@@ -167,23 +169,30 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         }
 
         [TestMethod]
-        [Ignore("Requires external CDP browser (e.g., CefSharp with RemoteDebuggingPort). Playwright-launched browsers cannot be used with ConnectOverCDP.")]
+        [TestCategory("CDP")]
         public async Task MultipleTabInstances_WithCdpPooling_ReuseSameConnection()
         {
             // This test demonstrates the pooling concept with CDP connections.
             // To run this test:
-            // 1. Start an external browser with CDP enabled (e.g., CefSharp with RemoteDebuggingPort = 9223)
-            // 2. Update _cdpEndpoint in ClassInitialize to point to that browser
-            // 3. Remove the [Ignore] attribute
-            
+            // 1. Start an external browser with CDP enabled:
+            //    Edge:   msedge.exe --remote-debugging-port=9222 --headless=new about:blank
+            //    Chrome: chrome.exe --remote-debugging-port=9222 --headless=new about:blank
+            // 2. Set CDP_ENDPOINT environment variable (or it will default to http://localhost:9222)
+            var endpoint = Environment.GetEnvironmentVariable("CDP_ENDPOINT") ?? _cdpEndpoint;
+            if (!await IsCdpAvailableAsync(endpoint))
+            {
+                Assert.Inconclusive($"CDP endpoint '{endpoint}' not reachable. Skipping.");
+                return;
+            }
+
             var pool = SmartPlaywrightConnectionPool.Instance;
             var initialStats = pool.GetStatistics();
             
             try
             {
-                var tab1 = new TestCdpTab(_cdpEndpoint, "tab1");
-                var tab2 = new TestCdpTab(_cdpEndpoint, "tab1"); // Same identifier!
-                var tab3 = new TestCdpTab(_cdpEndpoint, "tab1"); // Same identifier!
+                var tab1 = new TestCdpTab(endpoint, "tab1");
+                var tab2 = new TestCdpTab(endpoint, "tab1"); // Same identifier!
+                var tab3 = new TestCdpTab(endpoint, "tab1"); // Same identifier!
 
                 await tab1.Open();
                 await tab2.Open();
@@ -213,11 +222,17 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         }
 
         [TestMethod]
-        [Ignore("Requires external CDP browser (e.g., CefSharp with RemoteDebuggingPort). Playwright-launched browsers cannot be used with ConnectOverCDP.")]
+        [TestCategory("CDP")]
         public async Task SequentialTabUsage_WithCdpPooling_ReusesConnection()
         {
             // This test demonstrates connection reuse across sequential tab instances.
             // See MultipleTabInstances_WithCdpPooling_ReuseSameConnection for setup instructions.
+            var endpoint = Environment.GetEnvironmentVariable("CDP_ENDPOINT") ?? _cdpEndpoint;
+            if (!await IsCdpAvailableAsync(endpoint))
+            {
+                Assert.Inconclusive($"CDP endpoint '{endpoint}' not reachable. Skipping.");
+                return;
+            }
             var pool = SmartPlaywrightConnectionPool.Instance;
             
             try
@@ -227,7 +242,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                 // Open and close the same tab 3 times
                 for (int i = 0; i < 3; i++)
                 {
-                    var tab = new TestCdpTab(_cdpEndpoint, "sequential");
+                    var tab = new TestCdpTab(endpoint, "sequential");
                     await tab.Open();
                     
                     var page = await tab.Page;
@@ -343,6 +358,28 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
 
             // Clean up our manual connection
             await connection.DisposeAsync();
+        }
+
+        private static async Task<bool> IsCdpAvailableAsync(string endpoint)
+        {
+            if (string.IsNullOrWhiteSpace(endpoint)) return false;
+            
+            // Try to actually connect via Playwright's ConnectOverCDP to verify it works
+            try
+            {
+                var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
+                var browser = await playwright.Chromium.ConnectOverCDPAsync(endpoint);
+                
+                // If we got here, CDP connection works
+                await browser.CloseAsync();
+                playwright.Dispose();
+                return true;
+            }
+            catch
+            {
+                // CDP connection failed - maybe not ready or not available
+                return false;
+            }
         }
     }
 }
