@@ -125,7 +125,15 @@ public abstract class CdpTabObject : TabObject
                 "Override the CdpEndpoint property to specify the CDP endpoint URL.");
         }
 
-        var pageIdentifier = PageIdentifier ?? Url ?? GetType().Name;
+        var pageIdentifier = !string.IsNullOrWhiteSpace(PageIdentifier)
+            ? PageIdentifier
+            : (!string.IsNullOrWhiteSpace(Url) ? Url : GetType().Name);
+
+        if (pageIdentifier == GetType().Name)
+        {
+            System.Diagnostics.Debug.WriteLine($"[CdpTabObject] WARN: PageIdentifier and Url are empty for {GetType().Name} at connect time. Falling back to class name. Ensure derived tab initializes identifier before connection.");
+        }
+
         System.Diagnostics.Debug.WriteLine($"[CdpTabObject] {GetType().Name}: Connecting via CDP endpoint='{CdpEndpoint}', pageIdentifier='{pageIdentifier}', findExistingByUrl={FindExistingPageByUrl}");
         
         return await SmartPlaywrightConnectionPool.Instance
