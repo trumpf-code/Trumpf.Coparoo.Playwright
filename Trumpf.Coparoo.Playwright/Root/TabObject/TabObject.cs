@@ -40,7 +40,7 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     public TabObject()
     {
         TabObjectNode n = new();
-        n.SetCreator(Creator());
+        n.SetCreator(Creator);
         Init(null, n);
         pageObjectLocator = new PageObjectLocator(this);
         objectInterfaceResolver = new UIObjectInterfaceResolver();

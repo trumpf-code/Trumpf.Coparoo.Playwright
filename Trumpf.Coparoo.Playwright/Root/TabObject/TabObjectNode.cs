@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Threading.Tasks;
 using Trumpf.Coparoo.Playwright.Exceptions;
 using Trumpf.Coparoo.Playwright.Internal;
 
@@ -49,15 +50,20 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     /// <summary>
     /// Gets the page creator.
     /// </summary>
-    private Task<IPage> creator;
-    public void SetCreator(Task<IPage> c)
+    private Func<Task<IPage>> creator;
+    public void SetCreator(Func<Task<IPage>> c)
     {
         creator = c;
     }
 
     public Task<IPage> Creator()
     {
-        return creator;
+        if (creator == null)
+        {
+            throw new TabObjectNotInitializedException("The TabObject has not been initialized with a creator function. Make sure to set the creator before accessing the Page.");
+        }
+
+        return creator();
     }
 
     /// <summary>
