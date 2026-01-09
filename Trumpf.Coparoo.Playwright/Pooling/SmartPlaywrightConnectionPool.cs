@@ -228,23 +228,36 @@ namespace Trumpf.Coparoo.Playwright.Pooling
                     IPage page;
                     if (findExistingByUrl)
                     {
-                        // Search for existing page with matching URL
-                        page = browser.Contexts.FirstOrDefault()?.Pages.FirstOrDefault(p => p.Url.Equals(pageUrl, StringComparison.OrdinalIgnoreCase));
-                        
+                        // Search for existing page with matching URL across ALL contexts
+                        page = browser.Contexts
+                            .SelectMany(c => c.Pages)
+                            .FirstOrDefault(p => string.Equals(p.Url, pageUrl, StringComparison.OrdinalIgnoreCase));
+
                         if (page == null)
                         {
                             throw new InvalidOperationException(
-                                $"No existing page found with URL '{pageUrl}' in browser contexts. " +
-                                "Ensure the page is already loaded before attempting to connect.");
+                                $"No existing page found with URL '{pageUrl}' in any browser context. " +
+                                "Either open the page in the target app before connecting, or override FindExistingPageByUrl=false to let the framework create a new tab/window.");
                         }
-                        
+
                         System.Diagnostics.Debug.WriteLine($"[SmartPool] Found existing page with URL {pageUrl}");
                     }
                     else
                     {
-                        // Create new page
-                        page = await browser.NewPageAsync().ConfigureAwait(false);
-                        System.Diagnostics.Debug.WriteLine($"[SmartPool] Created new page for {pageUrl}");
+                        // Prefer creating a page from an existing (persistent) context when connected over CDP
+                        var context = browser.Contexts.FirstOrDefault();
+
+                        if (context != null)
+                        {
+                            page = await context.NewPageAsync().ConfigureAwait(false);
+                            System.Diagnostics.Debug.WriteLine($"[SmartPool] Created new page via existing context for {pageUrl}");
+                        }
+                        else
+                        {
+                            // Fallback: try Browser.NewPageAsync (may fail for CDP without default context)
+                            page = await browser.NewPageAsync().ConfigureAwait(false);
+                            System.Diagnostics.Debug.WriteLine($"[SmartPool] Created new page via Browser.NewPageAsync for {pageUrl}");
+                        }
                     }
 
                     var connection = new PooledPageConnection(

@@ -78,14 +78,14 @@ public abstract class CdpTabObject : TabObject
     /// <summary>
     /// Gets a value indicating whether to find an existing page by URL instead of creating a new one.
     /// When true, searches for an existing page with matching URL in the browser's contexts.
-    /// When false (default), creates a new page via browser.NewPageAsync().
+    /// When false, creates a new page via an existing browser context (preferred) or as a fallback via Browser.NewPageAsync().
     /// </summary>
     /// <remarks>
-    /// Set this to true when connecting to applications where pages are already opened
-    /// and you want to find them by URL rather than creating new tabs.
+    /// Default is true. Set this to true when connecting to applications where pages are already opened
+    /// and you want to find them by URL rather than creating new tabs/windows.
     /// Example: Connecting to an existing WPF application with CefSharp where dialogs are already loaded.
     /// </remarks>
-    protected virtual bool FindExistingPageByUrl => false;
+    protected virtual bool FindExistingPageByUrl => true;
 
     /// <summary>
     /// Gets the CDP connection options.
