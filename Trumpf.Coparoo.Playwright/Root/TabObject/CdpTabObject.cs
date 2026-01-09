@@ -76,6 +76,18 @@ public abstract class CdpTabObject : TabObject
     protected virtual string PageIdentifier => Url;
 
     /// <summary>
+    /// Gets a value indicating whether to find an existing page by URL instead of creating a new one.
+    /// When true, searches for an existing page with matching URL in the browser's contexts.
+    /// When false (default), creates a new page via browser.NewPageAsync().
+    /// </summary>
+    /// <remarks>
+    /// Set this to true when connecting to applications where pages are already opened
+    /// and you want to find them by URL rather than creating new tabs.
+    /// Example: Connecting to an existing WPF application with CefSharp where dialogs are already loaded.
+    /// </remarks>
+    protected virtual bool FindExistingPageByUrl => false;
+
+    /// <summary>
     /// Gets the CDP connection options.
     /// Override this to customize timeout, slow motion, or other connection settings.
     /// </summary>
@@ -116,7 +128,7 @@ public abstract class CdpTabObject : TabObject
         var pageIdentifier = PageIdentifier ?? Url ?? GetType().Name;
         
         return await SmartPlaywrightConnectionPool.Instance
-            .GetOrCreatePageAsync(CdpEndpoint, pageIdentifier, CdpOptions)
+            .GetOrCreatePageAsync(CdpEndpoint, pageIdentifier, CdpOptions, FindExistingPageByUrl)
             .ConfigureAwait(false);
     }
 

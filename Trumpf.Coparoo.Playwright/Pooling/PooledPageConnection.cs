@@ -55,6 +55,13 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         public IPage Page { get; }
 
         /// <summary>
+        /// Gets a value indicating whether this connection owns the page lifecycle.
+        /// When true, the pool created the page and will close it on dispose.
+        /// When false, the page was found/attached (e.g., via CDP) and must not be closed by the pool.
+        /// </summary>
+        public bool OwnsPage { get; }
+
+        /// <summary>
         /// Gets the timestamp when this connection was last used.
         /// </summary>
         public DateTime LastUsed { get; private set; }
@@ -73,13 +80,15 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         /// <param name="playwright">The Playwright instance.</param>
         /// <param name="browser">The CDP browser instance.</param>
         /// <param name="page">The page instance.</param>
+        /// <param name="ownsPage">Optional flag indicating whether the page was created by the pool (defaults to true). When false, the page will not be closed on dispose.</param>
         public PooledPageConnection(
             string cacheKey,
             string cdpEndpoint,
             string pageUrl,
             IPlaywright playwright,
             IBrowser browser,
-            IPage page)
+            IPage page,
+            bool ownsPage = true)
         {
             CacheKey = cacheKey ?? throw new ArgumentNullException(nameof(cacheKey));
             CdpEndpoint = cdpEndpoint ?? throw new ArgumentNullException(nameof(cdpEndpoint));
@@ -87,6 +96,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
             Playwright = playwright ?? throw new ArgumentNullException(nameof(playwright));
             Browser = browser ?? throw new ArgumentNullException(nameof(browser));
             Page = page ?? throw new ArgumentNullException(nameof(page));
+            OwnsPage = ownsPage;
             
             CreatedAt = DateTime.UtcNow;
             LastUsed = DateTime.UtcNow;
@@ -125,10 +135,10 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         /// <returns>A <see cref="Task"/> representing the asynchronous dispose operation.</returns>
         public async ValueTask DisposeAsync()
         {
-            // Close Page
+            // Close Page (only when we own it)
             try
             {
-                if (Page != null && !Page.IsClosed)
+                if (Page != null && !Page.IsClosed && OwnsPage)
                 {
                     await Page.CloseAsync().ConfigureAwait(false);
                 }

@@ -1,8 +1,8 @@
 # Trumpf.Coparoo.Playwright - CDP Connection Pooling Konzept
 
-## ?? Übersicht
+## ?? ï¿½bersicht
 
-Dieses Dokument beschreibt das Konzept für **Smart Connection Pooling** zur Lösung von Memory-Problemen in WPF-Anwendungen mit CefSharp-Dialogen.
+Dieses Dokument beschreibt das Konzept fï¿½r **Smart Connection Pooling** zur Lï¿½sung von Memory-Problemen in WPF-Anwendungen mit CefSharp-Dialogen.
 
 ---
 
@@ -11,7 +11,7 @@ Dieses Dokument beschreibt das Konzept für **Smart Connection Pooling** zur Lösu
 ### Szenario: WPF-Anwendung mit CefSharp-Dialogen
 
 **Symptome**:
-- `OutOfMemoryException` bei häufigem Dialog-Öffnen/Schließen
+- `OutOfMemoryException` bei hï¿½ufigem Dialog-ï¿½ffnen/Schlieï¿½en
 - CEF-Subprozesse (`cefSharp.BrowserSubprocess.exe 32bit`) starten dynamisch
 - Playwright/Browser-Instanzen werden nicht freigegeben
 
@@ -31,7 +31,7 @@ protected override async Task<IPage> Creator()
 
 ---
 
-## ?? Lösung: Validation-Based Connection Pooling
+## ?? Lï¿½sung: Validation-Based Connection Pooling
 
 ### Kern-Prinzipien
 
@@ -65,7 +65,7 @@ SmartPlaywrightConnectionPool (Singleton)
 ### Connection Lifecycle
 
 ```
-Dialog öffnen
+Dialog ï¿½ffnen
     ?
 GetOrCreatePageAsync(cdpEndpoint, pageUrl)
     ?
@@ -178,7 +178,7 @@ public override async Task Goto()
 }
 ```
 
-**Vorteil**: Transparent für den User
+**Vorteil**: Transparent fï¿½r den User
 
 ---
 
@@ -202,7 +202,7 @@ Trumpf.Coparoo.Playwright/
 
 ### 1. SmartPlaywrightConnectionPool.cs
 
-**Zweck**: Singleton-Pool für CDP-Verbindungen
+**Zweck**: Singleton-Pool fï¿½r CDP-Verbindungen
 
 **Kern-Methoden**:
 - `GetOrCreatePageAsync()` - Haupt-Entry-Point
@@ -223,7 +223,7 @@ pool.EnablePageCaching = true;       // Standard: true
 
 ### 2. PooledPageConnection.cs
 
-**Zweck**: Wrapper für eine CDP-Verbindung
+**Zweck**: Wrapper fï¿½r eine CDP-Verbindung
 
 **Eigenschaften**:
 ```csharp
@@ -253,23 +253,23 @@ await DisposeAsync()
 
 ### 3. CdpTabObject.cs
 
-**Zweck**: Erzwingt Pool-Nutzung für WPF/CefSharp-Szenarien
+**Zweck**: Erzwingt Pool-Nutzung fï¿½r WPF/CefSharp-Szenarien
 
 **Template Method Pattern**:
 ```csharp
 public abstract class CdpTabObject : TabObject
 {
-    // User MUSS überschreiben
+    // User MUSS ï¿½berschreiben
     protected abstract string CdpEndpoint { get; }
     
-    // User KANN überschreiben
+    // User KANN ï¿½berschreiben
     protected virtual string PageIdentifier => null;
     protected virtual BrowserTypeConnectOverCDPOptions CdpOptions => new() 
     { 
         Timeout = 30000 
     };
     
-    // ?? SEALED - User KANN NICHT überschreiben!
+    // ?? SEALED - User KANN NICHT ï¿½berschreiben!
     protected sealed override async Task<IPage> Creator()
     {
         return await SmartPlaywrightConnectionPool.Instance
@@ -278,7 +278,7 @@ public abstract class CdpTabObject : TabObject
 }
 ```
 
-**Vorteil**: Pool-Umgehung ist unmöglich
+**Vorteil**: Pool-Umgehung ist unmï¿½glich
 
 ---
 
@@ -322,13 +322,55 @@ public async Task OpenSettingsDialog()
     }
 }
 
-// 2. Mal öffnen
+// 2. Mal ï¿½ffnen
 var dialog2 = new SettingsDialogTab();
 await dialog2.Open(); // Connection aus Cache! ?
 ```
 
 ---
+### WPF-Dialog mit existierender Page suchen
 
+```csharp
+// FÃ¼r Apps, wo die Page bereits geladen ist und nicht neu erstellt werden soll
+public class ExistingDialogTab : CdpTabObject
+{
+    protected override string CdpEndpoint => "http://localhost:12345";
+    protected override string Url => "https://myapp.local/existing-dialog";
+    protected override bool FindExistingPageByUrl => true; // Page suchen statt erstellen!
+    
+    public ExistingDialogTab()
+    {
+        ChildOf<DialogPage, ExistingDialogTab>();
+    }
+}
+
+// Verwendung
+public async Task ConnectToExistingDialog()
+{
+    // Dialog ist bereits in der App geÃ¶ffnet mit URL "https://myapp.local/existing-dialog"
+    var dialog = new ExistingDialogTab();
+    
+    try
+    {
+        await dialog.Open(); // Sucht existierende Page mit passender URL
+        
+        // Entspricht intern:
+        // page = browser.Contexts.First().Pages.First(p => p.Url.Equals(targetUrl));
+        
+        var page = dialog.Goto<IDialogPage>();
+        await page.DoSomething();
+        
+        await dialog.Close(); // Page wird NICHT geschlossen, nur Connection freigegeben
+    }
+    catch (InvalidOperationException ex)
+    {
+        // Fehler, wenn keine Page mit dieser URL gefunden wurde
+        Console.WriteLine($"Page nicht gefunden: {ex.Message}");
+    }
+}
+```
+
+---
 ### WPF App.xaml.cs - Pool-Konfiguration
 
 ```csharp
@@ -387,11 +429,11 @@ public partial class App : Application
 ### ? Szenario 1: Normaler Dialog-Fluss
 
 ```
-Dialog A öffnen
+Dialog A ï¿½ffnen
     ? Connection erstellt & gecached
-Dialog A schließen
+Dialog A schlieï¿½en
     ? Connection bleibt im Cache
-Dialog A wieder öffnen
+Dialog A wieder ï¿½ffnen
     ? Connection validiert & wiederverwendet ?
 ```
 
@@ -400,10 +442,10 @@ Dialog A wieder öffnen
 ### ? Szenario 2: CEF-Subprocess-Restart
 
 ```
-Dialog A öffnen
+Dialog A ï¿½ffnen
     ? Connection gecached
 CEF crashed/restart
-Dialog A wieder öffnen
+Dialog A wieder ï¿½ffnen
     ? Validation FAILS
     ? Auto-Dispose + Reinitialisierung ?
 ```
@@ -413,9 +455,9 @@ Dialog A wieder öffnen
 ### ? Szenario 3: Mehrere parallele Dialoge
 
 ```
-Dialog A (Settings) öffnen
+Dialog A (Settings) ï¿½ffnen
     ? Connection A gecached
-Dialog B (Preferences) öffnen
+Dialog B (Preferences) ï¿½ffnen
     ? Connection B gecached
 Beide gleichzeitig aktiv
     ? Separate Connections ?
@@ -423,10 +465,10 @@ Beide gleichzeitig aktiv
 
 ---
 
-### ? Szenario 4: CEF-Subprocess startet verzögert
+### ? Szenario 4: CEF-Subprocess startet verzï¿½gert
 
 ```
-Dialog öffnen
+Dialog ï¿½ffnen
     ? CDP-Connect FEHLER
 Retry nach 500ms
     ? Subprocess noch nicht da
@@ -443,7 +485,7 @@ Retry nach 500ms
 ```
 Dialog A lange nicht verwendet
 CEF-Subprocess beendet sich (Idle)
-Dialog A wieder öffnen
+Dialog A wieder ï¿½ffnen
     ? Validation: Page.IsClosed
     ? Auto-Dispose + Reinitialisierung ?
 ```
@@ -480,10 +522,10 @@ public sealed class SmartPlaywrightConnectionPool
 ```csharp
 public abstract class CdpTabObject : TabObject
 {
-    // MUSS überschrieben werden
+    // MUSS ï¿½berschrieben werden
     protected abstract string CdpEndpoint { get; }
     
-    // KANN überschrieben werden
+    // KANN ï¿½berschrieben werden
     protected virtual string PageIdentifier => null;
     protected virtual BrowserTypeConnectOverCDPOptions CdpOptions => new() { Timeout = 30000 };
     
@@ -526,19 +568,19 @@ System.Diagnostics.Debug.WriteLine(
 
 ---
 
-## ?? Nicht benötigt: LaunchedBrowserPool
+## ?? Nicht benï¿½tigt: LaunchedBrowserPool
 
-### Begründung
+### Begrï¿½ndung
 
 **CDP-Szenario (WPF/CefSharp)**: Pooling ist **essentiell** ?
-- Externer Browser-Prozess läuft unabhängig
+- Externer Browser-Prozess lï¿½uft unabhï¿½ngig
 - Viele Dialog-Instanzen zur Laufzeit
 - Kein zentrales Lifecycle-Management
 
 **Playwright-Launch-Szenario (Tests)**: Pooling ist **optional** ??
 - Developer kontrolliert Lifecycle explizit
 - `ClassInitialize`/`OneTimeSetUp` Pattern
-- Ein Browser für alle Tests
+- Ein Browser fï¿½r alle Tests
 
 **Standard Test-Pattern (funktioniert ohne Pool)**:
 ```csharp
@@ -565,11 +607,11 @@ public static async Task Teardown()
 }
 ```
 
-**? LaunchedBrowserPool wird NICHT implementiert** (für jetzt)
+**? LaunchedBrowserPool wird NICHT implementiert** (fï¿½r jetzt)
 
 ---
 
-## ?? Implementierungs-Plan (Überarbeitet)
+## ?? Implementierungs-Plan (ï¿½berarbeitet)
 
 ### Phase 1: CDP Pooling (Fokus)
 
@@ -580,15 +622,15 @@ public static async Task Teardown()
 | 5 | ?? | TabObject.cs updaten (Warnings, Obsolete) |
 | 6 | ?? | Copilot Instructions erweitern |
 | 7 | ?? | WPF-Demo-Beispiel erstellen |
-| 8 | ?? | Unit Tests für Pool |
+| 8 | ?? | Unit Tests fï¿½r Pool |
 | 9 | ?? | README-Dokumentation |
 | 10 | ?? | Build & Verify |
 
-**Steps 3-4 (LaunchedBrowserPool) werden ÜBERSPRUNGEN**
+**Steps 3-4 (LaunchedBrowserPool) werden ï¿½BERSPRUNGEN**
 
 ---
 
-## ?? .NET Standard 2.0 Kompatibilität
+## ?? .NET Standard 2.0 Kompatibilitï¿½t
 
 ### Wichtige Anpassungen
 
@@ -643,7 +685,7 @@ await tab.Close(); // Pool managed cleanup
 
 ## ?? Test-Szenarien
 
-### Unit Tests für SmartPlaywrightConnectionPool
+### Unit Tests fï¿½r SmartPlaywrightConnectionPool
 
 ```csharp
 [TestMethod]
@@ -680,7 +722,7 @@ public async Task CreatePageWithRetryAsync_RetriesOnFailure()
     pool.RetryDelay = TimeSpan.FromMilliseconds(100);
     
     // CEF-Subprocess noch nicht bereit
-    // ? Sollte automatisch retries durchführen
+    // ? Sollte automatisch retries durchfï¿½hren
     var page = await pool.GetOrCreatePageAsync("http://localhost:12345", "test");
     
     Assert.IsNotNull(page);
@@ -707,10 +749,10 @@ public async Task CreatePageWithRetryAsync_RetriesOnFailure()
 
 ## ?? Offene Fragen & Zukunft
 
-### Für später (wenn Bedarf besteht)
+### Fï¿½r spï¿½ter (wenn Bedarf besteht)
 
-1. **LaunchedBrowserPool**: Für Test-Szenarien mit vielen parallelen Browser-Instanzen
-2. **Context-Pooling**: Für Session-Isolation in Multi-User-Tests
+1. **LaunchedBrowserPool**: Fï¿½r Test-Szenarien mit vielen parallelen Browser-Instanzen
+2. **Context-Pooling**: Fï¿½r Session-Isolation in Multi-User-Tests
 3. **Metrics & Telemetry**: Detaillierte Performance-Metriken
 4. **Health Checks**: Proaktive Connection-Validierung
 
@@ -718,18 +760,18 @@ public async Task CreatePageWithRetryAsync_RetriesOnFailure()
 
 ## ?? Zusammenfassung
 
-**Problem gelöst**: ?
+**Problem gelï¿½st**: ?
 - OutOfMemoryException in WPF + CefSharp
 - CEF-Subprocess-Restart-Handling
-- Memory-Leaks bei häufigem Dialog-Öffnen
+- Memory-Leaks bei hï¿½ufigem Dialog-ï¿½ffnen
 
 **Kern-Innovation**: ??
 - Validation-based Caching (statt Timeout)
 - Automatic Retry Logic
 - Per-Dialog Connection-Isolation
-- Zero-Configuration für User
+- Zero-Configuration fï¿½r User
 
-**Nächste Schritte**: ??
+**Nï¿½chste Schritte**: ??
 1. Dateien erstellen (3 Dateien)
 2. Build & Test
 3. Dokumentation & Demo
@@ -739,7 +781,7 @@ public async Task CreatePageWithRetryAsync_RetriesOnFailure()
 
 ## ?? Kontakt & Beitragen
 
-Bei Fragen oder Verbesserungsvorschlägen:
+Bei Fragen oder Verbesserungsvorschlï¿½gen:
 - GitHub Issues: https://github.com/trumpf-code/Trumpf.Coparoo.Playwright/issues
 - Diskussionen: https://github.com/trumpf-code/Trumpf.Coparoo.Playwright/discussions
 

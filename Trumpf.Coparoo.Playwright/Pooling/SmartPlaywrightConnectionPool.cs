@@ -78,6 +78,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         /// <param name="cdpEndpoint">The CDP endpoint URL (e.g., "http://localhost:12345").</param>
         /// <param name="pageUrl">The page identifier or URL (used for per-dialog caching).</param>
         /// <param name="options">Optional CDP connection options.</param>
+        /// <param name="findExistingByUrl">If true, searches for existing page by URL instead of creating new one.</param>
         /// <returns>A validated <see cref="IPage"/> instance ready for use.</returns>
         /// <remarks>
         /// This method implements validation-based caching:
@@ -87,11 +88,15 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         /// <item>If valid, return existing connection</item>
         /// <item>If invalid or missing, create new connection with retry logic</item>
         /// </list>
+        /// When <paramref name="findExistingByUrl"/> is true, the method will search for an existing page
+        /// matching the URL instead of creating a new page. This is useful for connecting to applications
+        /// where pages are already opened.
         /// </remarks>
         public async Task<IPage> GetOrCreatePageAsync(
             string cdpEndpoint, 
             string pageUrl, 
-            BrowserTypeConnectOverCDPOptions options = null)
+            BrowserTypeConnectOverCDPOptions options = null,
+            bool findExistingByUrl = false)
         {
             if (string.IsNullOrEmpty(cdpEndpoint))
                 throw new ArgumentNullException(nameof(cdpEndpoint));
@@ -124,7 +129,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
                 }
 
                 // Create new connection with retry logic
-                var newConnection = await CreatePageWithRetryAsync(cacheKey, cdpEndpoint, pageUrl, options).ConfigureAwait(false);
+                var newConnection = await CreatePageWithRetryAsync(cacheKey, cdpEndpoint, pageUrl, options, findExistingByUrl).ConfigureAwait(false);
                 _connectionCache[cacheKey] = newConnection;
                 
                 System.Diagnostics.Debug.WriteLine($"[SmartPool] Created new connection for {cacheKey}");
@@ -194,16 +199,20 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         /// <param name="cdpEndpoint">The CDP endpoint URL.</param>
         /// <param name="pageUrl">The page identifier or URL.</param>
         /// <param name="options">Optional CDP connection options.</param>
+        /// <param name="findExistingByUrl">If true, searches for existing page by URL instead of creating new one.</param>
         /// <returns>A new <see cref="PooledPageConnection"/> instance.</returns>
         /// <remarks>
         /// Retries connection attempts with exponential backoff to handle scenarios where
         /// the CEF subprocess is still starting up.
+        /// When <paramref name="findExistingByUrl"/> is true, searches through existing pages
+        /// in the browser's contexts to find a page with matching URL.
         /// </remarks>
         private async Task<PooledPageConnection> CreatePageWithRetryAsync(
             string cacheKey,
             string cdpEndpoint,
             string pageUrl,
-            BrowserTypeConnectOverCDPOptions options)
+            BrowserTypeConnectOverCDPOptions options,
+            bool findExistingByUrl)
         {
             Exception lastException = null;
 
@@ -215,7 +224,28 @@ namespace Trumpf.Coparoo.Playwright.Pooling
 
                     var playwright = await Microsoft.Playwright.Playwright.CreateAsync().ConfigureAwait(false);
                     var browser = await playwright.Chromium.ConnectOverCDPAsync(cdpEndpoint, options).ConfigureAwait(false);
-                    var page = await browser.NewPageAsync().ConfigureAwait(false);
+                    
+                    IPage page;
+                    if (findExistingByUrl)
+                    {
+                        // Search for existing page with matching URL
+                        page = browser.Contexts.FirstOrDefault()?.Pages.FirstOrDefault(p => p.Url.Equals(pageUrl, StringComparison.OrdinalIgnoreCase));
+                        
+                        if (page == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"No existing page found with URL '{pageUrl}' in browser contexts. " +
+                                "Ensure the page is already loaded before attempting to connect.");
+                        }
+                        
+                        System.Diagnostics.Debug.WriteLine($"[SmartPool] Found existing page with URL {pageUrl}");
+                    }
+                    else
+                    {
+                        // Create new page
+                        page = await browser.NewPageAsync().ConfigureAwait(false);
+                        System.Diagnostics.Debug.WriteLine($"[SmartPool] Created new page for {pageUrl}");
+                    }
 
                     var connection = new PooledPageConnection(
                         cacheKey,
@@ -223,7 +253,8 @@ namespace Trumpf.Coparoo.Playwright.Pooling
                         pageUrl,
                         playwright,
                         browser,
-                        page);
+                        page,
+                        ownsPage: !findExistingByUrl);
 
                     System.Diagnostics.Debug.WriteLine($"[SmartPool] Successfully connected to {cdpEndpoint} on attempt {attempt}");
                     return connection;

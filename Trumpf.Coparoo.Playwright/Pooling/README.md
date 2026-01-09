@@ -45,7 +45,7 @@ Implements `IAsyncDisposable` for proper resource cleanup.
 
 Specialized `TabObject` that enforces pool usage through a sealed `Creator()` method.
 
-**Usage:**
+**Basic Usage:**
 ```csharp
 public class SettingsDialogTab : CdpTabObject
 {
@@ -59,6 +59,35 @@ public class SettingsDialogTab : CdpTabObject
     }
 }
 ```
+
+**Finding Existing Pages by URL:**
+
+When connecting to applications where pages are already opened (e.g., existing WPF apps with CefSharp), you can search for existing pages by URL instead of creating new ones:
+
+```csharp
+public class ExistingDialogTab : CdpTabObject
+{
+    protected override string CdpEndpoint => "http://localhost:12345";
+    protected override string Url => "https://myapp.local/existing-dialog";
+    protected override bool FindExistingPageByUrl => true; // Search for existing page
+    
+    public ExistingDialogTab()
+    {
+        ChildOf<DialogPage, ExistingDialogTab>();
+    }
+}
+```
+
+When `FindExistingPageByUrl` is `true`, the pool will search through existing pages in the browser's contexts to find a page with matching URL:
+```csharp
+// Internal logic equivalent to:
+page = browser.Contexts.First().Pages.First(p => p.Url.Equals(targetUrl));
+```
+
+This is useful when:
+- Pages are already loaded in the application (not created by test)
+- You want to connect to existing dialogs/windows
+- The application manages page lifecycle independently
 
 ### SmartPoolStatistics
 
