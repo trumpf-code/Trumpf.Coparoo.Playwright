@@ -126,6 +126,7 @@ public abstract class CdpTabObject : TabObject
         }
 
         var pageIdentifier = PageIdentifier ?? Url ?? GetType().Name;
+        System.Diagnostics.Debug.WriteLine($"[CdpTabObject] {GetType().Name}: Connecting via CDP endpoint='{CdpEndpoint}', pageIdentifier='{pageIdentifier}', findExistingByUrl={FindExistingPageByUrl}");
         
         return await SmartPlaywrightConnectionPool.Instance
             .GetOrCreatePageAsync(CdpEndpoint, pageIdentifier, CdpOptions, FindExistingPageByUrl)

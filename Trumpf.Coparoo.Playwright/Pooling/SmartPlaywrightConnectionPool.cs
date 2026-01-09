@@ -110,6 +110,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
             await _semaphore.WaitAsync().ConfigureAwait(false);
             try
             {
+                System.Diagnostics.Debug.WriteLine($"[SmartPool] GetOrCreatePageAsync: endpoint='{cdpEndpoint}', pageIdentifier='{pageUrl}', findExistingByUrl={findExistingByUrl}, enablePageCaching={EnablePageCaching}, cacheKey='{cacheKey}'");
                 // Check if connection exists and is valid
                 if (_connectionCache.TryGetValue(cacheKey, out var existingConnection))
                 {
@@ -228,19 +229,50 @@ namespace Trumpf.Coparoo.Playwright.Pooling
                     IPage page;
                     if (findExistingByUrl)
                     {
-                        // Search for existing page with matching URL across ALL contexts
-                        page = browser.Contexts
-                            .SelectMany(c => c.Pages)
-                            .FirstOrDefault(p => string.Equals(p.Url, pageUrl, StringComparison.OrdinalIgnoreCase));
+                        // Search for existing page with retry logic (dialogs may still be loading)
+                        // Mimics TcPlaywrightManager behavior: 10 attempts with 100ms delays
+                        page = null;
+                        const int maxSearchAttempts = 10;
+                        
+                        for (int searchAttempt = 1; searchAttempt <= maxSearchAttempts; searchAttempt++)
+                        {
+                            page = browser.Contexts
+                                .SelectMany(c => c.Pages)
+                                .FirstOrDefault(p => string.Equals(p.Url, pageUrl, StringComparison.OrdinalIgnoreCase));
+
+                            if (page != null)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"[SmartPool] Found existing page with URL {pageUrl} after {searchAttempt} search attempt(s)");
+                                break;
+                            }
+
+                            if (searchAttempt < maxSearchAttempts)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"[SmartPool] Page with URL {pageUrl} not found, waiting 100ms before retry (attempt {searchAttempt}/{maxSearchAttempts})");
+                                await Task.Delay(100).ConfigureAwait(false);
+                            }
+                        }
 
                         if (page == null)
                         {
+                            // Enhanced diagnostics: list all available pages
+                            var availablePages = browser.Contexts
+                                .SelectMany(c => c.Pages)
+                                .Select(p => $"'{p.Url}'")
+                                .ToList();
+                            
+                            var availablePagesInfo = availablePages.Any() 
+                                ? string.Join(", ", availablePages) 
+                                : "(no pages found)";
+                            
+                            System.Diagnostics.Debug.WriteLine($"[SmartPool] Available pages after {maxSearchAttempts} attempts: {availablePagesInfo}");
+                            
                             throw new InvalidOperationException(
-                                $"No existing page found with URL '{pageUrl}' in any browser context. " +
-                                "Either open the page in the target app before connecting, or override FindExistingPageByUrl=false to let the framework create a new tab/window.");
+                                $"No existing page found with URL '{pageUrl}' after {maxSearchAttempts} search attempts. " +
+                                $"Available pages: {availablePagesInfo}. " +
+                                "Either ensure the page is fully loaded before connecting, adjust PageIdentifier to match the actual URL, " +
+                                "or override FindExistingPageByUrl=false to let the framework create a new tab/window.");
                         }
-
-                        System.Diagnostics.Debug.WriteLine($"[SmartPool] Found existing page with URL {pageUrl}");
                     }
                     else
                     {
