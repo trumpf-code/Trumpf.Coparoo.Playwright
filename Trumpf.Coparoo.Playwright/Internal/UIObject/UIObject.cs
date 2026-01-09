@@ -126,10 +126,10 @@ public abstract class UIObject : IUIObjectInternal
     /// <param name="condition">The condition that must evaluate true for target page object.</param>
     /// <typeparam name="TPageObject">The target page object type.</typeparam>
     /// <returns>The target page object.</returns>
-    public TPageObject Goto<TPageObject>(Predicate<TPageObject> condition = null) where TPageObject : IPageObject
+    public async Task<TPageObject> Goto<TPageObject>(Predicate<TPageObject> condition = null) where TPageObject : IPageObject
     {
         TPageObject r = On(condition ?? (_ => true));
-        r.Goto();
+        await r.Goto();
         return r;
     }
 

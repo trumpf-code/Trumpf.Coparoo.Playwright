@@ -35,14 +35,14 @@ public async Task NavigateBetweenPages()
         await settings.EnableAutoSave.Uncheck();
 
         // Navigate to another page - type-safe navigation
-        var preferences = browser.Goto<IPreferences>();
+        var preferences = await browser.Goto<IPreferences>();
 
         // Click buttons - no selectors, no waiting logic
         await preferences.SavePreferences.ClickAsync();
         await preferences.ResetToDefaults.ClickAsync();
 
         // Navigate back - convention-based, clean
-        browser.Goto<ISettings>();
+        await browser.Goto<ISettings>();
     }
     finally
     {
@@ -54,7 +54,7 @@ public async Task NavigateBetweenPages()
 **Key Benefits (at a glance):**
 - **No CSS selectors** in test code - they're encapsulated in page objects
 - **No explicit waits** - built into the framework
-- **Type-safe navigation** - `browser.Goto<ISettings>()` instead of strings
+- **Type-safe navigation** - `await browser.Goto<ISettings>()` instead of strings
 - **IntelliSense support** - discover available pages and controls as you type
 - **Readable and maintainable** - tests read like business requirements
 
@@ -165,7 +165,7 @@ See the navigation implementation in [Menu.cs](ControlObjects/Menu.cs) and the H
 <button data-page="Settings">Settings</button>
 
 // C# navigation - type name matches data-page attribute
-var page = browser.Goto<ISettings>();
+var page = await browser.Goto<ISettings>();
 ```
 
 This convention allows:
@@ -180,7 +180,7 @@ Tests interact with page objects through interfaces, not concrete implementation
 See the interfaces defined in [PageObjects/Interfaces/](PageObjects/Interfaces/):
 
 ```csharp
-ISettings settings = browser.Goto<ISettings>();
+ISettings settings = await browser.Goto<ISettings>();
 await settings.EnableNotifications.Check();
 ```
 
