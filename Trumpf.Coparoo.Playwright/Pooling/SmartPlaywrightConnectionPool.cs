@@ -49,18 +49,6 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         public static SmartPlaywrightConnectionPool Instance => LazyInstance.Value;
 
         /// <summary>
-        /// Gets or sets the maximum number of retry attempts when connecting to CDP endpoint.
-        /// Default is 3.
-        /// </summary>
-        public int MaxRetryAttempts { get; set; } = 3;
-
-        /// <summary>
-        /// Gets or sets the delay between retry attempts.
-        /// Default is 500 milliseconds.
-        /// </summary>
-        public TimeSpan RetryDelay { get; set; } = TimeSpan.FromMilliseconds(500);
-
-        /// <summary>
         /// Gets or sets a value indicating whether to cache pages per pageUrl (true) or per endpoint only (false).
         /// When true, different dialogs on the same endpoint get separate connections.
         /// Default is true.
@@ -129,8 +117,8 @@ namespace Trumpf.Coparoo.Playwright.Pooling
                     }
                 }
 
-                // Create new connection with retry logic
-                var newConnection = await CreatePageWithRetryAsync(cacheKey, cdpEndpoint, pageUrl, options, findExistingByUrl).ConfigureAwait(false);
+                // Create new connection
+                var newConnection = await CreatePageConnectionAsync(cacheKey, cdpEndpoint, pageUrl, options, findExistingByUrl).ConfigureAwait(false);
                 _connectionCache[cacheKey] = newConnection;
                 
                 System.Diagnostics.Debug.WriteLine($"[SmartPool] Created new connection for {cacheKey}");
@@ -194,7 +182,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         }
 
         /// <summary>
-        /// Creates a new page connection with automatic retry logic.
+        /// Creates a new page connection.
         /// </summary>
         /// <param name="cacheKey">The cache key for the connection.</param>
         /// <param name="cdpEndpoint">The CDP endpoint URL.</param>
@@ -203,123 +191,91 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         /// <param name="findExistingByUrl">If true, searches for existing page by URL instead of creating new one.</param>
         /// <returns>A new <see cref="PooledPageConnection"/> instance.</returns>
         /// <remarks>
-        /// Retries connection attempts with exponential backoff to handle scenarios where
-        /// the CEF subprocess is still starting up.
         /// When <paramref name="findExistingByUrl"/> is true, searches through existing pages
         /// in the browser's contexts to find a page with matching URL.
         /// </remarks>
-        private async Task<PooledPageConnection> CreatePageWithRetryAsync(
+        private async Task<PooledPageConnection> CreatePageConnectionAsync(
             string cacheKey,
             string cdpEndpoint,
             string pageUrl,
             BrowserTypeConnectOverCDPOptions options,
             bool findExistingByUrl)
         {
-            Exception lastException = null;
-
-            for (int attempt = 1; attempt <= MaxRetryAttempts; attempt++)
+            try
             {
-                try
+                System.Diagnostics.Debug.WriteLine($"[SmartPool] Connecting to CDP endpoint {cdpEndpoint}");
+
+                var playwright = await Microsoft.Playwright.Playwright.CreateAsync().ConfigureAwait(false);
+                var browser = await playwright.Chromium.ConnectOverCDPAsync(cdpEndpoint, options).ConfigureAwait(false);
+                
+                IPage page;
+                if (findExistingByUrl)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[SmartPool] Connection attempt {attempt}/{MaxRetryAttempts} for {cdpEndpoint}");
+                    // Search for existing page with matching URL
+                    page = browser.Contexts
+                        .SelectMany(c => c.Pages)
+                        .FirstOrDefault(p => string.Equals(p.Url, pageUrl, StringComparison.OrdinalIgnoreCase));
 
-                    var playwright = await Microsoft.Playwright.Playwright.CreateAsync().ConfigureAwait(false);
-                    var browser = await playwright.Chromium.ConnectOverCDPAsync(cdpEndpoint, options).ConfigureAwait(false);
-                    
-                    IPage page;
-                    if (findExistingByUrl)
-                    {
-                        // Search for existing page with retry logic (dialogs may still be loading)
-                        // Mimics TcPlaywrightManager behavior: 10 attempts with 100ms delays
-                        page = null;
-                        const int maxSearchAttempts = 10;
+                    if (page == null)
+                    {                        // Enhanced diagnostics: list all available pages
+                        var availablePages = browser.Contexts
+                            .SelectMany(c => c.Pages)
+                            .Select(p => $"'{p.Url}'")
+                            .ToList();
                         
-                        for (int searchAttempt = 1; searchAttempt <= maxSearchAttempts; searchAttempt++)
-                        {
-                            page = browser.Contexts
-                                .SelectMany(c => c.Pages)
-                                .FirstOrDefault(p => string.Equals(p.Url, pageUrl, StringComparison.OrdinalIgnoreCase));
+                        var availablePagesInfo = availablePages.Any() 
+                            ? string.Join(", ", availablePages) 
+                            : "(no pages found)";
+                        
+                        System.Diagnostics.Debug.WriteLine($"[SmartPool] Available pages in browser: {availablePagesInfo}");
+                        
+                        throw new InvalidOperationException(
+                            $"No existing page found with URL '{pageUrl}'. " +
+                            $"Available pages: {availablePagesInfo}. " +
+                            "Either ensure the page is fully loaded before connecting, adjust PageIdentifier to match the actual URL, " +
+                            "or override FindExistingPageByUrl=false to let the framework create a new tab/window.");
+                    }
 
-                            if (page != null)
-                            {
-                                System.Diagnostics.Debug.WriteLine($"[SmartPool] Found existing page with URL {pageUrl} after {searchAttempt} search attempt(s)");
-                                break;
-                            }
+                    System.Diagnostics.Debug.WriteLine($"[SmartPool] Found existing page with URL {pageUrl}");
+                }
+                else
+                {
+                    // Prefer creating a page from an existing (persistent) context when connected over CDP
+                    var context = browser.Contexts.FirstOrDefault();
 
-                            if (searchAttempt < maxSearchAttempts)
-                            {
-                                System.Diagnostics.Debug.WriteLine($"[SmartPool] Page with URL {pageUrl} not found, waiting 100ms before retry (attempt {searchAttempt}/{maxSearchAttempts})");
-                                await Task.Delay(100).ConfigureAwait(false);
-                            }
-                        }
-
-                        if (page == null)
-                        {
-                            // Enhanced diagnostics: list all available pages
-                            var availablePages = browser.Contexts
-                                .SelectMany(c => c.Pages)
-                                .Select(p => $"'{p.Url}'")
-                                .ToList();
-                            
-                            var availablePagesInfo = availablePages.Any() 
-                                ? string.Join(", ", availablePages) 
-                                : "(no pages found)";
-                            
-                            System.Diagnostics.Debug.WriteLine($"[SmartPool] Available pages after {maxSearchAttempts} attempts: {availablePagesInfo}");
-                            
-                            throw new InvalidOperationException(
-                                $"No existing page found with URL '{pageUrl}' after {maxSearchAttempts} search attempts. " +
-                                $"Available pages: {availablePagesInfo}. " +
-                                "Either ensure the page is fully loaded before connecting, adjust PageIdentifier to match the actual URL, " +
-                                "or override FindExistingPageByUrl=false to let the framework create a new tab/window.");
-                        }
+                    if (context != null)
+                    {
+                        page = await context.NewPageAsync().ConfigureAwait(false);
+                        System.Diagnostics.Debug.WriteLine($"[SmartPool] Created new page via existing context for {pageUrl}");
                     }
                     else
                     {
-                        // Prefer creating a page from an existing (persistent) context when connected over CDP
-                        var context = browser.Contexts.FirstOrDefault();
-
-                        if (context != null)
-                        {
-                            page = await context.NewPageAsync().ConfigureAwait(false);
-                            System.Diagnostics.Debug.WriteLine($"[SmartPool] Created new page via existing context for {pageUrl}");
-                        }
-                        else
-                        {
-                            // Fallback: try Browser.NewPageAsync (may fail for CDP without default context)
-                            page = await browser.NewPageAsync().ConfigureAwait(false);
-                            System.Diagnostics.Debug.WriteLine($"[SmartPool] Created new page via Browser.NewPageAsync for {pageUrl}");
-                        }
-                    }
-
-                    var connection = new PooledPageConnection(
-                        cacheKey,
-                        cdpEndpoint,
-                        pageUrl,
-                        playwright,
-                        browser,
-                        page,
-                        ownsPage: !findExistingByUrl);
-
-                    System.Diagnostics.Debug.WriteLine($"[SmartPool] Successfully connected to {cdpEndpoint} on attempt {attempt}");
-                    return connection;
-                }
-                catch (Exception ex)
-                {
-                    lastException = ex;
-                    System.Diagnostics.Debug.WriteLine($"[SmartPool] CDP connection attempt {attempt}/{MaxRetryAttempts} failed: {ex.Message}");
-
-                    if (attempt < MaxRetryAttempts)
-                    {
-                        await Task.Delay(RetryDelay).ConfigureAwait(false);
+                        // Fallback: try Browser.NewPageAsync (may fail for CDP without default context)
+                        page = await browser.NewPageAsync().ConfigureAwait(false);
+                        System.Diagnostics.Debug.WriteLine($"[SmartPool] Created new page via Browser.NewPageAsync for {pageUrl}");
                     }
                 }
+
+                var connection = new PooledPageConnection(
+                    cacheKey,
+                    cdpEndpoint,
+                    pageUrl,
+                    playwright,
+                    browser,
+                    page,
+                    ownsPage: !findExistingByUrl);
+
+                System.Diagnostics.Debug.WriteLine($"[SmartPool] Successfully created connection to {cdpEndpoint}");
+                return connection;
             }
-
-            throw new InvalidOperationException(
-                $"Failed to connect to CDP endpoint '{cdpEndpoint}' after {MaxRetryAttempts} attempts. " +
-                $"Last error: {lastException?.Message}",
-                lastException);
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SmartPool] Failed to connect to CDP endpoint '{cdpEndpoint}': {ex.Message}");
+                throw new InvalidOperationException(
+                    $"Failed to connect to CDP endpoint '{cdpEndpoint}'. " +
+                    $"Ensure the CDP endpoint is running and accessible. Error: {ex.Message}",
+                    ex);
+            }
         }
 
         /// <summary>
