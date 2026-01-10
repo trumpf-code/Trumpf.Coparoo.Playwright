@@ -30,8 +30,6 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         {
             _pool = SmartPlaywrightConnectionPool.Instance;
             await _pool.ClearAllAsync();
-            _pool.MaxRetryAttempts = 3;
-            _pool.RetryDelay = TimeSpan.FromMilliseconds(100);
             _pool.EnablePageCaching = true;
         }
 
@@ -106,35 +104,6 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         {
             // Assert
             Assert.IsTrue(_pool.EnablePageCaching);
-        }
-
-        [TestMethod]
-        public void MaxRetryAttempts_CanBeSetAndRetrieved()
-        {
-            // Act
-            var originalValue = _pool.MaxRetryAttempts;
-            _pool.MaxRetryAttempts = 5;
-
-            // Assert
-            Assert.AreEqual(5, _pool.MaxRetryAttempts);
-            
-            // Cleanup - restore original
-            _pool.MaxRetryAttempts = originalValue;
-        }
-
-        [TestMethod]
-        public void RetryDelay_CanBeSetAndRetrieved()
-        {
-            // Act
-            var originalValue = _pool.RetryDelay;
-            var newDelay = TimeSpan.FromSeconds(2);
-            _pool.RetryDelay = newDelay;
-
-            // Assert
-            Assert.AreEqual(newDelay, _pool.RetryDelay);
-            
-            // Cleanup - restore original
-            _pool.RetryDelay = originalValue;
         }
 
         [TestMethod]
