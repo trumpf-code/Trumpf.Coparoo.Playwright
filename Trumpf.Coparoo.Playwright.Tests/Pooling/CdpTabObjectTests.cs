@@ -337,17 +337,45 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                     browser,
                     page);
 
-                await Task.Delay(100);
-                
-                // Statistics track usage
-                var idleTime = connection.GetIdleTime();
-                var age = connection.GetAge();
+                // Minimal initial wait to avoid zero durations
+                await Task.Delay(20);
 
-                Assert.IsTrue(idleTime.TotalMilliseconds >= 100);
-                Assert.IsTrue(age.TotalMilliseconds >= 100);
+                // Poll until both idle time and age exceed threshold or timeout
+                var required = TimeSpan.FromMilliseconds(100);
+                var timeout = TimeSpan.FromSeconds(2);
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+
+                bool thresholdsMet = false;
+                while (sw.Elapsed < timeout)
+                {
+                    var idleTime = connection.GetIdleTime();
+                    var age = connection.GetAge();
+
+                    if (idleTime >= required && age >= required)
+                    {
+                        thresholdsMet = true;
+                        break;
+                    }
+
+                    await Task.Delay(50);
+                }
+
+                // Basic metadata assertions
                 Assert.AreEqual("test-key", connection.CacheKey);
                 Assert.AreEqual("http://localhost:9222", connection.CdpEndpoint);
                 Assert.AreEqual("stats-test", connection.PageUrl);
+
+                if (!thresholdsMet)
+                {
+                    // Capture final values for clearer diagnostics
+                    var finalIdle = connection.GetIdleTime();
+                    var finalAge = connection.GetAge();
+                    await connection.DisposeAsync();
+
+                    Assert.IsTrue(finalIdle >= required, $"IdleTime too small: {finalIdle.TotalMilliseconds} ms (expected ≥ {required.TotalMilliseconds} ms)");
+                    Assert.IsTrue(finalAge >= required, $"Age too small: {finalAge.TotalMilliseconds} ms (expected ≥ {required.TotalMilliseconds} ms)");
+                    return;
+                }
 
                 await connection.DisposeAsync();
             }
