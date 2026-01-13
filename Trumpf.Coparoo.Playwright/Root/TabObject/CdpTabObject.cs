@@ -171,10 +171,10 @@ public abstract class CdpTabObject : TabObject
     /// the same browser page without interfering with each other's lifecycle.
     /// </para>
     /// </remarks>
-    public new async Task Close()
+    public override async Task Close()
     {
         // Do NOT close the page - it's managed by the pool and may be reused
-        // Just mark the tab as closed
+        // Just mark the tab as closed by awaiting a completed task
         await Task.CompletedTask;
     }
 }
