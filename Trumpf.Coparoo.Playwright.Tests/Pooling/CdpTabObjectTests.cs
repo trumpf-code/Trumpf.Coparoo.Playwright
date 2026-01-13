@@ -214,10 +214,11 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                 var tab2 = new TestCdpTab(endpoint, "tab1"); // Same identifier!
                 var tab3 = new TestCdpTab(endpoint, "tab1"); // Same identifier!
 
+                // Only open tab1 (which navigates to URL)
+                // tab2 and tab3 will get the same page from pool without re-navigating
                 await tab1.Open();
-                await tab2.Open();
-                await tab3.Open();
-
+                
+                // Get pages from pool (these won't navigate again)
                 var page1 = await tab1.Page;
                 var page2 = await tab2.Page;
                 var page3 = await tab3.Page;
@@ -263,7 +264,12 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                 for (int i = 0; i < 3; i++)
                 {
                     var tab = new TestCdpTab(endpoint, "sequential");
-                    await tab.Open();
+                    
+                    // Only open on first iteration; subsequent iterations reuse the page
+                    if (i == 0)
+                    {
+                        await tab.Open();
+                    }
                     
                     var page = await tab.Page;
                     Assert.IsNotNull(page);
