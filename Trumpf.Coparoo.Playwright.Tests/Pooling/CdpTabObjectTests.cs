@@ -94,6 +94,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             protected override string CdpEndpoint => _endpointValue ?? _cdpEndpoint;
             protected override string PageIdentifier => _identifierValue;
             protected override string Url => GetLocalHtmlUrl();
+            protected override bool FindExistingPageByUrl => false; // Create new pages instead of searching for existing
         }
 
         private class TestCdpTabFindExisting : CdpTabObject
@@ -125,6 +126,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             protected override string CdpEndpoint => _endpoint;
             protected override string PageIdentifier => "custom_identifier";
             protected override string Url => GetLocalHtmlUrl();
+            protected override bool FindExistingPageByUrl => false; // Create new pages instead of searching for existing
         }
 
         private class InvalidCdpTab : CdpTabObject
