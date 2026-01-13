@@ -156,4 +156,25 @@ public abstract class CdpTabObject : TabObject
             .InvalidateConnectionAsync(CdpEndpoint, pageIdentifier)
             .ConfigureAwait(false);
     }
+
+    /// <summary>
+    /// Closes the tab without closing the underlying page (which is managed by the pool).
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    /// <remarks>
+    /// Unlike the base <see cref="TabObject.Close()"/> implementation, this method does NOT call
+    /// <c>Page.CloseAsync()</c> because CDP connections are pooled and reused. The page lifecycle
+    /// is managed by <see cref="SmartPlaywrightConnectionPool"/>, which will close pages only when
+    /// the pool is cleared or when connections are disposed.
+    /// <para>
+    /// This allows multiple tab instances with the same <see cref="PageIdentifier"/> to share
+    /// the same browser page without interfering with each other's lifecycle.
+    /// </para>
+    /// </remarks>
+    public new async Task Close()
+    {
+        // Do NOT close the page - it's managed by the pool and may be reused
+        // Just mark the tab as closed
+        await Task.CompletedTask;
+    }
 }

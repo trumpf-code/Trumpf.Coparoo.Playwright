@@ -16,6 +16,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Net.Http;
     using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -401,6 +402,20 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
 
             try
             {
+                // First, check if the target page exists in the browser
+                var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
+                var browser = await playwright.Chromium.ConnectOverCDPAsync(endpoint);
+                var existingPages = browser.Contexts.SelectMany(c => c.Pages).ToList();
+                var targetPageExists = existingPages.Any(p => p.Url.Contains("bing.com", StringComparison.OrdinalIgnoreCase));
+                
+                if (!targetPageExists)
+                {
+                    Assert.Inconclusive($"Target page '{targetUrl}' not found in browser. " +
+                        $"Available pages: {string.Join(", ", existingPages.Select(p => $"'{p.Url}'"))}. " +
+                        "This test requires a pre-loaded page. Start browser with: msedge.exe --remote-debugging-port=9222 --headless=new https://www.bing.com");
+                    return;
+                }
+
                 // This tab is configured to search for an existing page with the target URL
                 var tab = new TestCdpTabFindExisting(endpoint, targetUrl);
                 
