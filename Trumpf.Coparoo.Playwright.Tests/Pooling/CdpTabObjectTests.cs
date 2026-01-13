@@ -23,6 +23,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
     using Trumpf.Coparoo.Playwright.Pooling;
 
     [TestClass]
+    [DoNotParallelize]  // CDP tests share the same browser instance via connection pool
     public class CdpTabObjectTests
     {
         private static string _cdpEndpoint;
