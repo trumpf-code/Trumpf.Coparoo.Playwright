@@ -34,6 +34,10 @@ jobs:
         run: dotnet build $env:SOLUTION_FILE --configuration $env:CONFIGURATION --no-restore
         shell: pwsh
 
+      - name: Install Playwright Browsers
+        run: pwsh Trumpf.Coparoo.Playwright.Tests\bin\$env:CONFIGURATION\net8.0\playwright.ps1 install chromium
+        shell: pwsh
+
       - name: Start Browser with CDP (9222)
         shell: pwsh
         run: |
