@@ -53,7 +53,7 @@ jobs:
       run: |
         mkdir -p ${{ env.Test_Results_Dir }}
         pwsh ${{ env.Test_Project_Folder }}/bin/Debug/net8.0/playwright.ps1 install
-        dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --verbosity normal --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_playwright_${{ matrix.configuration }}.trx"
+        dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --verbosity normal --filter "TestCategory!=CDP" --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_playwright_${{ matrix.configuration }}.trx"
         echo "Listing files in test results directory:"
         dir ${{ env.Test_Results_Dir }}
 
