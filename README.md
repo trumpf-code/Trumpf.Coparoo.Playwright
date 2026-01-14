@@ -27,6 +27,39 @@ Here's the basic pattern illustrated in the demo above - notice how naturally th
 
 The library ships with built-in control wrappers for common HTML elements, making it easy to interact with various UI components. These include `Checkbox`, `Button`, `TextBox`, `DropDown`, `Table`, `RadioButton`, and many more. In the example above, checkboxes are used for the notification and auto-save settings, demonstrating how these controls provide clean, type-safe APIs for interaction without dealing with raw locators or CSS selectors.
 
+## CDP Connection Pooling for WPF/CefSharp Applications
+
+For WPF applications using CefSharp dialogs, the library provides smart connection pooling to prevent memory leaks and improve performance. Use `CdpTabObject` to automatically manage Playwright connections via Chrome DevTools Protocol (CDP):
+
+```csharp
+public class SettingsDialogTab : CdpTabObject
+{
+    protected override string CdpEndpoint => "http://localhost:12345";  // CefSharp debugging port
+    protected override string PageIdentifier => "settings_dialog";      // Unique dialog identifier
+    protected override string Url => "https://myapp.local/settings";    // Page URL
+    
+    public SettingsDialogTab() => ChildOf<SettingsPage, SettingsDialogTab>();
+}
+```
+
+**Key Benefits:**
+- ✅ **No Memory Leaks** - Playwright instances are reused, not recreated
+- ✅ **Automatic Recovery** - Stale connections are detected and recreated  
+- ✅ **CEF Startup Handling** - Retry logic handles delayed subprocess starts
+- ✅ **Per-Dialog Isolation** - Different dialogs can run in parallel
+- ✅ **Zero Configuration** - Works out-of-the-box with sensible defaults
+
+The connection pool validates and reuses existing connections, dramatically reducing memory consumption when repeatedly opening/closing dialogs. Configure pool behavior if needed:
+
+```csharp
+var pool = PlaywrightConnectionPool.Instance;
+pool.MaxRetryAttempts = 5;                         // Increase for slower CEF startup
+pool.RetryDelay = TimeSpan.FromSeconds(1);         // Delay between retry attempts
+pool.EnablePageCaching = true;                     // Per-dialog caching (default)
+```
+
+For comprehensive documentation on CDP pooling, including monitoring, error handling, and advanced scenarios, see the [Pooling README](Trumpf.Coparoo.Playwright/Pooling/README.md) and [Usage Guide](Trumpf.Coparoo.Playwright/Pooling/USAGE.md).
+
 ## NuGet Package Information
 To make it easier for you to develop with the *Trumpf Coparoo Web* library we release it as NuGet packages:
 
