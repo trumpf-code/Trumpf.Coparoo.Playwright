@@ -34,10 +34,10 @@ namespace Trumpf.Coparoo.Playwright.Pooling
     /// <item>Isolating connections per dialog for parallel usage</item>
     /// </list>
     /// </remarks>
-    public sealed class SmartPlaywrightConnectionPool : IDisposable
+    public sealed class PlaywrightConnectionPool : IDisposable
     {
-        private static readonly Lazy<SmartPlaywrightConnectionPool> LazyInstance = 
-            new Lazy<SmartPlaywrightConnectionPool>(() => new SmartPlaywrightConnectionPool(), LazyThreadSafetyMode.ExecutionAndPublication);
+        private static readonly Lazy<PlaywrightConnectionPool> LazyInstance = 
+            new Lazy<PlaywrightConnectionPool>(() => new PlaywrightConnectionPool(), LazyThreadSafetyMode.ExecutionAndPublication);
 
         private readonly ConcurrentDictionary<string, PooledPageConnection> _connectionCache = new ConcurrentDictionary<string, PooledPageConnection>();
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
@@ -46,7 +46,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         /// <summary>
         /// Gets the singleton instance of the connection pool.
         /// </summary>
-        public static SmartPlaywrightConnectionPool Instance => LazyInstance.Value;
+        public static PlaywrightConnectionPool Instance => LazyInstance.Value;
 
         /// <summary>
         /// Gets or sets a value indicating whether to cache pages per pageUrl (true) or per endpoint only (false).
@@ -55,7 +55,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         /// </summary>
         public bool EnablePageCaching { get; set; } = true;
 
-        private SmartPlaywrightConnectionPool()
+        private PlaywrightConnectionPool()
         {
         }
 
@@ -413,7 +413,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         private void ThrowIfDisposed()
         {
             if (_disposed)
-                throw new ObjectDisposedException(nameof(SmartPlaywrightConnectionPool));
+                throw new ObjectDisposedException(nameof(PlaywrightConnectionPool));
         }
 
         /// <summary>

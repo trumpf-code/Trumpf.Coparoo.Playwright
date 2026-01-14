@@ -12,7 +12,7 @@ The Smart Connection Pooling system solves memory issues in WPF applications wit
 
 ## Components
 
-### SmartPlaywrightConnectionPool
+### PlaywrightConnectionPool
 
 The singleton connection pool that manages all CDP connections.
 
@@ -25,7 +25,7 @@ The singleton connection pool that manages all CDP connections.
 
 **Configuration:**
 ```csharp
-var pool = SmartPlaywrightConnectionPool.Instance;
+var pool = PlaywrightConnectionPool.Instance;
 pool.MaxRetryAttempts = 3;           // Default: 3
 pool.RetryDelay = TimeSpan.FromMilliseconds(500); // Default: 500ms
 pool.EnablePageCaching = true;       // Default: true (per-dialog caching)
@@ -122,7 +122,7 @@ When connecting to CDP endpoint, the pool automatically retries on failure:
 
 Get pool statistics for debugging:
 ```csharp
-var stats = SmartPlaywrightConnectionPool.Instance.GetStatistics();
+var stats = PlaywrightConnectionPool.Instance.GetStatistics();
 
 Console.WriteLine($"Total Connections: {stats.TotalConnections}");
 foreach (var conn in stats.ConnectionDetails)
@@ -134,7 +134,7 @@ foreach (var conn in stats.ConnectionDetails)
 ## Testing
 
 Unit tests are located in `Trumpf.Coparoo.Playwright.Tests/Pooling/`:
-- `SmartPlaywrightConnectionPoolTests.cs` - Pool functionality tests
+- `PlaywrightConnectionPoolTests.cs` - Pool functionality tests
 - `PooledPageConnectionTests.cs` - Connection wrapper tests
 - `CdpTabObjectTests.cs` - CdpTabObject behavior tests
 

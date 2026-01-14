@@ -47,7 +47,7 @@ protected override async Task<IPage> Creator()
 ### Komponenten
 
 ```
-SmartPlaywrightConnectionPool (Singleton)
+PlaywrightConnectionPool (Singleton)
 ??? PooledPageConnection (Connection-Wrapper)
 ?   ??? IPlaywright playwright
 ?   ??? IBrowser browser
@@ -189,7 +189,7 @@ public override async Task Goto()
 ```
 Trumpf.Coparoo.Playwright/
 ??? Pooling/
-?   ??? SmartPlaywrightConnectionPool.cs  (Kern-Pool)
+?   ??? PlaywrightConnectionPool.cs  (Kern-Pool)
 ?   ??? PooledPageConnection.cs           (Connection-Wrapper)
 ?
 ??? Root/TabObject/
@@ -200,7 +200,7 @@ Trumpf.Coparoo.Playwright/
 
 ## ?? Code-Implementierung
 
-### 1. SmartPlaywrightConnectionPool.cs
+### 1. PlaywrightConnectionPool.cs
 
 **Zweck**: Singleton-Pool f�r CDP-Verbindungen
 
@@ -213,7 +213,7 @@ Trumpf.Coparoo.Playwright/
 
 **Konfiguration**:
 ```csharp
-var pool = SmartPlaywrightConnectionPool.Instance;
+var pool = PlaywrightConnectionPool.Instance;
 pool.MaxRetryAttempts = 3;           // Standard: 3
 pool.RetryDelay = TimeSpan.FromMilliseconds(500); // Standard: 500ms
 pool.EnablePageCaching = true;       // Standard: true
@@ -272,7 +272,7 @@ public abstract class CdpTabObject : TabObject
     // ?? SEALED - User KANN NICHT �berschreiben!
     protected sealed override async Task<IPage> Creator()
     {
-        return await SmartPlaywrightConnectionPool.Instance
+        return await PlaywrightConnectionPool.Instance
             .GetOrCreatePageAsync(CdpEndpoint, PageIdentifier ?? Url, CdpOptions);
     }
 }
@@ -381,7 +381,7 @@ public partial class App : Application
         base.OnStartup(e);
 
         // Pool-Konfiguration
-        var pool = SmartPlaywrightConnectionPool.Instance;
+        var pool = PlaywrightConnectionPool.Instance;
         pool.MaxConnections = 5;
         pool.IdleTimeout = TimeSpan.FromMinutes(3);
         pool.CleanupInterval = TimeSpan.FromSeconds(30);
@@ -399,7 +399,7 @@ public partial class App : Application
 
         timer.Tick += (s, args) =>
         {
-            var stats = SmartPlaywrightConnectionPool.Instance.GetStatistics();
+            var stats = PlaywrightConnectionPool.Instance.GetStatistics();
             Debug.WriteLine($"Pool: {stats.TotalConnections} connections");
             
             foreach (var conn in stats.ConnectionDetails)
@@ -416,7 +416,7 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         // Cleanup
-        SmartPlaywrightConnectionPool.Instance.Dispose();
+        PlaywrightConnectionPool.Instance.Dispose();
         base.OnExit(e);
     }
 }
@@ -494,10 +494,10 @@ Dialog A wieder �ffnen
 
 ## ?? Konfigurationsoptionen
 
-### SmartPlaywrightConnectionPool
+### PlaywrightConnectionPool
 
 ```csharp
-public sealed class SmartPlaywrightConnectionPool
+public sealed class PlaywrightConnectionPool
 {
     // Retry-Konfiguration
     public int MaxRetryAttempts { get; set; } = 3;
@@ -541,7 +541,7 @@ public abstract class CdpTabObject : TabObject
 ### Pool-Statistiken abrufen
 
 ```csharp
-var stats = SmartPlaywrightConnectionPool.Instance.GetStatistics();
+var stats = PlaywrightConnectionPool.Instance.GetStatistics();
 
 Console.WriteLine($"Total Connections: {stats.TotalConnections}");
 
@@ -561,7 +561,7 @@ foreach (var conn in stats.ConnectionDetails)
 ### Debug-Ausgabe
 
 ```csharp
-// In SmartPlaywrightConnectionPool.cs:
+// In PlaywrightConnectionPool.cs:
 System.Diagnostics.Debug.WriteLine(
     $"CDP connection attempt {attempt}/{MaxRetryAttempts} failed: {ex.Message}");
 ```
@@ -617,7 +617,7 @@ public static async Task Teardown()
 
 | Step | Status | Beschreibung |
 |------|--------|--------------|
-| 1 | ? | SmartPlaywrightConnectionPool + PooledPageConnection |
+| 1 | ? | PlaywrightConnectionPool + PooledPageConnection |
 | 2 | ? | CdpTabObject (sealed Creator) |
 | 5 | ?? | TabObject.cs updaten (Warnings, Obsolete) |
 | 6 | ?? | Copilot Instructions erweitern |
@@ -685,13 +685,13 @@ await tab.Close(); // Pool managed cleanup
 
 ## ?? Test-Szenarien
 
-### Unit Tests f�r SmartPlaywrightConnectionPool
+### Unit Tests f�r PlaywrightConnectionPool
 
 ```csharp
 [TestMethod]
 public async Task GetOrCreatePageAsync_CachesConnection()
 {
-    var pool = SmartPlaywrightConnectionPool.Instance;
+    var pool = PlaywrightConnectionPool.Instance;
     await pool.ClearAllAsync();
 
     var page1 = await pool.GetOrCreatePageAsync("http://localhost:12345", "test");
@@ -790,3 +790,4 @@ Bei Fragen oder Verbesserungsvorschl�gen:
 **Stand**: 2025-04-17  
 **Autor**: AI Assistant & Team  
 **Version**: 1.0 (CDP-Focus)
+

@@ -21,14 +21,14 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
     using Trumpf.Coparoo.Playwright.Pooling;
 
     [TestClass]
-    public class SmartPlaywrightConnectionPoolTests
+    public class PlaywrightConnectionPoolTests
     {
-        private SmartPlaywrightConnectionPool _pool;
+        private PlaywrightConnectionPool _pool;
 
         [TestInitialize]
         public async Task Setup()
         {
-            _pool = SmartPlaywrightConnectionPool.Instance;
+            _pool = PlaywrightConnectionPool.Instance;
             await _pool.ClearAllAsync();
             _pool.EnablePageCaching = true;
         }
@@ -43,8 +43,8 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         public void Instance_ReturnsSingleton()
         {
             // Act
-            var instance1 = SmartPlaywrightConnectionPool.Instance;
-            var instance2 = SmartPlaywrightConnectionPool.Instance;
+            var instance1 = PlaywrightConnectionPool.Instance;
+            var instance2 = PlaywrightConnectionPool.Instance;
 
             // Assert
             Assert.AreSame(instance1, instance2);

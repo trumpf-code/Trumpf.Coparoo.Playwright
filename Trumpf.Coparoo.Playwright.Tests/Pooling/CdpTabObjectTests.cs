@@ -23,24 +23,24 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
     using Trumpf.Coparoo.Playwright.Pooling;
 
     [TestClass]
-    [DoNotParallelize]  // Chrome DevTools Protocol tests share the same browser instance via connection pool
-    public class ChromeDevToolsProtocolTabObjectTests
+    [DoNotParallelize]  // CDP tests share the same browser instance via connection pool
+    public class CdpTabObjectTests
     {
-        private static string _chromeDevToolsProtocolEndpoint;
+        private static string _cdpEndpoint;
 
         [ClassInitialize]
         public static async Task ClassInitialize(TestContext context)
         {
-            // NOTE: Chrome DevTools Protocol connections require an EXTERNAL browser with Chrome DevTools Protocol enabled (e.g., CefSharp in WPF).
+            // NOTE: CDP connections require an EXTERNAL browser with CDP enabled (e.g., CefSharp in WPF).
             // Playwright.LaunchAsync() creates a browser, but Playwright.ConnectOverCDP() needs a separate
-            // Chrome DevTools Protocol endpoint. You can't ConnectOverCDP to a browser you just launched with Playwright.
+            // CDP endpoint. You can't ConnectOverCDP to a browser you just launched with Playwright.
             // 
-            // For real Chrome DevTools Protocol testing, start CefSharp with RemoteDebuggingPort:
+            // For real CDP testing, start CefSharp with RemoteDebuggingPort:
             //   var settings = new CefSettings { RemoteDebuggingPort = 9223 };
-            // Then use: _chromeDevToolsProtocolEndpoint = "http://127.0.0.1:9223";
+            // Then use: _cdpEndpoint = "http://127.0.0.1:9223";
             
             // Prefer env var if provided (e.g., in CI), else default to localhost:9222
-            _chromeDevToolsProtocolEndpoint = Environment.GetEnvironmentVariable("CHROME_DEVTOOLS_PROTOCOL_ENDPOINT") ?? "http://localhost:9222"; // Default for CI setup
+            _cdpEndpoint = Environment.GetEnvironmentVariable("CDP_ENDPOINT") ?? "http://localhost:9222"; // Default for CI setup
 
             // Create test HTML file
             var htmlPath = Path.Combine(
@@ -80,68 +80,68 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             return $"file:///{htmlPath.Replace("\\", "/")}";
         }
 
-        // Test ChromeDevToolsProtocolTabObject that connects to our test browser
-        private class TestChromeDevToolsProtocolTab : ChromeDevToolsProtocolTabObject
+        // Test CdpTabObject that connects to our test browser
+        private class TestCdpTab : CdpTabObject
         {
             private readonly string _endpointValue;
             private readonly string _identifierValue;
 
-            public TestChromeDevToolsProtocolTab(string endpoint, string identifier = "default")
+            public TestCdpTab(string endpoint, string identifier = "default")
             {
                 _endpointValue = endpoint;
                 _identifierValue = identifier;
             }
 
-            // Fallback to static _chromeDevToolsProtocolEndpoint if instance value not set (handles base constructor access)
-            protected override string ChromeDevToolsProtocolEndpoint => _endpointValue ?? _chromeDevToolsProtocolEndpoint;
+            // Fallback to static _cdpEndpoint if instance value not set (handles base constructor access)
+            protected override string CdpEndpoint => _endpointValue ?? _cdpEndpoint;
             protected override string PageIdentifier => _identifierValue;
             protected override string Url => GetLocalHtmlUrl();
             protected override bool FindExistingPageByUrl => false; // Create new pages instead of searching for existing
         }
 
-        private class TestChromeDevToolsProtocolTabFindExisting : ChromeDevToolsProtocolTabObject
+        private class TestCdpTabFindExisting : CdpTabObject
         {
             private readonly string _endpoint;
             private readonly string _targetUrl;
 
-            public TestChromeDevToolsProtocolTabFindExisting(string endpoint, string targetUrl)
+            public TestCdpTabFindExisting(string endpoint, string targetUrl)
             {
                 _endpoint = endpoint;
                 _targetUrl = targetUrl;
             }
 
-            protected override string ChromeDevToolsProtocolEndpoint => _endpoint;
+            protected override string CdpEndpoint => _endpoint;
             protected override string PageIdentifier => _targetUrl;
             protected override string Url => _targetUrl;
             protected override bool FindExistingPageByUrl => true; // Search for existing page instead of creating new
         }
 
-        private class TestChromeDevToolsProtocolTabWithCustomIdentifier : ChromeDevToolsProtocolTabObject
+        private class TestCdpTabWithCustomIdentifier : CdpTabObject
         {
             private readonly string _endpoint;
 
-            public TestChromeDevToolsProtocolTabWithCustomIdentifier(string endpoint)
+            public TestCdpTabWithCustomIdentifier(string endpoint)
             {
                 _endpoint = endpoint;
             }
 
-            protected override string ChromeDevToolsProtocolEndpoint => _endpoint;
+            protected override string CdpEndpoint => _endpoint;
             protected override string PageIdentifier => "custom_identifier";
             protected override string Url => GetLocalHtmlUrl();
             protected override bool FindExistingPageByUrl => false; // Create new pages instead of searching for existing
         }
 
-        private class InvalidChromeDevToolsProtocolTab : ChromeDevToolsProtocolTabObject
+        private class InvalidCdpTab : CdpTabObject
         {
-            protected override string ChromeDevToolsProtocolEndpoint => null!; // Invalid!
+            protected override string CdpEndpoint => null!; // Invalid!
             protected override string Url => GetLocalHtmlUrl();
         }
 
         [TestMethod]
-        public void ChromeDevToolsProtocolTabObject_CanBeInstantiated()
+        public void CdpTabObject_CanBeInstantiated()
         {
             // Act
-            var tab = new TestChromeDevToolsProtocolTab("http://localhost:9222");
+            var tab = new TestCdpTab("http://localhost:9222");
 
             // Assert
             Assert.IsNotNull(tab);
@@ -151,58 +151,58 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         public void PageIdentifier_DefaultsToUrl()
         {
             // Arrange
-            var tab = new TestChromeDevToolsProtocolTab("http://localhost:9222");
+            var tab = new TestCdpTab("http://localhost:9222");
 
             // Assert
             Assert.IsNotNull(tab);
         }
 
         [TestMethod]
-        public void ChromeDevToolsProtocolTabObject_CanUseCustomPageIdentifier()
+        public void CdpTabObject_CanUseCustomPageIdentifier()
         {
             // Act
-            var tab = new TestChromeDevToolsProtocolTabWithCustomIdentifier("http://localhost:9222");
+            var tab = new TestCdpTabWithCustomIdentifier("http://localhost:9222");
 
             // Assert
             Assert.IsNotNull(tab);
         }
 
         [TestMethod]
-        public void ChromeDevToolsProtocolTabObject_InheritsFromTabObject()
+        public void CdpTabObject_InheritsFromTabObject()
         {
             // Act
-            var tab = new TestChromeDevToolsProtocolTab("http://localhost:9222");
+            var tab = new TestCdpTab("http://localhost:9222");
 
             // Assert
             Assert.IsInstanceOfType(tab, typeof(TabObject));
         }
 
         [TestMethod]
-        public async Task Creator_ThrowsInvalidOperationException_WhenChromeDevToolsProtocolEndpointIsNull()
+        public async Task Creator_ThrowsInvalidOperationException_WhenCdpEndpointIsNull()
         {
             // Arrange
-            var tab = new InvalidChromeDevToolsProtocolTab();
+            var tab = new InvalidCdpTab();
 
             // Act & Assert
             await Assert.ThrowsExceptionAsync<InvalidOperationException>(
                 async () => await tab.Open(),
-                "ChromeDevToolsProtocolEndpoint must not be null or empty");
+                "CdpEndpoint must not be null or empty");
         }
 
         [TestMethod]
-        [TestCategory("ChromeDevToolsProtocol")]
-        public async Task MultipleTabInstances_WithChromeDevToolsProtocolPooling_ReuseSameConnection()
+        [TestCategory("CDP")]
+        public async Task MultipleTabInstances_WithCdpPooling_ReuseSameConnection()
         {
-            // This test demonstrates the pooling concept with Chrome DevTools Protocol connections.
+            // This test demonstrates the pooling concept with CDP connections.
             // To run this test:
-            // 1. Start an external browser with Chrome DevTools Protocol enabled:
+            // 1. Start an external browser with CDP enabled:
             //    Edge:   msedge.exe --remote-debugging-port=9222 --headless=new about:blank
             //    Chrome: chrome.exe --remote-debugging-port=9222 --headless=new about:blank
-            // 2. Set CHROME_DEVTOOLS_PROTOCOL_ENDPOINT environment variable (or it will default to http://localhost:9222)
-            var endpoint = Environment.GetEnvironmentVariable("CHROME_DEVTOOLS_PROTOCOL_ENDPOINT") ?? _chromeDevToolsProtocolEndpoint;
-            if (!await IsChromeDevToolsProtocolAvailableAsync(endpoint))
+            // 2. Set CDP_ENDPOINT environment variable (or it will default to http://localhost:9222)
+            var endpoint = Environment.GetEnvironmentVariable("CDP_ENDPOINT") ?? _cdpEndpoint;
+            if (!await IsCdpAvailableAsync(endpoint))
             {
-                Assert.Inconclusive($"Chrome DevTools Protocol endpoint '{endpoint}' not reachable. Skipping.");
+                Assert.Inconclusive($"CDP endpoint '{endpoint}' not reachable. Skipping.");
                 return;
             }
 
@@ -211,9 +211,9 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             
             try
             {
-                var tab1 = new TestChromeDevToolsProtocolTab(endpoint, "tab1");
-                var tab2 = new TestChromeDevToolsProtocolTab(endpoint, "tab1"); // Same identifier!
-                var tab3 = new TestChromeDevToolsProtocolTab(endpoint, "tab1"); // Same identifier!
+                var tab1 = new TestCdpTab(endpoint, "tab1");
+                var tab2 = new TestCdpTab(endpoint, "tab1"); // Same identifier!
+                var tab3 = new TestCdpTab(endpoint, "tab1"); // Same identifier!
 
                 // Only open tab1 (which navigates to URL)
                 // tab2 and tab3 will get the same page from pool without re-navigating
@@ -244,15 +244,15 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         }
 
         [TestMethod]
-        [TestCategory("ChromeDevToolsProtocol")]
-        public async Task SequentialTabUsage_WithChromeDevToolsProtocolPooling_ReusesConnection()
+        [TestCategory("CDP")]
+        public async Task SequentialTabUsage_WithCdpPooling_ReusesConnection()
         {
             // This test demonstrates connection reuse across sequential tab instances.
-            // See MultipleTabInstances_WithChromeDevToolsProtocolPooling_ReuseSameConnection for setup instructions.
-            var endpoint = Environment.GetEnvironmentVariable("CHROME_DEVTOOLS_PROTOCOL_ENDPOINT") ?? _chromeDevToolsProtocolEndpoint;
-            if (!await IsChromeDevToolsProtocolAvailableAsync(endpoint))
+            // See MultipleTabInstances_WithCdpPooling_ReuseSameConnection for setup instructions.
+            var endpoint = Environment.GetEnvironmentVariable("CDP_ENDPOINT") ?? _cdpEndpoint;
+            if (!await IsCdpAvailableAsync(endpoint))
             {
-                Assert.Inconclusive($"Chrome DevTools Protocol endpoint '{endpoint}' not reachable. Skipping.");
+                Assert.Inconclusive($"CDP endpoint '{endpoint}' not reachable. Skipping.");
                 return;
             }
             var pool = PlaywrightConnectionPool.Instance;
@@ -264,7 +264,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                 // Open and close the same tab 3 times
                 for (int i = 0; i < 3; i++)
                 {
-                    var tab = new TestChromeDevToolsProtocolTab(endpoint, "sequential");
+                    var tab = new TestCdpTab(endpoint, "sequential");
                     
                     // Only open on first iteration; subsequent iterations reuse the page
                     if (i == 0)
@@ -292,7 +292,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         }
 
         [TestMethod]
-        public async Task ChromeDevToolsProtocolTabObject_DifferentIdentifiers_CreateSeparateConnections()
+        public async Task CdpTabObject_DifferentIdentifiers_CreateSeparateConnections()
         {
             // NOTE: This demonstrates how page identifiers enable connection isolation
             var pool = PlaywrightConnectionPool.Instance;
@@ -300,9 +300,9 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             
             try
             {
-                // With different PageIdentifiers, ChromeDevToolsProtocolTabObject creates separate connections
-                var tab1 = new TestChromeDevToolsProtocolTabWithCustomIdentifier("http://localhost:9222"); // "custom_identifier"
-                var tab2 = new TestChromeDevToolsProtocolTab("http://localhost:9222", "different"); // "different"
+                // With different PageIdentifiers, CdpTabObject creates separate connections
+                var tab1 = new TestCdpTabWithCustomIdentifier("http://localhost:9222"); // "custom_identifier"
+                var tab2 = new TestCdpTab("http://localhost:9222", "different"); // "different"
                 
                 // These would create separate cache keys:
                 // - "http://localhost:9222::custom_identifier"
@@ -416,7 +416,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         }
 
         [TestMethod]
-        [TestCategory("ChromeDevToolsProtocol")]
+        [TestCategory("CDP")]
         public async Task FindExistingPageByUrl_FindsPageInsteadOfCreatingNew()
         {
             // This test demonstrates finding an existing page by URL instead of creating a new one.
@@ -424,12 +424,12 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             // 1. Start an external browser with a page already loaded:
             //    Edge:   msedge.exe --remote-debugging-port=9222 --headless=new https://www.bing.com
             // 2. The test will connect and find the existing page with that URL
-            var endpoint = Environment.GetEnvironmentVariable("CHROME_DEVTOOLS_PROTOCOL_ENDPOINT") ?? _chromeDevToolsProtocolEndpoint;
+            var endpoint = Environment.GetEnvironmentVariable("CDP_ENDPOINT") ?? _cdpEndpoint;
             var targetUrl = "https://www.bing.com/";
             
-            if (!await IsChromeDevToolsProtocolAvailableAsync(endpoint))
+            if (!await IsCdpAvailableAsync(endpoint))
             {
-                Assert.Inconclusive($"Chrome DevTools Protocol endpoint '{endpoint}' not reachable. Skipping.");
+                Assert.Inconclusive($"CDP endpoint '{endpoint}' not reachable. Skipping.");
                 return;
             }
 
@@ -452,7 +452,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                 }
 
                 // This tab is configured to search for an existing page with the target URL
-                var tab = new TestChromeDevToolsProtocolTabFindExisting(endpoint, targetUrl);
+                var tab = new TestCdpTabFindExisting(endpoint, targetUrl);
                 
                 await tab.Open();
                 var page = await tab.Page;
@@ -482,9 +482,9 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             {
                 var nonExistentUrl = "https://this-page-definitely-does-not-exist.local/";
                 
-                // We need to actually try with a real Chrome DevTools Protocol endpoint to test the error
+                // We need to actually try with a real CDP endpoint to test the error
                 // For unit testing, we'll just verify the configuration is set correctly
-                var tab = new TestChromeDevToolsProtocolTabFindExisting("http://localhost:9999", nonExistentUrl);
+                var tab = new TestCdpTabFindExisting("http://localhost:9999", nonExistentUrl);
                 
                 // Verify FindExistingPageByUrl is true
                 Assert.IsNotNull(tab);
@@ -495,7 +495,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             }
         }
 
-        private static async Task<bool> IsChromeDevToolsProtocolAvailableAsync(string endpoint)
+        private static async Task<bool> IsCdpAvailableAsync(string endpoint)
         {
             if (string.IsNullOrWhiteSpace(endpoint)) return false;
             
@@ -505,14 +505,14 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                 var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
                 var browser = await playwright.Chromium.ConnectOverCDPAsync(endpoint);
                 
-                // If we got here, Chrome DevTools Protocol connection works
+                // If we got here, CDP connection works
                 await browser.CloseAsync();
                 playwright.Dispose();
                 return true;
             }
             catch
             {
-                // Chrome DevTools Protocol connection failed - maybe not ready or not available
+                // CDP connection failed - maybe not ready or not available
                 return false;
             }
         }

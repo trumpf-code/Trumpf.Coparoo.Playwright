@@ -98,7 +98,7 @@ public partial class App : Application
         base.OnStartup(e);
 
         // Optional: Configure the connection pool
-        var pool = SmartPlaywrightConnectionPool.Instance;
+        var pool = PlaywrightConnectionPool.Instance;
         pool.MaxRetryAttempts = 5;  // Increase retries if CEF starts slowly
         pool.RetryDelay = TimeSpan.FromSeconds(1);  // Increase delay between retries
         pool.EnablePageCaching = true;  // Enable per-dialog caching (default)
@@ -107,7 +107,7 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         // Cleanup: Dispose all connections
-        SmartPlaywrightConnectionPool.Instance.Dispose();
+        PlaywrightConnectionPool.Instance.Dispose();
         base.OnExit(e);
     }
 }
@@ -118,7 +118,7 @@ public partial class App : Application
 ```csharp
 public void DisplayPoolStatistics()
 {
-    var stats = SmartPlaywrightConnectionPool.Instance.GetStatistics();
+    var stats = PlaywrightConnectionPool.Instance.GetStatistics();
     
     Console.WriteLine($"Total Connections: {stats.TotalConnections}");
     
@@ -213,7 +213,7 @@ protected override async Task<IPage> Creator()
 public class MyDialog : CdpTabObject
 {
     protected override string CdpEndpoint => "http://localhost:12345";
-    // Creator() is sealed and uses SmartPlaywrightConnectionPool ✅
+    // Creator() is sealed and uses PlaywrightConnectionPool ✅
 }
 ```
 
