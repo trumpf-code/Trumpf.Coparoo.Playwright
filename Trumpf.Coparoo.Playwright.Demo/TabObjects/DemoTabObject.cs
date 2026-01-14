@@ -32,7 +32,7 @@ public sealed class DemoTabObject : TabObject
         }
     }
 
-    protected override async Task<IPage> Creator()
+    protected override async Task<IPage> CreatePageAsync()
     {
         var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
         var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions

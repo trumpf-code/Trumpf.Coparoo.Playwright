@@ -29,10 +29,10 @@ using Trumpf.Coparoo.Playwright.Pooling;
 /// <item>Users must override <see cref="CdpEndpoint"/> to specify the CDP endpoint URL</item>
 /// <item>Users can optionally override <see cref="PageIdentifier"/> for per-dialog caching</item>
 /// <item>Users can optionally override <see cref="CdpOptions"/> for connection configuration</item>
-/// <item>The <see cref="Creator"/> method is sealed and automatically uses <see cref="PlaywrightConnectionPool"/></item>
+/// <item>The <see cref="CreatePageAsync"/> method is sealed and automatically uses <see cref="PlaywrightConnectionPool"/></item>
 /// </list>
 /// <para>
-/// <strong>Why sealed Creator()?</strong> This ensures that all CDP connections go through the pool,
+/// <strong>Why sealed CreatePageAsync()?</strong> This ensures that all CDP connections go through the pool,
 /// preventing memory leaks from creating new Playwright instances for each dialog.
 /// </para>
 /// </remarks>
@@ -116,7 +116,7 @@ public abstract class CdpTabObject : TabObject
     /// To customize connection behavior, override <see cref="CdpEndpoint"/>, 
     /// <see cref="PageIdentifier"/>, or <see cref="CdpOptions"/> instead.
     /// </remarks>
-    protected sealed override async Task<IPage> Creator()
+    protected sealed override async Task<IPage> CreatePageAsync()
     {
         if (string.IsNullOrEmpty(CdpEndpoint))
         {

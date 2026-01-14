@@ -48,22 +48,17 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     public override By SearchPattern => throw new NotImplementedException();
 
     /// <summary>
-    /// Gets the page creator.
+    /// Gets or creates the page instance using the provided factory method.
     /// </summary>
-    private Func<Task<IPage>> creator;
-    public void SetCreator(Func<Task<IPage>> c)
+    /// <param name="factory">The factory method that creates the page instance.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the IPage instance.</returns>
+    /// <remarks>
+    /// This method implements lazy initialization - the factory is only called once on the first access.
+    /// Subsequent calls return the cached page instance.
+    /// </remarks>
+    public async Task<IPage> GetOrCreatePageAsync(Func<Task<IPage>> factory)
     {
-        creator = c;
-    }
-
-    public Task<IPage> Creator()
-    {
-        if (creator == null)
-        {
-            throw new TabObjectNotInitializedException("The TabObject has not been initialized with a creator function. Make sure to set the creator before accessing the Page.");
-        }
-
-        return creator();
+        return page ??= await factory();
     }
 
     /// <summary>
@@ -77,13 +72,9 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     public Statistics Statistics { get; } = new Statistics();
 
     /// <summary>
-    /// Gets or sets the page.
+    /// Sets the page instance directly (primarily for testing scenarios).
     /// </summary>
-    public async Task<IPage> Page()
-    {
-        return page ??= await Creator();
-    }
-
+    /// <param name="page">The IPage instance to set.</param>
     public void SetPage(IPage page)
     {
         this.page = page;
@@ -94,11 +85,11 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     /// </summary>
     /// <param name="url">The url to open.</param>
     public async Task Open(string url) 
-        => await (await Page()).GotoAsync(url);
+        => await page.GotoAsync(url);
     
     /// <summary>
     /// Quit the browser.
     /// </summary>
     public async Task Quit() 
-        => await (await Page()).Context.Browser.CloseAsync();
+        => await page.Context.Browser.CloseAsync();
 }

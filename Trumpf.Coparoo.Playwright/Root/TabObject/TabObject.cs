@@ -40,7 +40,6 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     public TabObject()
     {
         TabObjectNode n = new();
-        n.SetCreator(Creator);
         Init(null, n);
         pageObjectLocator = new PageObjectLocator(this);
         objectInterfaceResolver = new UIObjectInterfaceResolver();
@@ -64,7 +63,7 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     /// <summary>
     /// Gets the page instance for this tab.
     /// </summary>
-    public Task<IPage> Page => ((TabObjectNode)Node).Page();
+    public Task<IPage> Page => ((TabObjectNode)Node).GetOrCreatePageAsync(CreatePageAsync);
 
     /// <summary>
     /// Sets the page instance (primarily for testing scenarios).
@@ -72,7 +71,7 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     /// <param name="page">The IPage instance that represents the browser page to interact with.</param>
     /// <remarks>
     /// This method is typically used in test setups where you want to inject
-    /// a pre-configured page instance instead of using the Creator() method.
+    /// a pre-configured page instance instead of using the CreatePageAsync() method.
     /// </remarks>
     public void WithPage(IPage page)
     {
@@ -109,10 +108,14 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     protected virtual string Url { get; } = null;
 
     /// <summary>
-    /// Gets the page creator function.
+    /// Creates the page instance for this tab.
     /// </summary>
-    protected virtual Task<IPage> Creator()
-        => null;
+    /// <returns>A task that represents the asynchronous operation. The task result contains the created IPage instance.</returns>
+    /// <remarks>
+    /// Override this method to configure the browser and create the page instance.
+    /// This method is called lazily when the Page property is first accessed.
+    /// </remarks>
+    protected abstract Task<IPage> CreatePageAsync();
 
     /// <summary>
     /// Resolve the root object interface to a loaded process object in the current app domain.

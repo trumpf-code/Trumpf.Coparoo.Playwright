@@ -29,10 +29,10 @@ using Trumpf.Coparoo.Playwright.Pooling;
 /// <item>Users must override <see cref="ChromeDevToolsProtocolEndpoint"/> to specify the Chrome DevTools Protocol endpoint URL</item>
 /// <item>Users can optionally override <see cref="PageIdentifier"/> for per-dialog caching</item>
 /// <item>Users can optionally override <see cref="ChromeDevToolsProtocolOptions"/> for connection configuration</item>
-/// <item>The <see cref="Creator"/> method is sealed and automatically uses <see cref="PlaywrightConnectionPool"/></item>
+/// <item>The <see cref="CreatePageAsync"/> method is sealed and automatically uses <see cref="PlaywrightConnectionPool"/></item>
 /// </list>
 /// <para>
-/// <strong>Why sealed Creator()?</strong> This ensures that all Chrome DevTools Protocol connections go through the pool,
+/// <strong>Why sealed CreatePageAsync()?</strong> This ensures that all Chrome DevTools Protocol connections go through the pool,
 /// preventing memory leaks from creating new Playwright instances for each dialog.
 /// </para>
 /// </remarks>
@@ -116,7 +116,7 @@ public abstract class ChromeDevToolsProtocolTabObject : TabObject
     /// To customize connection behavior, override <see cref="ChromeDevToolsProtocolEndpoint"/>, 
     /// <see cref="PageIdentifier"/>, or <see cref="ChromeDevToolsProtocolOptions"/> instead.
     /// </remarks>
-    protected sealed override async Task<IPage> Creator()
+    protected sealed override async Task<IPage> CreatePageAsync()
     {
         if (string.IsNullOrEmpty(ChromeDevToolsProtocolEndpoint))
         {
