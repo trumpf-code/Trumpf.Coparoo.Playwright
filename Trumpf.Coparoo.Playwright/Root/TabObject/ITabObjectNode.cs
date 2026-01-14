@@ -45,7 +45,8 @@ internal interface ITabObjectNode : IUIObjectNode
     /// Open the web page.
     /// </summary>
     /// <param name="url">The URL to open.</param>
-    Task Open(string url);
+    /// <param name="factory">The factory method that creates the page instance if not yet initialized.</param>
+    Task Open(string url, Func<Task<IPage>> factory);
 
     /// <summary>
     /// Quit the browser.
