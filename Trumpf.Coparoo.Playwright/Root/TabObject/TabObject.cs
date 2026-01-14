@@ -208,7 +208,7 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     /// </summary>
     public async Task Open()
     {
-        await ((TabObjectNode)Node).Open(Url);
+        await ((TabObjectNode)Node).Open(Url, CreatePageAsync);
         opened = true;
     }
 

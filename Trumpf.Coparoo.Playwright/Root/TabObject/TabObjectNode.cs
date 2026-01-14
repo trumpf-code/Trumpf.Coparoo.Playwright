@@ -84,8 +84,12 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     /// Open the web page.
     /// </summary>
     /// <param name="url">The url to open.</param>
-    public async Task Open(string url) 
-        => await page.GotoAsync(url);
+    /// <param name="factory">The factory method that creates the page instance if not yet initialized.</param>
+    public async Task Open(string url, Func<Task<IPage>> factory)
+    {
+        await GetOrCreatePageAsync(factory);
+        await page.GotoAsync(url);
+    }
     
     /// <summary>
     /// Quit the browser.
