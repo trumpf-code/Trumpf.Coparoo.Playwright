@@ -23,6 +23,8 @@ namespace Trumpf.Coparoo.Tests;
 /// </summary>
 public class TestTab : TabObject
 {
+    protected override Task<IPage> CreatePageAsync() => Task.FromResult<IPage>(null);
+
     public static async Task<TestTab> CreateAsync(string html)
     {
         var result = new TestTab();

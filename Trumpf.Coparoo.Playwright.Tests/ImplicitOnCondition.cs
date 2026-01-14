@@ -49,6 +49,7 @@ public class ConditionalOn
     /// </summary>
     private class A : TabObject
     {
+        protected override Task<IPage> CreatePageAsync() => Task.FromResult<IPage>(null);
     }
 
     /// <summary>
