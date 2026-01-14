@@ -18,12 +18,10 @@ public sealed class Demo
     public async Task DemonstrateModularPageComposition_Headless()
     {
         var tab = new DemoTab(headless: true);
-        bool tabOpened = false;
 
         try
         {
             await tab.Open();
-            tabOpened = true;
 
             var settingsPage = tab.On<ISettings>();
 
@@ -49,8 +47,7 @@ public sealed class Demo
         }
         finally
         {
-            if (tabOpened)
-                await tab.Close();
+            await tab.Close();
         }
     }
 
@@ -62,12 +59,10 @@ public sealed class Demo
     public async Task DemonstrateModularPageComposition_Headed()
     {
         var tab = new DemoTab(headless: false);
-        bool tabOpened = false;
 
         try
         {
             await tab.Open();
-            tabOpened = true;
 
             var settingsPage = await tab.Goto<ISettings>();
             await Task.Delay(500);
@@ -103,8 +98,7 @@ public sealed class Demo
         }
         finally
         {
-            if (tabOpened)
-                await tab.Close();
+            await tab.Close();
         }
     }
 }

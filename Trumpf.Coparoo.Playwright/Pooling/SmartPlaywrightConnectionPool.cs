@@ -60,12 +60,12 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         }
 
         /// <summary>
-        /// Gets or creates a pooled page connection for the specified CDP endpoint and page URL.
+        /// Gets or creates a pooled page connection for the specified Chrome DevTools Protocol endpoint and page URL.
         /// Validates existing connections before reuse and automatically recreates stale connections.
         /// </summary>
-        /// <param name="cdpEndpoint">The CDP endpoint URL (e.g., "http://localhost:12345").</param>
+        /// <param name="chromeDevToolsProtocolEndpoint">The Chrome DevTools Protocol endpoint URL (e.g., "http://localhost:12345").</param>
         /// <param name="pageUrl">The page identifier or URL (used for per-dialog caching).</param>
-        /// <param name="options">Optional CDP connection options.</param>
+        /// <param name="options">Optional Chrome DevTools Protocol connection options.</param>
         /// <param name="findExistingByUrl">If true, searches for existing page by URL instead of creating new one.</param>
         /// <returns>A validated <see cref="IPage"/> instance ready for use.</returns>
         /// <remarks>
@@ -81,24 +81,24 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         /// where pages are already opened.
         /// </remarks>
         public async Task<IPage> GetOrCreatePageAsync(
-            string cdpEndpoint, 
-            string pageUrl, 
+            string chromeDevToolsProtocolEndpoint, 
+            string pageUrl,
             BrowserTypeConnectOverCDPOptions options = null,
             bool findExistingByUrl = false)
         {
-            if (string.IsNullOrEmpty(cdpEndpoint))
-                throw new ArgumentNullException(nameof(cdpEndpoint));
+            if (string.IsNullOrEmpty(chromeDevToolsProtocolEndpoint))
+                throw new ArgumentNullException(nameof(chromeDevToolsProtocolEndpoint));
             if (string.IsNullOrEmpty(pageUrl))
                 throw new ArgumentNullException(nameof(pageUrl));
 
             ThrowIfDisposed();
 
-            var cacheKey = GenerateCacheKey(cdpEndpoint, pageUrl);
+            var cacheKey = GenerateCacheKey(chromeDevToolsProtocolEndpoint, pageUrl);
 
             await _semaphore.WaitAsync().ConfigureAwait(false);
             try
             {
-                System.Diagnostics.Debug.WriteLine($"[SmartPool] GetOrCreatePageAsync: endpoint='{cdpEndpoint}', pageIdentifier='{pageUrl}', findExistingByUrl={findExistingByUrl}, enablePageCaching={EnablePageCaching}, cacheKey='{cacheKey}'");
+                System.Diagnostics.Debug.WriteLine($"[SmartPool] GetOrCreatePageAsync: endpoint='{chromeDevToolsProtocolEndpoint}', pageIdentifier='{pageUrl}', findExistingByUrl={findExistingByUrl}, enablePageCaching={EnablePageCaching}, cacheKey='{cacheKey}'");
                 // Check if connection exists and is valid
                 if (_connectionCache.TryGetValue(cacheKey, out var existingConnection))
                 {
@@ -118,7 +118,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
                 }
 
                 // Create new connection
-                var newConnection = await CreatePageConnectionAsync(cacheKey, cdpEndpoint, pageUrl, options, findExistingByUrl).ConfigureAwait(false);
+                var newConnection = await CreatePageConnectionAsync(cacheKey, chromeDevToolsProtocolEndpoint, pageUrl, options, findExistingByUrl).ConfigureAwait(false);
                 _connectionCache[cacheKey] = newConnection;
                 
                 System.Diagnostics.Debug.WriteLine($"[SmartPool] Created new connection for {cacheKey}");
@@ -185,9 +185,9 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         /// Creates a new page connection.
         /// </summary>
         /// <param name="cacheKey">The cache key for the connection.</param>
-        /// <param name="cdpEndpoint">The CDP endpoint URL.</param>
+        /// <param name="chromeDevToolsProtocolEndpoint">The Chrome DevTools Protocol endpoint URL.</param>
         /// <param name="pageUrl">The page identifier or URL.</param>
-        /// <param name="options">Optional CDP connection options.</param>
+        /// <param name="options">Optional Chrome DevTools Protocol connection options.</param>
         /// <param name="findExistingByUrl">If true, searches for existing page by URL instead of creating new one.</param>
         /// <returns>A new <see cref="PooledPageConnection"/> instance.</returns>
         /// <remarks>
@@ -196,17 +196,17 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         /// </remarks>
         private async Task<PooledPageConnection> CreatePageConnectionAsync(
             string cacheKey,
-            string cdpEndpoint,
+            string chromeDevToolsProtocolEndpoint,
             string pageUrl,
             BrowserTypeConnectOverCDPOptions options,
             bool findExistingByUrl)
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine($"[SmartPool] Connecting to CDP endpoint {cdpEndpoint}");
+                System.Diagnostics.Debug.WriteLine($"[SmartPool] Connecting to Chrome DevTools Protocol endpoint {chromeDevToolsProtocolEndpoint}");
 
                 var playwright = await Microsoft.Playwright.Playwright.CreateAsync().ConfigureAwait(false);
-                var browser = await playwright.Chromium.ConnectOverCDPAsync(cdpEndpoint, options).ConfigureAwait(false);
+                var browser = await playwright.Chromium.ConnectOverCDPAsync(chromeDevToolsProtocolEndpoint, options).ConfigureAwait(false);
                 
                 IPage page;
                 if (findExistingByUrl)
@@ -258,22 +258,22 @@ namespace Trumpf.Coparoo.Playwright.Pooling
 
                 var connection = new PooledPageConnection(
                     cacheKey,
-                    cdpEndpoint,
+                    chromeDevToolsProtocolEndpoint,
                     pageUrl,
                     playwright,
                     browser,
                     page,
                     ownsPage: !findExistingByUrl);
 
-                System.Diagnostics.Debug.WriteLine($"[SmartPool] Successfully created connection to {cdpEndpoint}");
+                System.Diagnostics.Debug.WriteLine($"[SmartPool] Successfully created connection to {chromeDevToolsProtocolEndpoint}");
                 return connection;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[SmartPool] Failed to connect to CDP endpoint '{cdpEndpoint}': {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[SmartPool] Failed to connect to Chrome DevTools Protocol endpoint '{chromeDevToolsProtocolEndpoint}': {ex.Message}");
                 throw new InvalidOperationException(
-                    $"Failed to connect to CDP endpoint '{cdpEndpoint}'. " +
-                    $"Ensure the CDP endpoint is running and accessible. Error: {ex.Message}",
+                    $"Failed to connect to Chrome DevTools Protocol endpoint '{chromeDevToolsProtocolEndpoint}'. " +
+                    $"Ensure the Chrome DevTools Protocol endpoint is running and accessible. Error: {ex.Message}",
                     ex);
             }
         }
@@ -379,7 +379,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
                 stats.ConnectionDetails.Add(new ConnectionStatistics
                 {
                     CacheKey = connection.CacheKey,
-                    Endpoint = connection.CdpEndpoint,
+                    Endpoint = connection.ChromeDevToolsProtocolEndpoint,
                     PageUrl = connection.PageUrl,
                     LastUsed = connection.LastUsed,
                     CreatedAt = connection.CreatedAt,

@@ -20,27 +20,27 @@ using Microsoft.Playwright;
 using Trumpf.Coparoo.Playwright.Pooling;
 
 /// <summary>
-/// Specialized TabObject for CDP (Chrome DevTools Protocol) connections.
+/// Specialized TabObject for Chrome DevTools Protocol connections.
 /// Enforces connection pooling to prevent memory issues in WPF applications with CefSharp dialogs.
 /// </summary>
 /// <remarks>
 /// This class uses the Template Method pattern to enforce pool-based connection management:
 /// <list type="bullet">
-/// <item>Users must override <see cref="CdpEndpoint"/> to specify the CDP endpoint URL</item>
+/// <item>Users must override <see cref="ChromeDevToolsProtocolEndpoint"/> to specify the Chrome DevTools Protocol endpoint URL</item>
 /// <item>Users can optionally override <see cref="PageIdentifier"/> for per-dialog caching</item>
-/// <item>Users can optionally override <see cref="CdpOptions"/> for connection configuration</item>
+/// <item>Users can optionally override <see cref="ChromeDevToolsProtocolOptions"/> for connection configuration</item>
 /// <item>The <see cref="Creator"/> method is sealed and automatically uses <see cref="SmartPlaywrightConnectionPool"/></item>
 /// </list>
 /// <para>
-/// <strong>Why sealed Creator()?</strong> This ensures that all CDP connections go through the pool,
+/// <strong>Why sealed Creator()?</strong> This ensures that all Chrome DevTools Protocol connections go through the pool,
 /// preventing memory leaks from creating new Playwright instances for each dialog.
 /// </para>
 /// </remarks>
 /// <example>
 /// <code>
-/// public class SettingsDialogTab : CdpTabObject
+/// public class SettingsDialogTab : ChromeDevToolsProtocolTabObject
 /// {
-///     protected override string CdpEndpoint => "http://localhost:12345";
+///     protected override string ChromeDevToolsProtocolEndpoint => "http://localhost:12345";
 ///     protected override string PageIdentifier => "settings_dialog";
 ///     protected override string Url => "https://myapp.local/settings";
 ///     
@@ -51,17 +51,17 @@ using Trumpf.Coparoo.Playwright.Pooling;
 /// }
 /// </code>
 /// </example>
-public abstract class CdpTabObject : TabObject
+public abstract class ChromeDevToolsProtocolTabObject : TabObject
 {
     /// <summary>
-    /// Gets the CDP (Chrome DevTools Protocol) endpoint URL.
+    /// Gets the Chrome DevTools Protocol endpoint URL.
     /// </summary>
     /// <remarks>
     /// This is the WebSocket endpoint exposed by the browser or CEF instance.
     /// For CefSharp applications, this is typically configured via RemoteDebuggingPort.
     /// Example: "http://localhost:12345"
     /// </remarks>
-    protected abstract string CdpEndpoint { get; }
+    protected abstract string ChromeDevToolsProtocolEndpoint { get; }
 
     /// <summary>
     /// Gets the page identifier for connection caching.
@@ -88,19 +88,19 @@ public abstract class CdpTabObject : TabObject
     protected virtual bool FindExistingPageByUrl => true;
 
     /// <summary>
-    /// Gets the CDP connection options.
+    /// Gets the Chrome DevTools Protocol connection options.
     /// Override this to customize timeout, slow motion, or other connection settings.
     /// </summary>
     /// <remarks>
     /// Default timeout is 30 seconds.
     /// </remarks>
-    protected virtual BrowserTypeConnectOverCDPOptions CdpOptions => new BrowserTypeConnectOverCDPOptions
+    protected virtual BrowserTypeConnectOverCDPOptions ChromeDevToolsProtocolOptions => new BrowserTypeConnectOverCDPOptions
     {
         Timeout = 30000
     };
 
     /// <summary>
-    /// Creates a new page instance by connecting to the CDP endpoint.
+    /// Creates a new page instance by connecting to the Chrome DevTools Protocol endpoint.
     /// This method is sealed to enforce usage of <see cref="SmartPlaywrightConnectionPool"/>.
     /// </summary>
     /// <returns>A <see cref="Task{IPage}"/> representing the asynchronous operation that returns an <see cref="IPage"/> instance.</returns>
@@ -113,16 +113,16 @@ public abstract class CdpTabObject : TabObject
     /// <item>Retry logic handles CEF subprocess startup delays</item>
     /// <item>Memory leaks are prevented in dialog-heavy scenarios</item>
     /// </list>
-    /// To customize connection behavior, override <see cref="CdpEndpoint"/>, 
-    /// <see cref="PageIdentifier"/>, or <see cref="CdpOptions"/> instead.
+    /// To customize connection behavior, override <see cref="ChromeDevToolsProtocolEndpoint"/>, 
+    /// <see cref="PageIdentifier"/>, or <see cref="ChromeDevToolsProtocolOptions"/> instead.
     /// </remarks>
     protected sealed override async Task<IPage> Creator()
     {
-        if (string.IsNullOrEmpty(CdpEndpoint))
+        if (string.IsNullOrEmpty(ChromeDevToolsProtocolEndpoint))
         {
             throw new InvalidOperationException(
-                $"{GetType().Name}.CdpEndpoint must not be null or empty. " +
-                "Override the CdpEndpoint property to specify the CDP endpoint URL.");
+                $"{GetType().Name}.ChromeDevToolsProtocolEndpoint must not be null or empty. " +
+                "Override the ChromeDevToolsProtocolEndpoint property to specify the Chrome DevTools Protocol endpoint URL.");
         }
 
         var pageIdentifier = !string.IsNullOrWhiteSpace(PageIdentifier)
@@ -131,13 +131,13 @@ public abstract class CdpTabObject : TabObject
 
         if (pageIdentifier == GetType().Name)
         {
-            System.Diagnostics.Debug.WriteLine($"[CdpTabObject] WARN: PageIdentifier and Url are empty for {GetType().Name} at connect time. Falling back to class name. Ensure derived tab initializes identifier before connection.");
+            System.Diagnostics.Debug.WriteLine($"[ChromeDevToolsProtocolTabObject] WARN: PageIdentifier and Url are empty for {GetType().Name} at connect time. Falling back to class name. Ensure derived tab initializes identifier before connection.");
         }
 
-        System.Diagnostics.Debug.WriteLine($"[CdpTabObject] {GetType().Name}: Connecting via CDP endpoint='{CdpEndpoint}', pageIdentifier='{pageIdentifier}', findExistingByUrl={FindExistingPageByUrl}");
+        System.Diagnostics.Debug.WriteLine($"[ChromeDevToolsProtocolTabObject] {GetType().Name}: Connecting via Chrome DevTools Protocol endpoint='{ChromeDevToolsProtocolEndpoint}', pageIdentifier='{pageIdentifier}', findExistingByUrl={FindExistingPageByUrl}");
         
         return await SmartPlaywrightConnectionPool.Instance
-            .GetOrCreatePageAsync(CdpEndpoint, pageIdentifier, CdpOptions, FindExistingPageByUrl)
+            .GetOrCreatePageAsync(ChromeDevToolsProtocolEndpoint, pageIdentifier, ChromeDevToolsProtocolOptions, FindExistingPageByUrl)
             .ConfigureAwait(false);
     }
 
@@ -153,7 +153,7 @@ public abstract class CdpTabObject : TabObject
     {
         var pageIdentifier = PageIdentifier ?? Url ?? GetType().Name;
         await SmartPlaywrightConnectionPool.Instance
-            .InvalidateConnectionAsync(CdpEndpoint, pageIdentifier)
+            .InvalidateConnectionAsync(ChromeDevToolsProtocolEndpoint, pageIdentifier)
             .ConfigureAwait(false);
     }
 
@@ -163,7 +163,7 @@ public abstract class CdpTabObject : TabObject
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     /// <remarks>
     /// Unlike the base <see cref="TabObject.Close()"/> implementation, this method does NOT call
-    /// <c>Page.CloseAsync()</c> because CDP connections are pooled and reused. The page lifecycle
+    /// <c>Page.CloseAsync()</c> because Chrome DevTools Protocol connections are pooled and reused. The page lifecycle
     /// is managed by <see cref="SmartPlaywrightConnectionPool"/>, which will close pages only when
     /// the pool is cleared or when connections are disposed.
     /// <para>

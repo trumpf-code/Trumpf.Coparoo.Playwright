@@ -19,7 +19,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
     using Microsoft.Playwright;
 
     /// <summary>
-    /// Represents a pooled connection wrapper for Playwright CDP (Chrome DevTools Protocol) connections.
+    /// Represents a pooled connection wrapper for Playwright Chrome DevTools Protocol connections.
     /// Encapsulates IPlaywright, IBrowser, and IPage instances with metadata for connection pooling.
     /// </summary>
     public sealed class PooledPageConnection : IAsyncDisposable
@@ -30,9 +30,9 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         public string CacheKey { get; }
 
         /// <summary>
-        /// Gets the CDP endpoint URL (e.g., "http://localhost:12345").
+        /// Gets the Chrome DevTools Protocol endpoint URL (e.g., "http://localhost:12345").
         /// </summary>
-        public string CdpEndpoint { get; }
+        public string ChromeDevToolsProtocolEndpoint { get; }
 
         /// <summary>
         /// Gets the page identifier or URL for this connection.
@@ -45,7 +45,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         public IPlaywright Playwright { get; }
 
         /// <summary>
-        /// Gets the CDP browser instance for this connection.
+        /// Gets the Chrome DevTools Protocol browser instance for this connection.
         /// </summary>
         public IBrowser Browser { get; }
 
@@ -57,7 +57,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         /// <summary>
         /// Gets a value indicating whether this connection owns the page lifecycle.
         /// When true, the pool created the page and will close it on dispose.
-        /// When false, the page was found/attached (e.g., via CDP) and must not be closed by the pool.
+        /// When false, the page was found/attached (e.g., via Chrome DevTools Protocol) and must not be closed by the pool.
         /// </summary>
         public bool OwnsPage { get; }
 
@@ -75,15 +75,15 @@ namespace Trumpf.Coparoo.Playwright.Pooling
         /// Initializes a new instance of the <see cref="PooledPageConnection"/> class.
         /// </summary>
         /// <param name="cacheKey">The unique cache key for this connection.</param>
-        /// <param name="cdpEndpoint">The CDP endpoint URL.</param>
+        /// <param name="chromeDevToolsProtocolEndpoint">The Chrome DevTools Protocol endpoint URL.</param>
         /// <param name="pageUrl">The page identifier or URL.</param>
         /// <param name="playwright">The Playwright instance.</param>
-        /// <param name="browser">The CDP browser instance.</param>
+        /// <param name="browser">The Chrome DevTools Protocol browser instance.</param>
         /// <param name="page">The page instance.</param>
         /// <param name="ownsPage">Optional flag indicating whether the page was created by the pool (defaults to true). When false, the page will not be closed on dispose.</param>
         public PooledPageConnection(
             string cacheKey,
-            string cdpEndpoint,
+            string chromeDevToolsProtocolEndpoint,
             string pageUrl,
             IPlaywright playwright,
             IBrowser browser,
@@ -91,7 +91,7 @@ namespace Trumpf.Coparoo.Playwright.Pooling
             bool ownsPage = true)
         {
             CacheKey = cacheKey ?? throw new ArgumentNullException(nameof(cacheKey));
-            CdpEndpoint = cdpEndpoint ?? throw new ArgumentNullException(nameof(cdpEndpoint));
+            ChromeDevToolsProtocolEndpoint = chromeDevToolsProtocolEndpoint ?? throw new ArgumentNullException(nameof(chromeDevToolsProtocolEndpoint));
             PageUrl = pageUrl ?? throw new ArgumentNullException(nameof(pageUrl));
             Playwright = playwright ?? throw new ArgumentNullException(nameof(playwright));
             Browser = browser ?? throw new ArgumentNullException(nameof(browser));

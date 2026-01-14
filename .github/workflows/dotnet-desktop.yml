@@ -53,7 +53,7 @@ jobs:
       run: |
         mkdir -p ${{ env.Test_Results_Dir }}
         pwsh ${{ env.Test_Project_Folder }}/bin/Debug/net8.0/playwright.ps1 install
-        dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --verbosity normal --filter "TestCategory!=CDP" --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_playwright_${{ matrix.configuration }}.trx"
+        dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --verbosity normal --filter "TestCategory!=ChromeDevToolsProtocol" --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_playwright_${{ matrix.configuration }}.trx"
         echo "Listing files in test results directory:"
         dir ${{ env.Test_Results_Dir }}
 
@@ -109,7 +109,7 @@ jobs:
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
-  cdp-tests:
+  chrome-devtools-protocol-tests:
     runs-on: windows-latest
     timeout-minutes: 30
     needs: build
@@ -137,7 +137,7 @@ jobs:
       - name: Install Playwright Browsers
         run: pwsh ${{ env.Test_Project_Folder }}\bin\${{ env.Configuration }}\net8.0\playwright.ps1 install chromium
 
-      - name: Start Browser with CDP (9222)
+      - name: Start Browser with Chrome DevTools Protocol (9222)
         shell: pwsh
         run: |
           # Try multiple browser options in order of preference:
@@ -232,18 +232,18 @@ jobs:
             exit 1
           }
 
-      - name: Execute CDP Tests
+      - name: Execute Chrome DevTools Protocol Tests
         env:
-          CDP_ENDPOINT: http://127.0.0.1:9222
+          CHROME_DEVTOOLS_PROTOCOL_ENDPOINT: http://127.0.0.1:9222
         shell: pwsh
         run: |
           mkdir -p ${{ env.Test_Results_Dir }}
           dotnet test ${{ env.Solution_Name }} `
             --configuration ${{ env.Configuration }} `
             --no-build `
-            --filter "TestCategory=CDP" `
+            --filter "TestCategory=ChromeDevToolsProtocol" `
             --verbosity normal `
-            --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_cdp.trx"
+            --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_chrome_devtools_protocol.trx"
           echo "Listing files in test results directory:"
           dir ${{ env.Test_Results_Dir }}
 
@@ -254,9 +254,9 @@ jobs:
           Get-Process msedge -ErrorAction SilentlyContinue | Stop-Process -Force
           Get-Process chrome -ErrorAction SilentlyContinue | Stop-Process -Force
 
-      - name: Upload CDP Test Results
+      - name: Upload Chrome DevTools Protocol Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cdp-test-results
+          name: chrome-devtools-protocol-test-results
           path: ${{ env.Test_Results_Dir }}\*.trx

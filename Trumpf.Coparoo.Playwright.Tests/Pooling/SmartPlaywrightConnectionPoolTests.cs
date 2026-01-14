@@ -51,7 +51,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         }
 
         [TestMethod]
-        public async Task GetOrCreatePageAsync_ThrowsArgumentNullException_WhenCdpEndpointIsNull()
+        public async Task GetOrCreatePageAsync_ThrowsArgumentNullException_WhenChromeDevToolsProtocolEndpointIsNull()
         {
             // Act & Assert
             await Assert.ThrowsExceptionAsync<ArgumentNullException>(
@@ -80,8 +80,8 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         [TestMethod]
         public async Task ClearAllAsync_RemovesAllConnections()
         {
-            // Note: This test validates the pool interface without actually connecting to a CDP endpoint
-            // In a real scenario with a running CDP endpoint, you would create connections first
+            // Note: This test validates the pool interface without actually connecting to a Chrome DevTools Protocol endpoint
+            // In a real scenario with a running Chrome DevTools Protocol endpoint, you would create connections first
             
             // Act
             await _pool.ClearAllAsync();
@@ -92,7 +92,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         }
 
         [TestMethod]
-        public async Task InvalidateConnectionAsync_ThrowsArgumentNullException_WhenCdpEndpointIsNull()
+        public async Task InvalidateConnectionAsync_ThrowsArgumentNullException_WhenChromeDevToolsProtocolEndpointIsNull()
         {
             // Act & Assert
             await Assert.ThrowsExceptionAsync<ArgumentNullException>(

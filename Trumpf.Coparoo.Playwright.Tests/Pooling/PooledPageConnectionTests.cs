@@ -31,7 +31,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         }
 
         [TestMethod]
-        public void Constructor_ThrowsArgumentNullException_WhenCdpEndpointIsNull()
+        public void Constructor_ThrowsArgumentNullException_WhenChromeDevToolsProtocolEndpointIsNull()
         {
             // Act & Assert
             Assert.ThrowsException<ArgumentNullException>(() =>
@@ -185,7 +185,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
 
             // Assert
             Assert.AreEqual(cacheKey, connection.CacheKey);
-            Assert.AreEqual(endpoint, connection.CdpEndpoint);
+            Assert.AreEqual(endpoint, connection.ChromeDevToolsProtocolEndpoint);
             Assert.AreEqual(pageUrl, connection.PageUrl);
             Assert.AreSame(playwright, connection.Playwright);
             Assert.AreSame(browser, connection.Browser);
