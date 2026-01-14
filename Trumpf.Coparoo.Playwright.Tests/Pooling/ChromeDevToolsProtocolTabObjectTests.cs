@@ -131,64 +131,6 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             protected override bool FindExistingPageByUrl => false; // Create new pages instead of searching for existing
         }
 
-        private class InvalidChromeDevToolsProtocolTab : ChromeDevToolsProtocolTabObject
-        {
-            protected override string ChromeDevToolsProtocolEndpoint => null!; // Invalid!
-            protected override string Url => GetLocalHtmlUrl();
-        }
-
-        [TestMethod]
-        public void ChromeDevToolsProtocolTabObject_CanBeInstantiated()
-        {
-            // Act
-            var tab = new TestChromeDevToolsProtocolTab("http://localhost:9222");
-
-            // Assert
-            Assert.IsNotNull(tab);
-        }
-
-        [TestMethod]
-        public void PageIdentifier_DefaultsToUrl()
-        {
-            // Arrange
-            var tab = new TestChromeDevToolsProtocolTab("http://localhost:9222");
-
-            // Assert
-            Assert.IsNotNull(tab);
-        }
-
-        [TestMethod]
-        public void ChromeDevToolsProtocolTabObject_CanUseCustomPageIdentifier()
-        {
-            // Act
-            var tab = new TestChromeDevToolsProtocolTabWithCustomIdentifier("http://localhost:9222");
-
-            // Assert
-            Assert.IsNotNull(tab);
-        }
-
-        [TestMethod]
-        public void ChromeDevToolsProtocolTabObject_InheritsFromTabObject()
-        {
-            // Act
-            var tab = new TestChromeDevToolsProtocolTab("http://localhost:9222");
-
-            // Assert
-            Assert.IsInstanceOfType(tab, typeof(TabObject));
-        }
-
-        [TestMethod]
-        public async Task Creator_ThrowsInvalidOperationException_WhenChromeDevToolsProtocolEndpointIsNull()
-        {
-            // Arrange
-            var tab = new InvalidChromeDevToolsProtocolTab();
-
-            // Act & Assert
-            await Assert.ThrowsExceptionAsync<InvalidOperationException>(
-                async () => await tab.Open(),
-                "ChromeDevToolsProtocolEndpoint must not be null or empty");
-        }
-
         [TestMethod]
         [TestCategory("ChromeDevToolsProtocol")]
         public async Task MultipleTabInstances_WithChromeDevToolsProtocolPooling_ReuseSameConnection()

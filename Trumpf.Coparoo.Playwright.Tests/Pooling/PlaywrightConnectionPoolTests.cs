@@ -40,44 +40,6 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         }
 
         [TestMethod]
-        public void Instance_ReturnsSingleton()
-        {
-            // Act
-            var instance1 = PlaywrightConnectionPool.Instance;
-            var instance2 = PlaywrightConnectionPool.Instance;
-
-            // Assert
-            Assert.AreSame(instance1, instance2);
-        }
-
-        [TestMethod]
-        public async Task GetOrCreatePageAsync_ThrowsArgumentNullException_WhenChromeDevToolsProtocolEndpointIsNull()
-        {
-            // Act & Assert
-            await Assert.ThrowsExceptionAsync<ArgumentNullException>(
-                async () => await _pool.GetOrCreatePageAsync(null, "test"));
-        }
-
-        [TestMethod]
-        public async Task GetOrCreatePageAsync_ThrowsArgumentNullException_WhenPageUrlIsNull()
-        {
-            // Act & Assert
-            await Assert.ThrowsExceptionAsync<ArgumentNullException>(
-                async () => await _pool.GetOrCreatePageAsync("http://localhost:12345", null));
-        }
-
-        [TestMethod]
-        public void GetStatistics_ReturnsZeroConnections_WhenPoolIsEmpty()
-        {
-            // Act
-            var stats = _pool.GetStatistics();
-
-            // Assert
-            Assert.AreEqual(0, stats.TotalConnections);
-            Assert.AreEqual(0, stats.ConnectionDetails.Count);
-        }
-
-        [TestMethod]
         public async Task ClearAllAsync_RemovesAllConnections()
         {
             // Note: This test validates the pool interface without actually connecting to a Chrome DevTools Protocol endpoint

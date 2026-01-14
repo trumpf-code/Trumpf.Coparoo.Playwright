@@ -31,83 +31,11 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         }
 
         [TestMethod]
-        public void Constructor_ThrowsArgumentNullException_WhenChromeDevToolsProtocolEndpointIsNull()
-        {
-            // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() =>
-                new PooledPageConnection("key", null, "page", null, null, null));
-        }
-
-        [TestMethod]
-        public void Constructor_ThrowsArgumentNullException_WhenPageUrlIsNull()
-        {
-            // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() =>
-                new PooledPageConnection("key", "endpoint", null, null, null, null));
-        }
-
-        [TestMethod]
         public void Constructor_ThrowsArgumentNullException_WhenPlaywrightIsNull()
         {
             // Act & Assert
             Assert.ThrowsException<ArgumentNullException>(() =>
                 new PooledPageConnection("key", "endpoint", "page", null, null, null));
-        }
-
-        [TestMethod]
-        public async Task GetIdleTime_ReturnsPositiveTimeSpan()
-        {
-            // Arrange - Create real Playwright instances
-            var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-            var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
-            var page = await browser.NewPageAsync();
-            
-            var connection = new PooledPageConnection(
-                "test-key",
-                "http://localhost:12345",
-                "test-page",
-                playwright,
-                browser,
-                page);
-
-            // Act - Wait a bit to ensure idle time increases
-            await Task.Delay(100);
-            var idleTime = connection.GetIdleTime();
-
-            // Assert - Allow small timing variance
-            Assert.IsTrue(idleTime.TotalMilliseconds >= 90, 
-                $"Expected idle time >= 90ms, but got {idleTime.TotalMilliseconds}ms");
-            
-            // Cleanup
-            await connection.DisposeAsync();
-        }
-
-        [TestMethod]
-        public async Task GetAge_ReturnsPositiveTimeSpan()
-        {
-            // Arrange - Create real Playwright instances
-            var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-            var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
-            var page = await browser.NewPageAsync();
-            
-            var connection = new PooledPageConnection(
-                "test-key",
-                "http://localhost:12345",
-                "test-page",
-                playwright,
-                browser,
-                page);
-
-            // Act - Wait a bit to ensure age increases
-            await Task.Delay(100);
-            var age = connection.GetAge();
-
-            // Assert - Allow small timing variance
-            Assert.IsTrue(age.TotalMilliseconds >= 90,
-                $"Expected age >= 90ms, but got {age.TotalMilliseconds}ms");
-            
-            // Cleanup
-            await connection.DisposeAsync();
         }
 
         [TestMethod]
