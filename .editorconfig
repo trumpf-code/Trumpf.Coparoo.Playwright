@@ -2,3 +2,10 @@
 
 # Default severity for all analyzer diagnostics
 dotnet_analyzer_diagnostic.severity = none
+
+# Visual Studio Threading Analyzer rules
+# VSTHRD003: Avoid awaiting Task without ConfigureAwait
+dotnet_diagnostic.VSTHRD003.severity = warning
+
+# VSTHRD110: Observe result of async calls
+dotnet_diagnostic.VSTHRD110.severity = warning
