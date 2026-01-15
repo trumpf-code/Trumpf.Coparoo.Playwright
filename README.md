@@ -27,12 +27,12 @@ Here's the basic pattern illustrated in the demo above - notice how naturally th
 
 The library ships with built-in control wrappers for common HTML elements, making it easy to interact with various UI components. These include `Checkbox`, `Button`, `TextBox`, `DropDown`, `Table`, `RadioButton`, and many more. In the example above, checkboxes are used for the notification and auto-save settings, demonstrating how these controls provide clean, type-safe APIs for interaction without dealing with raw locators or CSS selectors.
 
-## CDP Connection Pooling for WPF/CefSharp Applications
+## Chrome DevTools Protocol (CDP) Connection Pooling for WPF/CefSharp Applications
 
-For WPF applications using CefSharp dialogs, the library provides smart connection pooling to prevent memory leaks and improve performance. Use `CdpTabObject` to automatically manage Playwright connections via Chrome DevTools Protocol (CDP):
+For WPF applications using CefSharp dialogs, the library provides smart connection pooling to prevent memory leaks and improve performance. Use `ChromeDevToolsProtocolTabObject` to automatically manage Playwright connections via Chrome DevTools Protocol (CDP):
 
 ```csharp
-public class SettingsDialogTab : CdpTabObject
+public class SettingsDialogTab : ChromeDevToolsProtocolTabObject
 {
     protected override string CdpEndpoint => "http://localhost:12345";  // CefSharp debugging port
     protected override string PageIdentifier => "settings_dialog";      // Unique dialog identifier
@@ -40,14 +40,6 @@ public class SettingsDialogTab : CdpTabObject
     
     public SettingsDialogTab() => ChildOf<SettingsPage, SettingsDialogTab>();
 }
-```
-
-**Key Benefits:**
-- ✅ **No Memory Leaks** - Playwright instances are reused, not recreated
-- ✅ **Automatic Recovery** - Stale connections are detected and recreated  
-- ✅ **CEF Startup Handling** - Retry logic handles delayed subprocess starts
-- ✅ **Per-Dialog Isolation** - Different dialogs can run in parallel
-- ✅ **Zero Configuration** - Works out-of-the-box with sensible defaults
 
 The connection pool validates and reuses existing connections, dramatically reducing memory consumption when repeatedly opening/closing dialogs. Configure pool behavior if needed:
 
