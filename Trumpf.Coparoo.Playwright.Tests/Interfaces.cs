@@ -168,6 +168,7 @@ public class Interfaces
     /// </summary>
     private class A : TabObject, IA
     {
+        protected override Task<IPage> CreatePageAsync() => Task.FromResult<IPage>(null);
     }
 
     /// <summary>

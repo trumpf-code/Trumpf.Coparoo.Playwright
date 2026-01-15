@@ -48,7 +48,7 @@ public interface IUIObject
     /// <param name="condition">The condition that must evaluate true for target page object.</param>
     /// <typeparam name="TPageObject">The target page object type.</typeparam>
     /// <returns>The target page object.</returns>
-    TPageObject Goto<TPageObject>(Predicate<TPageObject> condition = null) where TPageObject : IPageObject;
+    Task<TPageObject> Goto<TPageObject>(Predicate<TPageObject> condition = null) where TPageObject : IPageObject;
 
     /// <summary>
     /// Gets the control.

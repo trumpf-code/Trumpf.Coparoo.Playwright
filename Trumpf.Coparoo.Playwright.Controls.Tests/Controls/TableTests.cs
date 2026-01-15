@@ -29,7 +29,7 @@ public class TableTests
     public async Task WhenATableIsAccessed_ThenItCanBeFoundAndThePropertiesFit()
     {
         // Prepare
-        var tab = await TestTab.CreateAsync("<table><thead><tr><th>1</th><th>2</th></tr></thead><tfoot><tr><td>3</td><td>4</td></tr></tfoot><tbody><tr><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td></tr></tbody></table>");
+        var tab = await TestTab.CreateTestPageAsync("<table><thead><tr><th>1</th><th>2</th></tr></thead><tfoot><tr><td>3</td><td>4</td></tr></tfoot><tbody><tr><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td></tr></tbody></table>");
 
         // Act
         var table = tab.Find<Table>();

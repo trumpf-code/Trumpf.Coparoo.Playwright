@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Threading.Tasks;
 using Trumpf.Coparoo.Playwright.Exceptions;
 using Trumpf.Coparoo.Playwright.Internal;
 
@@ -47,17 +48,17 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     public override By SearchPattern => throw new NotImplementedException();
 
     /// <summary>
-    /// Gets the page creator.
+    /// Gets or creates the page instance using the provided factory method.
     /// </summary>
-    private Task<IPage> creator;
-    public void SetCreator(Task<IPage> c)
+    /// <param name="factory">The factory method that creates the page instance.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the IPage instance.</returns>
+    /// <remarks>
+    /// This method implements lazy initialization - the factory is only called once on the first access.
+    /// Subsequent calls return the cached page instance.
+    /// </remarks>
+    public async Task<IPage> GetOrCreatePageAsync(Func<Task<IPage>> factory)
     {
-        creator = c;
-    }
-
-    public Task<IPage> Creator()
-    {
-        return creator;
+        return page ??= await factory();
     }
 
     /// <summary>
@@ -71,13 +72,9 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     public Statistics Statistics { get; } = new Statistics();
 
     /// <summary>
-    /// Gets or sets the page.
+    /// Sets the page instance directly (primarily for testing scenarios).
     /// </summary>
-    public async Task<IPage> Page()
-    {
-        return page ??= await Creator();
-    }
-
+    /// <param name="page">The IPage instance to set.</param>
     public void SetPage(IPage page)
     {
         this.page = page;
@@ -87,12 +84,16 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     /// Open the web page.
     /// </summary>
     /// <param name="url">The url to open.</param>
-    public async Task Open(string url) 
-        => await (await Page()).GotoAsync(url);
+    /// <param name="factory">The factory method that creates the page instance if not yet initialized.</param>
+    public async Task Open(string url, Func<Task<IPage>> factory)
+    {
+        await GetOrCreatePageAsync(factory);
+        await page.GotoAsync(url);
+    }
     
     /// <summary>
     /// Quit the browser.
     /// </summary>
     public async Task Quit() 
-        => await (await Page()).Context.Browser.CloseAsync();
+        => await page.Context.Browser.CloseAsync();
 }

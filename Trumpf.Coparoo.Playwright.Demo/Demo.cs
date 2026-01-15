@@ -37,13 +37,13 @@ public sealed class Demo
             await settingsPage.EnableAutoSave.Uncheck();
             (await settingsPage.EnableAutoSave.IsChecked).Should().BeFalse();
 
-            var preferencesPage = tab.Goto<IPreferences>();
+            var preferencesPage = await tab.Goto<IPreferences>();
 
             await preferencesPage.SavePreferences.ClickAsync();
             await preferencesPage.ResetToDefaults.ClickAsync();
             await preferencesPage.ExportSettings.ClickAsync();
 
-            tab.Goto<ISettings>();
+            await tab.Goto<ISettings>();
         }
         finally
         {
@@ -64,7 +64,7 @@ public sealed class Demo
         {
             await tab.Open();
 
-            var settingsPage = tab.Goto<ISettings>();
+            var settingsPage = await tab.Goto<ISettings>();
             await Task.Delay(500);
 
             await settingsPage.EnableNotifications.Check();
@@ -79,7 +79,7 @@ public sealed class Demo
             await settingsPage.EnableAutoSave.Uncheck();
             await Task.Delay(400);
 
-            var preferencesPage = tab.Goto<IPreferences>();
+            var preferencesPage = await tab.Goto<IPreferences>();
             await Task.Delay(500);
 
             await preferencesPage.SavePreferences.ClickAsync();
@@ -91,7 +91,7 @@ public sealed class Demo
             await preferencesPage.ExportSettings.ClickAsync();
             await Task.Delay(600);
 
-            var settingsPageAgain = tab.Goto<ISettings>();
+            var settingsPageAgain = await tab.Goto<ISettings>();
             await Task.Delay(500);
 
             await Task.Delay(1000);

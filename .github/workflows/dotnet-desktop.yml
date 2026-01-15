@@ -50,12 +50,81 @@ jobs:
     - name: Execute Playwright Tests
       if: matrix.configuration == 'Debug'
       continue-on-error: false
+      env:
+        CHROME_DEVTOOLS_PROTOCOL_ENDPOINT: http://127.0.0.1:9222
+      shell: pwsh
       run: |
         mkdir -p ${{ env.Test_Results_Dir }}
         pwsh ${{ env.Test_Project_Folder }}/bin/Debug/net8.0/playwright.ps1 install
-        dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --verbosity normal --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_playwright_${{ matrix.configuration }}.trx"
-        echo "Listing files in test results directory:"
-        dir ${{ env.Test_Results_Dir }}
+        
+        # Start Chrome DevTools Protocol browser for CDP tests
+        Write-Host "Starting browser with Chrome DevTools Protocol support..."
+        $playwrightChromium = "$env:USERPROFILE\AppData\Local\ms-playwright\chromium-*\chrome-win\chrome.exe"
+        $playwrightChromiumPath = Get-Item $playwrightChromium -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+        
+        $browserCandidates = @()
+        if ($playwrightChromiumPath) { $browserCandidates += $playwrightChromiumPath }
+        $browserCandidates += @(
+          "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+          "C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+          "C:\Program Files\Google\Chrome\Application\chrome.exe",
+          "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
+        )
+        
+        $browserPath = $null
+        foreach ($p in $browserCandidates) {
+          if (Test-Path $p) { 
+            $browserPath = $p
+            Write-Host "Found browser at: $browserPath"
+            break 
+          }
+        }
+        
+        if (-not $browserPath) {
+          Write-Warning "No CDP-capable browser found - CDP tests will be skipped"
+        } else {
+          $browserArgs = @(
+            "--remote-debugging-port=9222",
+            "--headless=new",
+            "--disable-gpu",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "https://www.bing.com"
+          )
+          
+          $browserProc = Start-Process -FilePath $browserPath -ArgumentList $browserArgs -PassThru
+          Write-Host "Browser started with PID: $($browserProc.Id)"
+          
+          # Wait for CDP endpoint
+          $retries = 0
+          $maxRetries = 30
+          $cdpUrl = "http://127.0.0.1:9222/json/version"
+          while ($retries -lt $maxRetries) {
+            try {
+              $resp = Invoke-WebRequest -Uri $cdpUrl -UseBasicParsing -TimeoutSec 2 -ErrorAction Stop
+              if ($resp.StatusCode -eq 200) { 
+                Write-Host "CDP endpoint ready!"
+                break 
+              }
+            } catch {
+              Write-Host "Waiting for CDP endpoint... ($retries/$maxRetries)"
+            }
+            Start-Sleep -Seconds 1
+            $retries++
+          }
+        }
+        
+        try {
+          # Run all Playwright tests (including CDP tests if browser is available)
+          dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }} --verbosity normal --logger "trx;LogFileName=${{ env.Test_Results_Dir }}\test_result_playwright_${{ matrix.configuration }}.trx"
+          echo "Listing files in test results directory:"
+          dir ${{ env.Test_Results_Dir }}
+        } finally {
+          # Stop CDP browser if started
+          Write-Host "Stopping CDP browser..."
+          Get-Process msedge -ErrorAction SilentlyContinue | Stop-Process -Force
+          Get-Process chrome -ErrorAction SilentlyContinue | Stop-Process -Force
+        }
 
     # Execute unit tests for Trumpf.Coparoo.Playwright.Controls.Tests
     - name: Execute Controls Tests

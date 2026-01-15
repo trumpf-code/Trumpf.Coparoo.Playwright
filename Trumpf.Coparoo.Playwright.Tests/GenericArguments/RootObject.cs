@@ -20,5 +20,6 @@ using Trumpf.Coparoo.Playwright;
 public class RootObject : TabObject
 {
     protected override string Url => "";
-    
+
+    protected override Task<IPage> CreatePageAsync() => Task.FromResult<IPage>(null);
 }

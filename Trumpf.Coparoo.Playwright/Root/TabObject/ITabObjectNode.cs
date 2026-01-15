@@ -35,20 +35,18 @@ internal interface ITabObjectNode : IUIObjectNode
     Statistics Statistics { get; }
 
     /// <summary>
-    /// Gets the page instance.
+    /// Gets or creates the page instance using the provided factory method.
     /// </summary>
-    Task<IPage> Page();
-
-    /// <summary>
-    /// Gets the page creator.
-    /// </summary>
-    Task<IPage> Creator();
+    /// <param name="factory">The factory method that creates the page instance.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the IPage instance.</returns>
+    Task<IPage> GetOrCreatePageAsync(Func<Task<IPage>> factory);
 
     /// <summary>
     /// Open the web page.
     /// </summary>
     /// <param name="url">The URL to open.</param>
-    Task Open(string url);
+    /// <param name="factory">The factory method that creates the page instance if not yet initialized.</param>
+    Task Open(string url, Func<Task<IPage>> factory);
 
     /// <summary>
     /// Quit the browser.

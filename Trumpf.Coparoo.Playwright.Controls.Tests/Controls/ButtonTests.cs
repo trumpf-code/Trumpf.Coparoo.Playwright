@@ -31,7 +31,7 @@ public class ButtonTests
     public async Task ButtonWithNonExistentLocator_ShouldNotExist()
     {
         // Prepare
-        var tab = await TestTab.CreateAsync(HtmlContents("other text"));
+        var tab = await TestTab.CreateTestPageAsync(HtmlContents("other text"));
         var checkbox = tab.Find<Button>("non-existing locator");
 
         // Act
@@ -51,7 +51,7 @@ public class ButtonTests
     {
         //Prepare
         var expectedButtonText = "button text";
-        TestTab tab = await TestTab.CreateAsync(HtmlContents(expectedButtonText));
+        TestTab tab = await TestTab.CreateTestPageAsync(HtmlContents(expectedButtonText));
         Button button = tab.Find<Button>();
 
         // Act
@@ -74,7 +74,7 @@ public class ButtonTests
         // Prepare
         var expectedTestId = "submit-button";
         var expectedButtonText = "Submit Form";
-        var tab = await TestTab.CreateAsync(HtmlContentsWithTestId(expectedTestId, expectedButtonText));
+        var tab = await TestTab.CreateTestPageAsync(HtmlContentsWithTestId(expectedTestId, expectedButtonText));
 
         // Act
         var button = tab.Find<Button>(By.TestId(expectedTestId));

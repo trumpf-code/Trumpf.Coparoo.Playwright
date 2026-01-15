@@ -156,6 +156,8 @@ public class DynamicChildOf
             ChildOf<G, A>();
             ChildOf<G, B>();
         }
+
+        protected override Task<IPage> CreatePageAsync() => Task.FromResult<IPage>(null);
     }
 
     /// <summary>
