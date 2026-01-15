@@ -25,7 +25,7 @@ public class TestTab : TabObject
 {
     protected override Task<IPage> CreatePageAsync() => Task.FromResult<IPage>(null);
 
-    public static async Task<TestTab> CreateAsync(string html)
+    public static async Task<TestTab> CreateTestPageAsync(string html)
     {
         var result = new TestTab();
         var playwright = await Microsoft.Playwright.Playwright.CreateAsync();

@@ -31,7 +31,7 @@ public class LabelTests
     {
         // Prepare
         var expectedLabelText = $"hellp";
-        var tab = await TestTab.CreateAsync($"<label>{expectedLabelText}</label>");
+        var tab = await TestTab.CreateTestPageAsync($"<label>{expectedLabelText}</label>");
         var label = tab.Find<Label>();
 
         // Act
@@ -52,7 +52,7 @@ public class LabelTests
     {
         // Prepare
         var expectedLabelText = "Hello World";
-        var tab = await TestTab.CreateAsync($"<label id=\"myLabel\">{expectedLabelText}</label>");
+        var tab = await TestTab.CreateTestPageAsync($"<label id=\"myLabel\">{expectedLabelText}</label>");
         
         // Act
         var label = tab.Find<Label>(By.Id("myLabel"));
@@ -70,7 +70,7 @@ public class LabelTests
     {
         // Prepare
         var expectedLabelText = "Test Label";
-        var tab = await TestTab.CreateAsync($"<label data-testid=\"myLabel\">{expectedLabelText}</label>");
+        var tab = await TestTab.CreateTestPageAsync($"<label data-testid=\"myLabel\">{expectedLabelText}</label>");
         
         // Act
         var label = tab.Find<Label>(By.TestId("myLabel"));
@@ -88,7 +88,7 @@ public class LabelTests
     {
         // Prepare
         var expectedLabelText = "Combined Selector";
-        var tab = await TestTab.CreateAsync($"<label id=\"myLabel\" class=\"primary\">{expectedLabelText}</label>");
+        var tab = await TestTab.CreateTestPageAsync($"<label id=\"myLabel\" class=\"primary\">{expectedLabelText}</label>");
         
         // Act - Use .And() to combine ID and class
         var label = tab.Find<Label>(By.Id("myLabel").And(By.ClassName("primary")));
@@ -105,7 +105,7 @@ public class LabelTests
     public async Task WhenMultipleLabelsExist_ThenAndCombinationFindsCorrectOne()
     {
         // Prepare
-        var tab = await TestTab.CreateAsync(
+        var tab = await TestTab.CreateTestPageAsync(
             "<label class=\"primary\">Wrong Label 1</label>" +
             "<label id=\"myLabel\" class=\"primary\">Correct Label</label>" +
             "<label id=\"myLabel\">Wrong Label 2</label>");
@@ -126,7 +126,7 @@ public class LabelTests
     {
         // Prepare
         var expectedLabelText = "Tagged Label";
-        var tab = await TestTab.CreateAsync(
+        var tab = await TestTab.CreateTestPageAsync(
             $"<div id=\"myLabel\" class=\"primary\">Wrong Element</div>" +
             $"<label id=\"myLabel\" class=\"primary\">{expectedLabelText}</label>");
         
@@ -146,7 +146,7 @@ public class LabelTests
     {
         // Prepare
         var expectedLabelText = "Test with Class";
-        var tab = await TestTab.CreateAsync(
+        var tab = await TestTab.CreateTestPageAsync(
             "<label data-testid=\"test-label\">Wrong</label>" +
             $"<label data-testid=\"test-label\" class=\"highlight\">{expectedLabelText}</label>");
         
@@ -166,7 +166,7 @@ public class LabelTests
     {
         // Prepare
         var expectedLabelText = "Multi Class";
-        var tab = await TestTab.CreateAsync(
+        var tab = await TestTab.CreateTestPageAsync(
             "<label class=\"primary\">Wrong 1</label>" +
             "<label class=\"primary large\">Wrong 2</label>" +
             $"<label class=\"primary large highlight\">{expectedLabelText}</label>");

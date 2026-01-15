@@ -34,7 +34,7 @@ public class CheckboxTests
         var expectedValue = "some value";
         var expectedIsChecked = false;
 
-        var tab = await TestTab.CreateAsync(HtmlContents(expectedName, expectedValue, expectedIsChecked));
+        var tab = await TestTab.CreateTestPageAsync(HtmlContents(expectedName, expectedValue, expectedIsChecked));
         var checkbox = tab.Find<Checkbox>();
 
         // Act
@@ -62,7 +62,7 @@ public class CheckboxTests
         var expectedName = "checkbox name";
         var expectedValue = "some value";
         var expectedIsCheck = false;
-        var tab = await TestTab.CreateAsync(HtmlContents(expectedName, expectedValue, expectedIsCheck));
+        var tab = await TestTab.CreateTestPageAsync(HtmlContents(expectedName, expectedValue, expectedIsCheck));
         var checkbox = tab.Find<Checkbox>();
 
         // Act
