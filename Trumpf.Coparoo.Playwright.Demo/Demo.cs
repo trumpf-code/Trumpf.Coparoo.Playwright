@@ -1,3 +1,17 @@
+// Copyright 2016 - 2025 TRUMPF Werkzeugmaschinen GmbH + Co. KG.
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 namespace Trumpf.Coparoo.Playwright.Demo;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -6,13 +20,13 @@ using Trumpf.Coparoo.Playwright.Demo.TabObjects;
 using Trumpf.Coparoo.Playwright.Extensions;
 
 /// <summary>
-/// Demonstration tests showcasing dynamic page composition and convention-based navigation.
+/// Demonstration tests showing interaction with Settings/Preferences and IFrame pages in one session.
 /// </summary>
 [TestClass]
 public sealed class Demo
 {
     /// <summary>
-    /// Demonstrates navigation and interaction in headless mode (CI-friendly).
+    /// Headless demo run suitable for CI.
     /// </summary>
     [TestMethod]
     public async Task DemonstrateModularPageComposition_Headless()
@@ -23,27 +37,26 @@ public sealed class Demo
         {
             await tab.Open();
 
-            var settingsPage = tab.On<ISettings>();
+            // Settings & Preferences (from demo)
+            var settings = await tab.Goto<ISettings>();
+            await settings.EnableNotifications.Check();
+            (await settings.EnableNotifications.IsChecked).Should().BeTrue();
+            await settings.EnableAutoSave.Check();
+            await settings.EnableDarkMode.Check();
 
-            await settingsPage.EnableNotifications.Check();
-            (await settingsPage.EnableNotifications.IsChecked).Should().BeTrue();
+            var preferences = await tab.Goto<IPreferences>();
+            await preferences.SavePreferences.ClickAsync();
+            await preferences.ResetToDefaults.ClickAsync();
+            await preferences.ExportSettings.ClickAsync();
 
-            await settingsPage.EnableAutoSave.Check();
-            (await settingsPage.EnableAutoSave.IsChecked).Should().BeTrue();
+            // IFrame demo: main page
+            await tab.Goto<IIFrameDemoPage>();
 
-            await settingsPage.EnableDarkMode.Check();
-            (await settingsPage.EnableDarkMode.IsChecked).Should().BeTrue();
-
-            await settingsPage.EnableAutoSave.Uncheck();
-            (await settingsPage.EnableAutoSave.IsChecked).Should().BeFalse();
-
-            var preferencesPage = await tab.Goto<IPreferences>();
-
-            await preferencesPage.SavePreferences.ClickAsync();
-            await preferencesPage.ResetToDefaults.ClickAsync();
-            await preferencesPage.ExportSettings.ClickAsync();
-
-            await tab.Goto<ISettings>();
+            // Payment frame
+            var payment = await tab.Goto<IPaymentFrame>();
+            await payment.CardNumber.FillAsync("4242424242424242");
+            await payment.CVV.FillAsync("123");
+            await payment.SubmitButton.ClickAsync();
         }
         finally
         {
@@ -52,7 +65,7 @@ public sealed class Demo
     }
 
     /// <summary>
-    /// Demonstrates navigation and interaction in headed mode (visible browser for debugging).
+    /// Headed demo run for visual debugging.
     /// </summary>
     [TestMethod]
     [TestCategory("VisualTest")]
@@ -64,37 +77,32 @@ public sealed class Demo
         {
             await tab.Open();
 
-            var settingsPage = await tab.Goto<ISettings>();
-            await Task.Delay(500);
+            var settings = await tab.Goto<ISettings>();
+            await settings.EnableNotifications.Check();
+            await Task.Delay(300);
+            await settings.EnableAutoSave.Check();
+            await Task.Delay(300);
+            await settings.EnableDarkMode.Check();
+            await Task.Delay(300);
 
-            await settingsPage.EnableNotifications.Check();
+            var preferences = await tab.Goto<IPreferences>();
+            await preferences.SavePreferences.ClickAsync();
+            await Task.Delay(400);
+            await preferences.ResetToDefaults.ClickAsync();
+            await Task.Delay(400);
+            await preferences.ExportSettings.ClickAsync();
             await Task.Delay(400);
 
-            await settingsPage.EnableAutoSave.Check();
+            await tab.Goto<IIFrameDemoPage>();
             await Task.Delay(400);
 
-            await settingsPage.EnableDarkMode.Check();
-            await Task.Delay(400);
-
-            await settingsPage.EnableAutoSave.Uncheck();
-            await Task.Delay(400);
-
-            var preferencesPage = await tab.Goto<IPreferences>();
-            await Task.Delay(500);
-
-            await preferencesPage.SavePreferences.ClickAsync();
-            await Task.Delay(600);
-
-            await preferencesPage.ResetToDefaults.ClickAsync();
-            await Task.Delay(600);
-
-            await preferencesPage.ExportSettings.ClickAsync();
-            await Task.Delay(600);
-
-            var settingsPageAgain = await tab.Goto<ISettings>();
-            await Task.Delay(500);
-
-            await Task.Delay(1000);
+            var payment = await tab.Goto<IPaymentFrame>();
+            await payment.CardNumber.FillAsync("4242424242424242");
+            await Task.Delay(300);
+            await payment.CVV.FillAsync("123");
+            await Task.Delay(300);
+            await payment.SubmitButton.ClickAsync();
+            await Task.Delay(800);
         }
         finally
         {

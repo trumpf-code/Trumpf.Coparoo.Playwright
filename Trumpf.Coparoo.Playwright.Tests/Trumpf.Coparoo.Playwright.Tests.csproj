@@ -27,4 +27,9 @@
     <ProjectReference Include="..\Trumpf.Coparoo.Playwright.Controls\Trumpf.Coparoo.Playwright.Controls.csproj" />
     <ProjectReference Include="..\Trumpf.Coparoo.Playwright.Extensions\Trumpf.Coparoo.Playwright.Extensions.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="TestData\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
