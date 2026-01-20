@@ -26,19 +26,6 @@ namespace Trumpf.Coparoo.Playwright;
 /// The search pattern identifies the frame element in the parent context, and all child
 /// controls will be located within that frame's document context.
 /// </remarks>
-/// <example>
-/// <code>
-/// public sealed class PaymentFrame : FramePageObject, IPaymentFrame
-/// {
-///     // SearchPattern points to the iframe element
-///     protected override By SearchPattern => By.Id("stripe-payment-frame");
-///     
-///     // Controls are found within the iframe
-///     public TextBox CardNumber => Find&lt;TextBox&gt;(By.Name("cardnumber"));
-///     public Button Submit => Find&lt;Button&gt;(By.Id("submit-btn"));
-/// }
-/// </code>
-/// </example>
 public abstract class FramePageObject : PageObject, IFramePageObject
 {
     /// <summary>
@@ -54,5 +41,5 @@ public abstract class FramePageObject : PageObject, IFramePageObject
     /// <summary>
     /// Gets a fresh node object for frame-based page objects.
     /// </summary>
-    internal override IUIObjectNode CreateNode => new FramePageObjectNode();
+    internal override IUIObjectNode CreateNode => new FrameUIObjectNode();
 }

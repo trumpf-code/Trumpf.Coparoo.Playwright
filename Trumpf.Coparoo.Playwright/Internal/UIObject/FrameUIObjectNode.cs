@@ -17,9 +17,9 @@ using Microsoft.Playwright;
 namespace Trumpf.Coparoo.Playwright.Internal;
 
 /// <summary>
-/// Frame control object node class for wrapping iframe/frame elements.
+/// Frame UI object node class for wrapping iframe/frame elements.
 /// </summary>
-internal class FrameControlObjectNode : UIObjectNode
+internal class FrameUIObjectNode : UIObjectNode
 {
     /// <summary>
     /// Gets the locator for elements inside the frame.

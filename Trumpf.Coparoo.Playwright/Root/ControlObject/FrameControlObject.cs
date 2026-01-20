@@ -26,19 +26,6 @@ namespace Trumpf.Coparoo.Playwright;
 /// that appear inside an iframe or frame element. The search pattern identifies the frame element
 /// in the parent context, and all child controls will be located within that frame's document context.
 /// </remarks>
-/// <example>
-/// <code>
-/// public sealed class RichTextEditor : FrameControlObject, IRichTextEditor
-/// {
-///     // SearchPattern points to the iframe element containing the editor
-///     protected override By SearchPattern => By.ClassName("tinymce-editor");
-///     
-///     // Access editor controls within the iframe
-///     public Button Bold => Find&lt;Button&gt;(By.TestId("bold-btn"));
-///     public Button Italic => Find&lt;Button&gt;(By.TestId("italic-btn"));
-/// }
-/// </code>
-/// </example>
 public abstract class FrameControlObject : ControlObject, IFrameControlObject
 {
     /// <summary>
@@ -54,5 +41,5 @@ public abstract class FrameControlObject : ControlObject, IFrameControlObject
     /// <summary>
     /// Gets a fresh node object for frame-based control objects.
     /// </summary>
-    internal override IUIObjectNode CreateNode => new FrameControlObjectNode();
+    internal override IUIObjectNode CreateNode => new FrameUIObjectNode();
 }
