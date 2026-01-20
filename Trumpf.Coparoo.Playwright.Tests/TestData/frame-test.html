@@ -2,214 +2,84 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frame Test Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: #333;
-        }
-        .frame-container {
-            margin: 20px 0;
-            border: 2px solid #666;
-            padding: 10px;
-            background-color: white;
-        }
-        iframe {
-            border: 1px solid #999;
-            width: 100%;
-            height: 300px;
-        }
-        #main-button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px 0;
-        }
-        #main-button:hover {
-            background-color: #0056b3;
-        }
-        #result {
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #e9ecef;
-            border-radius: 4px;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h1 data-testid="page-title">Frame Test Page</h1>
-        <p>This page contains iframes for testing the Coparoo framework's frame support.</p>
-        
-        <button id="main-button" data-testid="main-button">Click Me (Main Page)</button>
-        <div id="result" data-testid="result">Ready</div>
+    <h1 data-testid="page-title">Frame Test Page</h1>
+    <button id="main-button" data-testid="main-button">Click Me (Main Page)</button>
+    <div id="result" data-testid="result">Ready</div>
 
-        <div class="frame-container">
-            <h2>Payment Frame (PageObject Example)</h2>
-            <iframe id="payment-frame" data-testid="payment-frame" srcdoc="
+    <h2>Payment Frame</h2>
+    <iframe id="payment-frame" data-testid="payment-frame" srcdoc="
+        <!DOCTYPE html>
+        <html>
+        <body>
+            <div data-testid='payment-form'>
+                <h3>Payment Information</h3>
+                <input type='text' id='card-number' data-testid='card-number' placeholder='Card Number'>
+                <input type='text' id='cvv' data-testid='cvv' placeholder='CVV'>
+                <button id='submit-btn' data-testid='submit-btn'>Submit Payment</button>
+                <button id='cancel-btn' data-testid='cancel-btn'>Cancel</button>
+                <div id='status' data-testid='status'>Not submitted</div>
+            </div>
+            <script>
+                document.getElementById('submit-btn').addEventListener('click', function() {
+                    document.getElementById('status').textContent = 'Payment submitted!';
+                });
+                document.getElementById('cancel-btn').addEventListener('click', function() {
+                    document.getElementById('status').textContent = 'Payment cancelled!';
+                });
+            </script>
+        </body>
+        </html>
+    "></iframe>
+
+    <h2>Editor Frame</h2>
+    <iframe id="editor-frame" data-testid="editor-frame" srcdoc="
+        <!DOCTYPE html>
+        <html>
+        <body>
+            <div data-testid='editor-toolbar'>
+                <button id='bold-btn' data-testid='bold-btn'>Bold</button>
+                <button id='italic-btn' data-testid='italic-btn'>Italic</button>
+                <button id='save-btn' data-testid='save-btn'>Save</button>
+            </div>
+            <textarea id='editor-content' data-testid='editor-content' placeholder='Type your text here...'></textarea>
+            <div id='editor-status' data-testid='editor-status'>Ready</div>
+            <script>
+                document.getElementById('bold-btn').addEventListener('click', function() {
+                    document.getElementById('editor-status').textContent = 'Bold applied';
+                });
+                document.getElementById('italic-btn').addEventListener('click', function() {
+                    document.getElementById('editor-status').textContent = 'Italic applied';
+                });
+                document.getElementById('save-btn').addEventListener('click', function() {
+                    document.getElementById('editor-status').textContent = 'Content saved!';
+                });
+            </script>
+        </body>
+        </html>
+    "></iframe>
+
+    <h2>Nested Frame</h2>
+    <iframe id="outer-frame" data-testid="outer-frame" srcdoc="
+        <!DOCTYPE html>
+        <html>
+        <body>
+            <h3 data-testid='outer-title'>Outer Frame</h3>
+            <button id='outer-button' data-testid='outer-button'>Outer Button</button>
+            <iframe id='inner-frame' data-testid='inner-frame' srcdoc='
                 <!DOCTYPE html>
                 <html>
-                <head>
-                    <style>
-                        body { 
-                            font-family: Arial, sans-serif; 
-                            padding: 20px;
-                            background-color: #f8f9fa;
-                        }
-                        .payment-form {
-                            max-width: 400px;
-                        }
-                        input {
-                            width: 100%;
-                            padding: 8px;
-                            margin: 5px 0;
-                            border: 1px solid #ccc;
-                            border-radius: 4px;
-                            box-sizing: border-box;
-                        }
-                        button {
-                            background-color: #28a745;
-                            color: white;
-                            padding: 10px 20px;
-                            border: none;
-                            border-radius: 4px;
-                            cursor: pointer;
-                            margin: 10px 5px 10px 0;
-                        }
-                        button:hover {
-                            background-color: #218838;
-                        }
-                        #status {
-                            margin-top: 10px;
-                            padding: 10px;
-                            background-color: #fff;
-                            border: 1px solid #ccc;
-                            border-radius: 4px;
-                        }
-                    </style>
-                </head>
                 <body>
-                    <div class='payment-form' data-testid='payment-form'>
-                        <h3>Payment Information</h3>
-                        <input type='text' id='card-number' name='cardnumber' placeholder='Card Number' data-testid='card-number'>
-                        <input type='text' id='cvv' name='cvv' placeholder='CVV' data-testid='cvv'>
-                        <button id='submit-btn' data-testid='submit-btn'>Submit Payment</button>
-                        <button id='cancel-btn' data-testid='cancel-btn'>Cancel</button>
-                        <div id='status' data-testid='status'>Not submitted</div>
-                    </div>
-                    <script>
-                        document.getElementById('submit-btn').addEventListener('click', function() {
-                            document.getElementById('status').textContent = 'Payment submitted!';
-                        });
-                        document.getElementById('cancel-btn').addEventListener('click', function() {
-                            document.getElementById('status').textContent = 'Payment cancelled!';
-                        });
-                    </script>
+                    <h4 data-testid=&quot;inner-title&quot;>Inner Frame</h4>
+                    <button id=&quot;inner-button&quot; data-testid=&quot;inner-button&quot;>Inner Button</button>
                 </body>
                 </html>
-            "></iframe>
-        </div>
-
-        <div class="frame-container">
-            <h2>Editor Frame (ControlObject Example)</h2>
-            <iframe id="editor-frame" data-testid="editor-frame" srcdoc="
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>
-                        body {
-                            font-family: Arial, sans-serif;
-                            padding: 20px;
-                            background-color: #fff3cd;
-                        }
-                        .editor-toolbar {
-                            margin-bottom: 10px;
-                        }
-                        button {
-                            padding: 8px 15px;
-                            margin-right: 5px;
-                            border: 1px solid #ccc;
-                            background-color: #fff;
-                            cursor: pointer;
-                            border-radius: 3px;
-                        }
-                        button:hover {
-                            background-color: #e9ecef;
-                        }
-                        #editor-content {
-                            width: 100%;
-                            height: 150px;
-                            padding: 10px;
-                            border: 1px solid #ccc;
-                            font-family: monospace;
-                            font-size: 14px;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class='editor-toolbar' data-testid='editor-toolbar'>
-                        <button id='bold-btn' data-testid='bold-btn'>Bold</button>
-                        <button id='italic-btn' data-testid='italic-btn'>Italic</button>
-                        <button id='save-btn' data-testid='save-btn'>Save</button>
-                    </div>
-                    <textarea id='editor-content' data-testid='editor-content' placeholder='Type your text here...'></textarea>
-                    <div id='editor-status' data-testid='editor-status'>Ready</div>
-                    <script>
-                        document.getElementById('bold-btn').addEventListener('click', function() {
-                            document.getElementById('editor-status').textContent = 'Bold applied';
-                        });
-                        document.getElementById('italic-btn').addEventListener('click', function() {
-                            document.getElementById('editor-status').textContent = 'Italic applied';
-                        });
-                        document.getElementById('save-btn').addEventListener('click', function() {
-                            document.getElementById('editor-status').textContent = 'Content saved!';
-                        });
-                    </script>
-                </body>
-                </html>
-            "></iframe>
-        </div>
-
-        <div class="frame-container">
-            <h2>Nested Frame Example</h2>
-            <iframe id="outer-frame" data-testid="outer-frame" srcdoc="
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>
-                        body { padding: 20px; background-color: #e7f3ff; }
-                        iframe { width: 100%; height: 200px; border: 1px solid #007bff; }
-                    </style>
-                </head>
-                <body>
-                    <h3 data-testid='outer-title'>Outer Frame</h3>
-                    <button id='outer-button' data-testid='outer-button'>Outer Button</button>
-                    <iframe id='inner-frame' data-testid='inner-frame' srcdoc='
-                        <!DOCTYPE html>
-                        <html>
-                        <body style=&quot;padding: 20px; background-color: #d4edda;&quot;>
-                            <h4 data-testid=&quot;inner-title&quot;>Inner Frame</h4>
-                            <button id=&quot;inner-button&quot; data-testid=&quot;inner-button&quot;>Inner Button</button>
-                        </body>
-                        </html>
-                    '></iframe>
-                </body>
-                </html>
-            "></iframe>
-        </div>
-    </div>
+            '></iframe>
+        </body>
+        </html>
+    "></iframe>
 
     <script>
         document.getElementById('main-button').addEventListener('click', function() {
