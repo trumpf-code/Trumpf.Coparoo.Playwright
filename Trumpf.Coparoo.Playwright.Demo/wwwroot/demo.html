@@ -3,200 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coparoo Playwright Demo</title>
+    <title>Coparoo Combined Demo</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+        .container { max-width: 1100px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); overflow: hidden; }
+        .navigation-menu { background: #2d3748; padding: 0; display: flex; gap: 2px; }
+        .menu-item { flex: 1; padding: 16px 24px; background: #4a5568; color: white; border: none; cursor: pointer; font-size: 16px; font-weight: 500; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; }
+        .menu-item:hover { background: #667eea; }
+        .menu-item.active { background: #667eea; box-shadow: inset 0 -3px 0 #fff; }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
+        .content { padding: 40px; }
+        .page { display: none; animation: fadeIn 0.4s ease-in; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
 
-        .navigation-menu {
-            background: #2d3748;
-            padding: 0;
-            display: flex;
-            gap: 2px;
-        }
+        h1 { color: #2d3748; margin-bottom: 24px; font-size: 32px; }
+        .card { background: #f7fafc; border-radius: 8px; padding: 24px; margin-bottom: 20px; border-left: 4px solid #667eea; }
+        .checkbox-group { margin: 20px 0; }
+        .checkbox-item { display: flex; align-items: center; padding: 12px; margin: 8px 0; background: white; border-radius: 6px; border: 2px solid #e2e8f0; transition: all 0.2s ease; }
+        .checkbox-item:hover { border-color: #667eea; background: #f7fafc; }
+        .checkbox-item input[type="checkbox"] { width: 20px; height: 20px; margin-right: 12px; cursor: pointer; accent-color: #667eea; }
+        .checkbox-item label { cursor: pointer; font-size: 16px; color: #2d3748; user-select: none; }
+        .button-group { margin: 20px 0; }
+        .action-button { padding: 12px 24px; margin: 8px 8px 8px 0; background: #667eea; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(102,126,234,0.3); }
+        .action-button:hover { background: #5568d3; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .status { margin-top: 20px; padding: 16px; background: #edf2f7; border-radius: 6px; font-family: 'Courier New', monospace; color: #2d3748; min-height: 60px; }
+        .status-item { padding: 4px 0; }
+        .info-text { color: #4a5568; line-height: 1.6; margin-bottom: 16px; }
 
-        .menu-item {
-            flex: 1;
-            padding: 16px 24px;
-            background: #4a5568;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .menu-item:hover {
-            background: #667eea;
-        }
-
-        .menu-item.active {
-            background: #667eea;
-            box-shadow: inset 0 -3px 0 #fff;
-        }
-
-        .content {
-            padding: 40px;
-        }
-
-        .page {
-            display: none;
-            animation: fadeIn 0.4s ease-in;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        h1 {
-            color: #2d3748;
-            margin-bottom: 24px;
-            font-size: 32px;
-        }
-
-        .card {
-            background: #f7fafc;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 20px;
-            border-left: 4px solid #667eea;
-        }
-
-        .checkbox-group {
-            margin: 20px 0;
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            margin: 8px 0;
-            background: white;
-            border-radius: 6px;
-            border: 2px solid #e2e8f0;
-            transition: all 0.2s ease;
-        }
-
-        .checkbox-item:hover {
-            border-color: #667eea;
-            background: #f7fafc;
-        }
-
-        .checkbox-item input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-right: 12px;
-            cursor: pointer;
-            accent-color: #667eea;
-        }
-
-        .checkbox-item label {
-            cursor: pointer;
-            font-size: 16px;
-            color: #2d3748;
-            user-select: none;
-        }
-
-        .button-group {
-            margin: 20px 0;
-        }
-
-        .action-button {
-            padding: 12px 24px;
-            margin: 8px 8px 8px 0;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-        }
-
-        .action-button:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .action-button:active {
-            transform: translateY(0);
-        }
-
-        .status {
-            margin-top: 20px;
-            padding: 16px;
-            background: #edf2f7;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            color: #2d3748;
-            min-height: 60px;
-        }
-
-        .status-item {
-            padding: 4px 0;
-        }
-
-        .info-text {
-            color: #4a5568;
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
+        /* IFrame demo styles */
+        iframe { width: 100%; border: 2px solid #e2e8f0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .frame-section { margin-bottom: 32px; }
+        .frame-section h2 { color: #2d3748; margin-bottom: 16px; font-size: 24px; }
+        .frame-description { color: #718096; margin-bottom: 16px; font-size: 14px; font-style: italic; }
+        .badge { display: inline-block; padding: 4px 12px; background: #48bb78; color: white; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 8px; }
+        .badge.control { background: #ed8936; }
     </style>
 </head>
 <body>
     <div class="container" data-testid="app-shell">
         <nav class="navigation-menu" data-testid="main-menu">
-            <button class="menu-item active" data-page="Settings" onclick="navigateToPage('page1', this)">
-                Settings Page
-            </button>
-            <button class="menu-item" data-page="Preferences" onclick="navigateToPage('page2', this)">
-                Preferences Page
-            </button>
+            <button class="menu-item active" data-page="Settings" onclick="navigateToPage('page1', this)">Settings Page</button>
+            <button class="menu-item" data-page="Preferences" onclick="navigateToPage('page2', this)">Preferences Page</button>
+            <button class="menu-item" data-page="FrameDemoPage" onclick="navigateToPage('page3', this)">IFrame Demo</button>
         </nav>
 
         <div class="content">
+            <!-- Settings page (from demo.html) -->
             <div id="page1" class="page active" data-testid="settings-page">
                 <h1>⚙️ Settings Configuration</h1>
                 <div class="card">
-                    <p class="info-text">
-                        This page demonstrates checkbox controls.
-                    </p>
+                    <p class="info-text">This page demonstrates checkbox controls.</p>
                     <div class="checkbox-group">
                         <div class="checkbox-item">
                             <input type="checkbox" id="enable-notifications" data-testid="enable-notifications" name="notifications" value="enabled">
@@ -217,26 +76,113 @@
                 </div>
             </div>
 
+            <!-- Preferences page (from demo.html) -->
             <div id="page2" class="page" data-testid="preferences-page">
                 <h1>🎨 User Preferences</h1>
                 <div class="card">
-                    <p class="info-text">
-                        This page demonstrates button controls.
-                    </p>
+                    <p class="info-text">This page demonstrates button controls.</p>
                     <div class="button-group">
-                        <button class="action-button" id="save-preferences" data-testid="save-preferences" onclick="handleAction('save')">
-                            💾 Save Preferences
-                        </button>
-                        <button class="action-button" id="reset-preferences" data-testid="reset-preferences" onclick="handleAction('reset')">
-                            🔄 Reset to Defaults
-                        </button>
-                        <button class="action-button" id="export-preferences" data-testid="export-preferences" onclick="handleAction('export')">
-                            📤 Export Settings
-                        </button>
+                        <button class="action-button" id="save-preferences" data-testid="save-preferences" onclick="handleAction('save')">💾 Save Preferences</button>
+                        <button class="action-button" id="reset-preferences" data-testid="reset-preferences" onclick="handleAction('reset')">🔄 Reset to Defaults</button>
+                        <button class="action-button" id="export-preferences" data-testid="export-preferences" onclick="handleAction('export')">📤 Export Settings</button>
                     </div>
                     <div class="status" id="preferences-status">
                         <div class="status-item">Status: Ready</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- IFrame demo page (from iframe-demo.html) -->
+            <div id="page3" class="page" data-testid="iframes-page">
+                <h1 data-testid="demo-title">🎭 Coparoo IFrame Demo</h1>
+                <p class="info-text">Demonstrating seamless iframe support with FramePageObject and FrameControlObject</p>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 12px;">Main Page Controls</h3>
+                    <button id="main-button" data-testid="main-button">Click Me (Main Page)</button>
+                    <div id="result" data-testid="result" style="margin-top:12px; padding:12px; background:white; border-radius:4px; border:1px solid #e2e8f0; color:#2d3748;">Ready</div>
+                </div>
+
+                <div class="frame-section">
+                    <h2>💳 Payment Frame <span class="badge">FramePageObject</span></h2>
+                    <p class="frame-description">This iframe represents a complete page object (e.g., embedded payment provider).</p>
+                    <iframe id="payment-frame" data-testid="payment-frame" height="320" srcdoc="
+                        <!DOCTYPE html>
+                        <html><head><style>
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; background: linear-gradient(135deg, #f6f8fb 0%, #e9f0f7 100%); }
+                        .payment-form { max-width: 500px; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+                        h3 { color: #2d3748; margin-bottom: 20px; font-size: 22px; }
+                        input { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 15px; transition: border-color 0.3s; }
+                        input:focus { outline: none; border-color: #48bb78; }
+                        button { padding: 12px 24px; margin: 12px 8px 12px 0; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 500; transition: all 0.3s; }
+                        #submit-btn { background: #48bb78; color: white; }
+                        #submit-btn:hover { background: #38a169; }
+                        #cancel-btn { background: #fc8181; color: white; }
+                        #cancel-btn:hover { background: #f56565; }
+                        #status { margin-top: 16px; padding: 12px; background: #f7fafc; border-radius: 6px; border-left: 4px solid #4299e1; color: #2d3748; }
+                        </style></head>
+                        <body>
+                        <div class='payment-form' data-testid='payment-form'>
+                            <h3>💳 Secure Payment</h3>
+                            <input type='text' id='card-number' name='cardnumber' placeholder='Card Number (e.g., 4242 4242 4242 4242)' data-testid='card-number'>
+                            <input type='text' id='cvv' name='cvv' placeholder='CVV (e.g., 123)' data-testid='cvv'>
+                            <button id='submit-btn' data-testid='submit-btn'>✓ Submit Payment</button>
+                            <button id='cancel-btn' data-testid='cancel-btn'>✗ Cancel</button>
+                            <div id='status' data-testid='status'>Not submitted</div>
+                        </div>
+                        <script>
+                        document.getElementById('submit-btn').addEventListener('click', function(){
+                            document.getElementById('status').textContent = '✓ Payment submitted!';
+                            document.getElementById('status').style.borderLeftColor = '#48bb78';
+                        });
+                        document.getElementById('cancel-btn').addEventListener('click', function(){
+                            document.getElementById('status').textContent = '✗ Payment cancelled!';
+                            document.getElementById('status').style.borderLeftColor = '#fc8181';
+                        });
+                        </script>
+                        </body></html>
+                    "></iframe>
+                </div>
+
+                <div class="frame-section">
+                    <h2>📝 Rich Text Editor <span class="badge control">FrameControlObject</span></h2>
+                    <p class="frame-description">This iframe represents a transient control object (e.g., WYSIWYG editor).</p>
+                    <iframe id="editor-frame" data-testid="editor-frame" height="280" srcdoc="
+                        <!DOCTYPE html>
+                        <html><head><style>
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%); }
+                        .editor-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+                        h3 { color: #2d3748; margin-bottom: 16px; font-size: 20px; }
+                        .editor-toolbar { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0; }
+                        button { padding: 8px 16px; margin-right: 6px; border: 2px solid #e2e8f0; background: white; cursor: pointer; border-radius: 6px; font-size: 14px; font-weight: 600; transition: all 0.3s; }
+                        button:hover { background: #ed8936; color: white; border-color: #ed8936; }
+                        #editor-content { width: 100%; height: 100px; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-family: monospace; font-size: 14px; resize: vertical; }
+                        #editor-status { margin-top: 12px; padding: 8px 12px; background: #f7fafc; border-radius: 4px; font-size: 13px; color: #718096; }
+                        </style></head>
+                        <body>
+                        <div class='editor-container'>
+                            <h3>📝 Text Editor</h3>
+                            <div class='editor-toolbar' data-testid='editor-toolbar'>
+                                <button id='bold-btn' data-testid='bold-btn'><b>B</b> Bold</button>
+                                <button id='italic-btn' data-testid='italic-btn'><i>I</i> Italic</button>
+                                <button id='save-btn' data-testid='save-btn'>💾 Save</button>
+                            </div>
+                            <textarea id='editor-content' data-testid='editor-content' placeholder='Start typing your text here...'></textarea>
+                            <div id='editor-status' data-testid='editor-status'>Ready</div>
+                        </div>
+                        <script>
+                        document.getElementById('bold-btn').addEventListener('click', function(){
+                            document.getElementById('editor-status').textContent = '✓ Bold applied';
+                        });
+                        document.getElementById('italic-btn').addEventListener('click', function(){
+                            document.getElementById('editor-status').textContent = '✓ Italic applied';
+                        });
+                        document.getElementById('save-btn').addEventListener('click', function(){
+                            document.getElementById('editor-status').textContent = '✓ Content saved!';
+                        });
+                        </script>
+                        </body></html>
+                    "></iframe>
                 </div>
             </div>
         </div>
@@ -244,12 +190,8 @@
 
     <script>
         function navigateToPage(pageId, button) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.querySelectorAll('.menu-item').forEach(item => {
-                item.classList.remove('active');
-            });
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             button.classList.add('active');
         }
@@ -257,32 +199,27 @@
         function handleAction(action) {
             const statusDiv = document.getElementById('preferences-status');
             const timestamp = new Date().toLocaleTimeString();
-
             switch(action) {
-                case 'save':
-                    statusDiv.innerHTML = '<div class=status-item>✓ Preferences saved at ' + timestamp + '</div>';
-                    break;
-                case 'reset':
-                    statusDiv.innerHTML = '<div class=status-item>🔄 Reset at ' + timestamp + '</div>';
-                    break;
-                case 'export':
-                    statusDiv.innerHTML = '<div class=status-item>📤 Exported at ' + timestamp + '</div>';
-                    break;
+                case 'save': statusDiv.innerHTML = '<div class=status-item>✓ Preferences saved at ' + timestamp + '</div>'; break;
+                case 'reset': statusDiv.innerHTML = '<div class=status-item>🔄 Reset at ' + timestamp + '</div>'; break;
+                case 'export': statusDiv.innerHTML = '<div class=status-item>📤 Exported at ' + timestamp + '</div>'; break;
             }
         }
 
         document.querySelectorAll('#page1 input[type=checkbox]').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 const statusDiv = document.getElementById('settings-status');
-                const enabledSettings = Array.from(document.querySelectorAll('#page1 input[type=checkbox]:checked'))
-                    .map(cb => cb.name);
-
+                const enabledSettings = Array.from(document.querySelectorAll('#page1 input[type=checkbox]:checked')).map(cb => cb.name);
                 if (enabledSettings.length > 0) {
                     statusDiv.innerHTML = '<div class=status-item>✓ Active: ' + enabledSettings.join(', ') + '</div>';
                 } else {
                     statusDiv.innerHTML = '<div class=status-item>Status: No settings enabled</div>';
                 }
             });
+        });
+
+        document.getElementById('main-button')?.addEventListener('click', function() {
+            document.getElementById('result').textContent = '✓ Main button clicked!';
         });
     </script>
 </body>

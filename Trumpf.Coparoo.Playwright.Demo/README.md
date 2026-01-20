@@ -6,7 +6,7 @@ This demo project showcases the powerful capabilities of the **Trumpf.Coparoo.Pl
 
 ![Coparoo demo animation](demo.gif)
 
-This demo exercises dynamic page object relationships, interface-only test access, and convention-based navigation between Settings and Preferences pages.
+This demo exercises dynamic page object relationships, interface-only test access, convention-based navigation between Settings and Preferences pages, and seamless iframe support with FramePageObject and FrameControlObject.
 
 ## Clean Test Code Example
 
@@ -63,6 +63,27 @@ public async Task NavigateBetweenPages()
 To run this example yourself: First, install Playwright browsers with, e.g., `pwsh bin/Debug/net8.0/playwright.ps1 install` (only needed once). Then, build the project with `dotnet build`. Finally, run the tests using `dotnet test`.
 
 ## Key Concepts Demonstrated
+
+### IFrame Support
+
+The demo showcases Coparoo's seamless support for iframes through two specialized base classes:
+
+**FramePageObject** - For complete page-like iframe content (e.g., embedded payment providers, third-party widgets). Navigate to them like regular pages:
+```csharp
+var paymentFrame = await tab.Goto<IPaymentFrame>();
+await paymentFrame.CardNumber.FillAsync("4242424242424242");
+```
+
+**FrameControlObject** - For iframe-based controls within a page (e.g., WYSIWYG editors, embedded components). Access them like any other control:
+```csharp
+var editor = mainPage.RichTextEditor;
+await editor.ContentArea.FillAsync("Hello from Coparoo!");
+await editor.BoldButton.ClickAsync();
+```
+
+Both approaches handle frame boundaries transparently - you interact with iframe content using the same fluent API as with regular page elements. No manual frame switching or complex locator chains required.
+
+See the implementation in [PaymentFrame.cs](PageObjects/PaymentFrame.cs) (FramePageObject) and [RichTextEditorFrame.cs](ControlObjects/RichTextEditorFrame.cs) (FrameControlObject).
 
 ### Dynamic Page Object Relationships
 
@@ -156,7 +177,7 @@ Key points:
 
 ### Convention-Based Navigation
 
-This demo showcases one possible, lightweight convention for cross-page navigation when the `Shell` page object itself does not (and should not) have compile-time knowledge of concrete page implementations like `Settings` or `Preferences`. The page object classes for `Shell`, `Settings`, and `Preferences` are completely unaware of each other; yet, through a simple external mapping mechanism (here: the HTML `data-page` attribute matching the interface/type name), test code can still instruct the shell to navigate to a page. The linking logic (menu item -> page type) is therefore not embedded inside the `Shell` implementation, making the shell easily extensible: new pages can be plugged in by adding a menu entry that follows the convention—without touching the `Shell` page object.
+This demo showcases one possible, lightweight convention for cross-page navigation when the `Shell` page object itself does not (and should not) have compile-time knowledge of concrete page implementations like `Settings`, `Preferences`, or `IFrameDemoPage`. The page object classes for `Shell`, `Settings`, `Preferences`, and `IFrameDemoPage` are completely unaware of each other; yet, through a simple external mapping mechanism (here: the HTML `data-page` attribute matching the interface/type name), test code can still instruct the shell to navigate to a page. The linking logic (menu item -> page type) is therefore not embedded inside the `Shell` implementation, making the shell easily extensible: new pages can be plugged in by adding a menu entry that follows the convention—without touching the `Shell` page object.
 
 See the navigation implementation in [Menu.cs](ControlObjects/Menu.cs) and the HTML structure in [demo.html](wwwroot/demo.html):
 
@@ -228,16 +249,22 @@ Trumpf.Coparoo.Playwright.Demo/
 │   ├── Interfaces/
 │   │   ├── IShell.cs             # Interface for main app shell (Shared interfaces package)
 │   │   ├── ISettings.cs          # Interface for settings page (Shared interfaces package)
-│   │   └── IPreferences.cs       # Interface for preferences page (Shared interfaces package)
+│   │   ├── IPreferences.cs       # Interface for preferences page (Shared interfaces package)
+│   │   ├── IIFrameDemoPage.cs    # Interface for iframe demo page (Shared interfaces package)
+│   │   └── IPaymentFrame.cs      # Interface for payment iframe (Shared interfaces package)
 │   ├── Shell.cs                  # Main app container with menu (Core team package)
 │   ├── Settings.cs               # Settings page (checkboxes) (Settings team package)
-│   └── Preferences.cs            # Preferences page (buttons) (Preferences team package)
+│   ├── Preferences.cs            # Preferences page (buttons) (Preferences team package)
+│   ├── IFrameDemoPage.cs         # IFrame demo page with embedded frames (IFrame team package)
+│   └── PaymentFrame.cs           # Payment iframe (FramePageObject example) (IFrame team package)
 ├── ControlObjects/
 │   ├── Interfaces/
-│   │   └── IMenu.cs              # Interface for menu control (Shared interfaces package)
-│   └── Menu.cs                   # Menu implementation (Core team package)
+│   │   ├── IMenu.cs              # Interface for menu control (Shared interfaces package)
+│   │   └── IRichTextEditorFrame.cs # Interface for editor iframe (Shared interfaces package)
+│   ├── Menu.cs                   # Menu implementation (Core team package)
+│   └── RichTextEditorFrame.cs    # Rich text editor iframe (FrameControlObject example) (IFrame team package)
 ├── wwwroot/
-│   └── demo.html                 # Test HTML application
+│   └── demo.html                 # Test HTML application with iframe examples
 ├── Demo.cs                       # Test demonstrations (Integration tests package)
 └── README.md                     # This file
 ```

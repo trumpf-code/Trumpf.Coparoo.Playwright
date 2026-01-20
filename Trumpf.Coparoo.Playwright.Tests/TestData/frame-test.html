@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Frame Test Page</title>
+</head>
+<body>
+    <h1 data-testid="page-title">Frame Test Page</h1>
+    <button id="main-button" data-testid="main-button">Click Me (Main Page)</button>
+    <div id="result" data-testid="result">Ready</div>
+
+    <h2>Payment Frame</h2>
+    <iframe id="payment-frame" data-testid="payment-frame" srcdoc="
+        <!DOCTYPE html>
+        <html>
+        <body>
+            <div data-testid='payment-form'>
+                <h3>Payment Information</h3>
+                <input type='text' id='card-number' data-testid='card-number' placeholder='Card Number'>
+                <input type='text' id='cvv' data-testid='cvv' placeholder='CVV'>
+                <button id='submit-btn' data-testid='submit-btn'>Submit Payment</button>
+                <button id='cancel-btn' data-testid='cancel-btn'>Cancel</button>
+                <div id='status' data-testid='status'>Not submitted</div>
+            </div>
+            <script>
+                document.getElementById('submit-btn').addEventListener('click', function() {
+                    document.getElementById('status').textContent = 'Payment submitted!';
+                });
+                document.getElementById('cancel-btn').addEventListener('click', function() {
+                    document.getElementById('status').textContent = 'Payment cancelled!';
+                });
+            </script>
+        </body>
+        </html>
+    "></iframe>
+
+    <h2>Editor Frame</h2>
+    <iframe id="editor-frame" data-testid="editor-frame" srcdoc="
+        <!DOCTYPE html>
+        <html>
+        <body>
+            <div data-testid='editor-toolbar'>
+                <button id='bold-btn' data-testid='bold-btn'>Bold</button>
+                <button id='italic-btn' data-testid='italic-btn'>Italic</button>
+                <button id='save-btn' data-testid='save-btn'>Save</button>
+            </div>
+            <textarea id='editor-content' data-testid='editor-content' placeholder='Type your text here...'></textarea>
+            <div id='editor-status' data-testid='editor-status'>Ready</div>
+            <script>
+                document.getElementById('bold-btn').addEventListener('click', function() {
+                    document.getElementById('editor-status').textContent = 'Bold applied';
+                });
+                document.getElementById('italic-btn').addEventListener('click', function() {
+                    document.getElementById('editor-status').textContent = 'Italic applied';
+                });
+                document.getElementById('save-btn').addEventListener('click', function() {
+                    document.getElementById('editor-status').textContent = 'Content saved!';
+                });
+            </script>
+        </body>
+        </html>
+    "></iframe>
+
+    <h2>Nested Frame</h2>
+    <iframe id="outer-frame" data-testid="outer-frame" srcdoc="
+        <!DOCTYPE html>
+        <html>
+        <body>
+            <h3 data-testid='outer-title'>Outer Frame</h3>
+            <button id='outer-button' data-testid='outer-button'>Outer Button</button>
+            <iframe id='inner-frame' data-testid='inner-frame' srcdoc='
+                <!DOCTYPE html>
+                <html>
+                <body>
+                    <h4 data-testid=&quot;inner-title&quot;>Inner Frame</h4>
+                    <button id=&quot;inner-button&quot; data-testid=&quot;inner-button&quot;>Inner Button</button>
+                </body>
+                </html>
+            '></iframe>
+        </body>
+        </html>
+    "></iframe>
+
+    <script>
+        document.getElementById('main-button').addEventListener('click', function() {
+            document.getElementById('result').textContent = 'Main button clicked!';
+        });
+    </script>
+</body>
+</html>
