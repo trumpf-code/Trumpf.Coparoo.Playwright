@@ -25,6 +25,8 @@ Here's the basic pattern illustrated in the demo above - notice how naturally th
 
     await tab.Close();                                         // cleanup
 
+> **Note:** `Goto<T>()` calls the target page's `Goto()` override — it does **not** call `Open()` on the TabObject. Always call `await tab.Open()` before the first `Goto<T>()` or `On<T>()`.
+
 The library ships with built-in control wrappers for common HTML elements, making it easy to interact with various UI components. These include `Checkbox`, `Button`, `TextBox`, `DropDown`, `Table`, `RadioButton`, and many more. In the example above, checkboxes are used for the notification and auto-save settings, demonstrating how these controls provide clean, type-safe APIs for interaction without dealing with raw locators or CSS selectors.
 
 ## Chrome DevTools Protocol (CDP) Connection Pooling for WPF/CefSharp Applications

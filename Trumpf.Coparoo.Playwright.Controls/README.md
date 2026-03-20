@@ -54,6 +54,25 @@ public class LoginPage : PageObject
 }
 ```
 
+### Subclassing Table for Custom Tables
+
+When your HTML wraps a `<table>` inside a container (e.g., a `<div>` with a `data-testid`), subclass `Table` and override `SearchPattern` to target the container or the table itself. The built-in `Header`, `Content`, and `Footer` properties automatically resolve `<thead>`, `<tbody>`, and `<tfoot>` below whatever element `SearchPattern` matches.
+
+```csharp
+public class ProductTable : Table
+{
+    // Match a specific table by test ID; Header/Content/Footer resolve automatically
+    protected override By SearchPattern => By.TestId("product-table");
+
+    // Use built-in navigation
+    // Content.Rows    → all <tr> in <tbody>
+    // Content.RowAt(0)→ first body row
+    // Header.Rows     → all <tr> in <thead>
+}
+```
+
+If the default `SearchPattern` (`"table"`) already uniquely matches, no override is needed — just inherit from `Table` directly.
+
 ## Dependencies
 
 - **Trumpf.Coparoo.Playwright** - Core Coparoo framework

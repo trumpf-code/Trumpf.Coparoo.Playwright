@@ -52,6 +52,10 @@ This "uniqueness-property" is why Page Objects are often "*navigatable*" (certai
 On the other hand, clicking a page object in general makes no sense, while it does do for controls.
 Summed up, using Controls Objects in your code can dramatically improve readability and shrink code size.
 
+### When to choose PageObject vs ControlObject
+Use `ControlObject` for stateless UI elements that are found relative to their parent — buttons, inputs, checkboxes, links.
+Use `PageObject` for composite UI regions that need their own `Goto()` override (e.g. opening a dropdown menu, navigating via a sidebar) or that participate in the page tree via `IChildOf<>` (dialogs, panels, flyouts).
+
 ## Finally, what are Root Objects?
 Root Objects are *classes* that wrap the root node of the DOM, hence essentially a *browser tab* that display the web page under test.
 In contrast to Page and Controls Objects they have no parent in the DOM, nor can they be navigated to, or clicked.
@@ -128,6 +132,40 @@ As a next step, consider reading [this code example](DEMO.md).
 It illustrates how the *Coparoo* framework helps you putting these ideas into practice.
 
 If you prefer a more feature-complete showcase (dynamic runtime relationship registration, interface-driven decoupling, navigation conventions), jump to the **demo project**: [Demo README](Trumpf.Coparoo.Playwright.Demo/README.md).
+
+## Choosing Between PageObject and ControlObject
+
+When modelling a UI element, the choice between `PageObject` and `ControlObject` depends on the element's role:
+
+| Aspect | ControlObject | PageObject |
+|---|---|---|
+| **Purpose** | Wraps a single, stateless UI widget (button, checkbox, input, link) | Wraps a composite UI area (page, panel, dialog, dropdown menu) |
+| **Navigation** | Cannot be navigated to — found relative to its parent via `Find<T>()` | Can be navigated to via `Goto<T>()` with an overridable `Goto()` method |
+| **Tree position** | Leaf nodes — declared via `IChildOf<TParent>` or found with `Find<T>()`/`FindAll<T>()` | Interior nodes — can have child page objects and child controls |
+| **Reuse** | Highly reusable across pages (e.g., the built-in `Button`, `Checkbox`, `Table`) | Typically unique to a specific part of the application |
+
+**Rule of thumb:** If you need a `Goto()` override to make the element appear on screen (e.g., clicking a menu item to open a dropdown), or the element contains child controls with their own lifecycle, use `PageObject`. Otherwise, use `ControlObject`.
+
+## Navigation Behavior
+
+### `Goto<T>()` — navigate to a page object
+`Goto<T>()` is defined on every UI object and performs two steps:
+1. **Ensures the tab is open** — calls `Root().Goto()`, which opens the browser tab if it has not been opened yet (a no-op after the first call).
+2. **Calls the target's `Goto()` override** — executes whatever navigation logic the page object defines (e.g., clicking a menu item).
+
+Because of step 1, calling `tab.Open()` before `tab.Goto<T>()` is **optional**. The tab will be opened automatically on the first `Goto<T>()` call.
+
+### `On<T>()` — access without navigation
+`On<T>()` returns the page object instance *without* calling `Goto()`. Use it when the page is already visible and you just need a reference:
+
+    await tab.Goto<ISettings>();                // navigates (opens tab + calls Settings.Goto())
+    var settings = tab.On<ISettings>();          // just returns the reference, no navigation
+    await settings.EnableNotifications.Check();  // interact with the already-visible page
+
+### `Open()` vs `Goto()` on TabObject
+- `tab.Open()` — explicitly opens the browser and navigates to the tab's URL. Can be called directly when you need the tab open without navigating to a specific page.
+- `tab.Goto()` (parameterless) — calls `Open()` if the tab hasn't been opened yet; otherwise a no-op.
+- `tab.Goto<T>()` — calls `tab.Goto()` (ensuring the tab is open), then calls `T.Goto()`.
 
 [tree]: ./Resources/pageObjectTree.png "Coparoo tree"
 [fastSearch]: ./Resources/fastSearch.PNG "Finding faster"
