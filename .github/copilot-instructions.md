@@ -138,7 +138,7 @@ public sealed class Settings : PageObject, ISettings
 - Use `sealed` for concrete page implementations
 - Define `SearchPattern` with a unique, stable locator (prefer `data-testid`)
 - Expose controls as properties (not methods) for natural API
-- Use `Find<TControl>(By selector)` to locate child controls
+- Use `Find<TControl>(By selector)` to locate child controls — never expose raw `ILocator`
 - Override `Goto()` only if custom navigation is needed
 - Use `On<IPageInterface>()` to access other pages in the hierarchy
 
@@ -162,6 +162,7 @@ public sealed class CustomButton : ControlObject, ICustomButton
 - Define `SearchPattern` with combinable `By` selectors
 - Expose behavior as async methods (e.g., `ClickAsync`, `GetTextAsync`)
 - Reuse extension methods from `Trumpf.Coparoo.Playwright.Extensions` where possible
+- **Never expose `ILocator` in public properties** — wrap child elements as `ControlObject` (via `Find<T>()`) or use built-in controls; use extension methods like `ClickAsync()` for interactions
 
 ### By Selector Best Practices
 
@@ -330,8 +331,7 @@ Trumpf.Coparoo.Playwright.Demo/          # Demo project (.NET 8)
 ? **Don't** forget XML documentation on public APIs
 ? **Don't** use spaces in combined selectors - use `.And()`
 ? **Don't** skip null checks in extension methods
-? **Don't** leave tabs open after tests - always call `Close()`
-
+? **Don't** leave tabs open after tests - always call `Close()`❌ **Don't** expose `ILocator` or `IPage` in public properties of PageObjects/ControlObjects — wrap them as typed controls via `Find<T>()`
 ? **Do** register page relationships dynamically
 ? **Do** use interface-based navigation
 ? **Do** use `Find<T>()` for child controls
