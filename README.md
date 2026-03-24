@@ -90,6 +90,8 @@ For a richer, multi-page sample illustrating dynamic page object relationships, 
 Finally, if things are set up and you want to work on user interface tests in a collaborative setup consisting of many possibly independent teams, or write test cases even before the user interfaces ready to execute (say, directly after the UX team is done) consider reading [this tutorial](DECOUPLING.md).
 The demo project shows these principles in practice (dynamic ChildOf registration + interface isolation). See: [Demo README](Trumpf.Coparoo.Playwright.Demo/README.md).
 
+For a concise test-writing reference (especially useful when working with AI coding agents), see the [Cheat Sheet](CHEATSHEET.md).
+
 ## Contributors
 Main development by Alexander Kaiser.
 
