@@ -2,7 +2,7 @@
 
 Concise reference for writing tests with the Trumpf.Coparoo.Playwright library.
 
-> **AI-ready by design:** Coparoo's rigid hierarchy, interface-first approach, and typed controls make tests structurally easy for AI agents to generate correctly and hard to generate incorrectly. Point your AI agent at this cheat sheet and the [copilot instructions](.github/copilot-instructions.md) — it will produce robust, maintainable tests.
+> **AI-ready by design:** Coparoo's rigid hierarchy, interface-first approach, and typed controls make tests structurally easy for AI agents to generate correctly and hard to generate incorrectly. Point your AI agent at this cheat sheet — it will produce robust, maintainable tests.
 
 ## Three-Tier Hierarchy
 
