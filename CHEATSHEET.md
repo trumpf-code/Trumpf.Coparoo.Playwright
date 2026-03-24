@@ -40,14 +40,27 @@ await settings.EnableNotifications.Check();           // interact with a control
 await tab.On<ISettings>().SaveButton.ClickAsync();    // access control without re-navigating
 ```
 
-## Interface-Based Decoupling
+## Project Organization
 
-All PageObjects and ControlObjects should be accessed through interfaces to decouple test code from implementations. This enables independent team development and allows tests to be written before pages are implemented.
+Define your TabObjects, PageObjects, and ControlObjects in a **separate project** from your test project. This allows them to be published as a NuGet package and consumed by multiple test suites — e.g., UI tests living alongside the UI code, integration tests in a different repository, or E2E tests maintained by a separate team.
+
+```
+MyApp.PageObjects/          # Tab, Page, Control definitions → publish as NuGet
+MyApp.UITests/              # UI tests → references MyApp.PageObjects
+MyApp.IntegrationTests/     # Integration tests → also references MyApp.PageObjects
+```
+
+## Interface-Based Decoupling (Advanced)
+
+When page object implementations ship with the system under test (SUT) and tests are deployed separately, use interface-based decoupling. This is useful when:
+- Tests should work across **multiple UI versions** without recompilation — only the page object implementation changes (e.g., different locators), not the tests.
+- Page object implementations are **loaded dynamically** at runtime (e.g., via `Assembly.LoadFrom`).
+- Multiple teams develop pages independently and register them via `ChildOf<,>()`.
 
 The pattern uses a three-assembly separation:
 1. **Interface assembly** — defines `ISettings`, `ILoginPage`, etc. with control properties and operations
-2. **Implementation assembly** — contains concrete `Settings : PageObject, ISettings` classes with locators and navigation logic
-3. **Test assembly** — references only the interface assembly; never depends on implementations directly
+2. **Implementation assembly** — ships with the SUT; contains concrete `Settings : PageObject, ISettings` with locators
+3. **Test assembly** — references only the interface assembly; implementations are resolved at runtime
 
 ```csharp
 // Interface (in interface assembly)
@@ -57,7 +70,7 @@ public interface ISettings : IPageObject
     IButton SaveButton { get; }
 }
 
-// Implementation (in implementation assembly)
+// Implementation (ships with SUT — loaded dynamically)
 public sealed class Settings : PageObject, ISettings
 {
     protected override By SearchPattern => By.TestId("settings-page");
@@ -65,7 +78,7 @@ public sealed class Settings : PageObject, ISettings
     public IButton SaveButton => Find<IButton>(By.TestId("save-button"));
 }
 
-// Test (in test assembly — only references interfaces)
+// Test (references only interfaces — works across UI versions)
 var settings = tab.Goto<ISettings>();
 await settings.EnableNotifications.Check();
 ```
