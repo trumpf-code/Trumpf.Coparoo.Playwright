@@ -17,12 +17,12 @@
     <Authors>Alexander Kaiser</Authors>
     <Company>TRUMPF Werkzeugmaschinen GmbH + Co. KG</Company>
     <Product>Trumpf Coparoo Web</Product>
-    <Description>Trumpf.Coparoo.Playwright is a .NET library for C# that helps you write fast, maintainable, robust and fluent web tests based on the control/page/root-object (Coparoo) pattern.</Description>
+    <Description>Trumpf.Coparoo.Playwright is a .NET library for C# that helps you write fast, maintainable, robust and fluent web tests based on the control/page/root-object (Coparoo) pattern. Its structured hierarchy and interface-first design make tests ideal for generation and maintenance by AI coding agents.</Description>
     <Summary>The Trumpf Coparoo Web Automation Library for .NET Standard 2.0 helps you to write fast, maintainable, robust and fluent web tests based on the control-, page- and root-object pattern. This package includes the Coparoo assembly, which is referenced by your UI web tests. The package requires the Playwright package.</Summary>
     <Copyright>TRUMPF Werkzeugmaschinen GmbH + Co. KG</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>Playwright, browser, automation, PageObject, test, ui</PackageTags>
+    <PackageTags>Playwright, browser, automation, PageObject, test, ui, AI, copilot, code-generation</PackageTags>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageProjectUrl>https://github.com/trumpf-code/Trumpf.Coparoo.Playwright</PackageProjectUrl>
     <PackageIcon>logo640.png</PackageIcon>

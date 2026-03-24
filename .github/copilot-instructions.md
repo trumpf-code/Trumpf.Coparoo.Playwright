@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Trumpf.Coparoo.Playwright is a .NET library that implements the **Co**ntrol/**Pa**ge/**Ro**ot-**O**bject (Coparoo) pattern for writing maintainable, robust, and fluent Playwright-driven web UI tests.
+Trumpf.Coparoo.Playwright is a .NET library that implements the **Co**ntrol/**Pa**ge/**Ro**ot-**O**bject (Coparoo) pattern for writing maintainable, robust, and fluent Playwright-driven web UI tests. The framework's structured patterns and interface-first design make it particularly well-suited for AI-assisted test generation and maintenance.
 
 ### Architecture Pattern
 
@@ -11,12 +11,73 @@ The framework follows a three-tier hierarchy:
 2. **PageObject** - Represents individual pages/views  
 3. **ControlObject** - Represents UI elements (buttons, checkboxes, inputs, etc.)
 
-### Core Principles
+### Choosing Between PageObject and ControlObject
 
-- **Interface-based navigation**: Use `tab.Goto<ISettings>()` instead of concrete types for team decoupling
-- **Dynamic relationships**: Register page hierarchies via `ChildOf<TChild, TParent>()` in TabObject
-- **Fluent API**: Methods should read like natural language (e.g., `await checkbox.Check()`)
-- **Type safety**: Prefer compile-time errors over runtime failures
+| Aspect | PageObject | ControlObject |
+|---|---|---|
+| **Purpose** | Wraps a *unique* composite UI area (page, panel, dialog, sidebar) | Wraps a *reusable* single UI widget (button, checkbox, input, dropdown) |
+| **Navigation** | Supports `Goto<T>()` with an overridable `Goto()` method | Cannot be navigated to — accessed as a property of its parent via `Find<T>()` |
+| **Tree position** | Interior nodes — can contain child pages and child controls | Leaf nodes — declared via `Find<T>()` or `FindAll<T>()` |
+| **Reuse** | Typically unique to a specific part of the application | Highly reusable across many pages (e.g., built-in `Button`, `Checkbox`, `Table`) |
+
+**Rule of thumb:** Use `PageObject` for things that appear **once** in the UI (a settings page, a navigation sidebar, a login dialog). Use `ControlObject` for things that appear **many times** across the application (buttons, checkboxes, text inputs, table rows).
+
+**Examples:**
+- Settings page, user profile panel, navigation menu → `PageObject`
+- Save button, search text box, "Enable notifications" checkbox, table row → `ControlObject`
+
+If you need a `Goto()` override to make the element appear on screen (e.g., clicking a menu item to open a page), or the element contains child controls, use `PageObject`. If the element is a self-contained widget accessed from a parent, use `ControlObject`.
+
+### Navigation: `Goto<T>()` vs `On<T>()`
+
+- **`tab.Goto<T>()`** — navigates to a page: opens the tab (if not yet open) and calls `T.Goto()` to perform whatever navigation logic the page defines.
+- **`tab.On<T>()`** — returns the page reference *without* navigation. Use when the page is already visible.
+- Controls are **never** navigated to directly — they are accessed as properties of their parent page (e.g., `settingsPage.SaveButton`).
+
+```csharp
+await tab.Open();                                    // open the browser tab
+var settings = tab.Goto<ISettings>();                 // navigate to the Settings page
+await settings.EnableNotifications.Check();           // interact with a control on that page
+await tab.On<ISettings>().SaveButton.ClickAsync();    // access control without re-navigating
+```
+
+### Interface-Based Decoupling
+
+All PageObjects and ControlObjects should be accessed through interfaces to decouple test code from implementations. This enables independent team development and allows tests to be written before pages are implemented.
+
+The pattern uses a three-assembly separation:
+1. **Interface assembly** — defines `ISettings`, `ILoginPage`, etc. with control properties and operations
+2. **Implementation assembly** — contains concrete `Settings : PageObject, ISettings` classes with locators and navigation logic
+3. **Test assembly** — references only the interface assembly; never depends on implementations directly
+
+```csharp
+// Interface (in interface assembly)
+public interface ISettings : IPageObject
+{
+    ICheckbox EnableNotifications { get; }
+    IButton SaveButton { get; }
+}
+
+// Implementation (in implementation assembly)
+public sealed class Settings : PageObject, ISettings
+{
+    protected override By SearchPattern => By.TestId("settings-page");
+    public ICheckbox EnableNotifications => Find<ICheckbox>(By.TestId("enable-notifications"));
+    public IButton SaveButton => Find<IButton>(By.TestId("save-button"));
+}
+
+// Test (in test assembly — only references interfaces)
+var settings = tab.Goto<ISettings>();
+await settings.EnableNotifications.Check();
+```
+
+Key rules:
+- Use `tab.Goto<ISettings>()` / `tab.On<ISettings>()` — never concrete types in tests
+- Control properties return interfaces (`ICheckbox`, `IButton`) — resolved at runtime via `Find<T>()`
+- Use `TabObject.Resolve<IMyTab>()` when the tab itself must be resolved from its interface
+- Register relationships with `ChildOf<TChild, TParent>()` in the TabObject constructor
+
+For the full decoupling pattern and step-by-step guide, see [DECOUPLING.md](../DECOUPLING.md).
 
 ## Coding Standards
 
@@ -24,38 +85,14 @@ The framework follows a three-tier hierarchy:
 
 - **Language version**: C# 10.0 (for .NET Standard 2.0 projects) or latest for .NET 8 projects
 - **Null handling**: Use nullable reference types (`#nullable enable`) where appropriate, especially in new code
-- **Naming**:
-  - Public types: PascalCase
-  - Private fields: camelCase with underscore prefix (e.g., `_fieldName`)
-  - Local variables: camelCase
-  - Constants: PascalCase
+- **Naming**: PascalCase for public types/constants, `_camelCase` for private fields, camelCase for locals
 - **File organization**: One primary type per file, matching the filename
 
 ### XML Documentation
 
-All public APIs **must** have XML documentation:
-
-```csharp
-/// <summary>
-/// Brief description of what the member does.
-/// </summary>
-/// <param name="paramName">Description of parameter.</param>
-/// <returns>Description of return value.</returns>
-/// <remarks>
-/// Additional details, usage notes, or warnings (optional).
-/// </remarks>
-```
-
-**Required for**:
-- All public classes, interfaces, methods, properties
-- All protected members in extensible base classes (TabObject, PageObject, ControlObject)
-
-**Guidelines**:
-- Start with a verb for methods (e.g., "Gets", "Creates", "Validates")
-- Be concise but complete - explain the "what" and "why", not the "how"
-- Document exceptions with `<exception>` tags
-- Use `<code>` blocks for usage examples where helpful
-- Reference related types with `<see cref="TypeName"/>`
+All public APIs **must** have XML documentation (`<summary>`, `<param>`, `<returns>`).
+Required for: all public classes, interfaces, methods, properties, and all protected members in base classes.
+Start with a verb for methods. Document exceptions with `<exception>` tags. Reference types with `<see cref=""/>`.
 
 ### Copyright Headers
 
@@ -167,33 +204,18 @@ public sealed class CustomButton : ControlObject, ICustomButton
 ### By Selector Best Practices
 
 ```csharp
-// Prefer TestId for stability
-By.TestId("my-element")
-
-// Combine selectors for specificity
-By.TagName("button").And(By.ClassName("primary"))
-
-// Available selector types
-By.CssSelector(".my-class")
-By.XPath("//div[@id='test']")
-By.Id("element-id")
-By.ClassName("my-class")
-By.TagName("div")
-
-// Combine multiple (order matters: tag first, then ID, then classes, attributes, pseudo)
-By.TagName("input").And(By.Id("username")).And(By.ClassName("form-control"))
+By.TestId("my-element")                                          // preferred — most stable
+By.TagName("button").And(By.ClassName("primary"))                 // combine with .And()
+By.TagName("input").And(By.Id("username")).And(By.ClassName("x")) // order: tag → ID → class → attr → pseudo
 ```
 
-**By Selector Rules**:
 - Prefer `By.TestId()` for test-specific selectors (most stable)
 - Use `.And()` to combine selectors (NOT spaces or commas)
 - Only one tag selector and one ID selector per combined selector
 - Multiple class and attribute selectors are allowed
-- Order is enforced: tag ? ID ? classes ? attributes ? pseudo-selectors
+- Order is enforced: tag → ID → classes → attributes → pseudo-selectors
 
 ### Extension Method Patterns
-
-When creating extension methods:
 
 ```csharp
 public static async Task<string> GetTextAsync(this IUIObject source)
@@ -203,178 +225,51 @@ public static async Task<string> GetTextAsync(this IUIObject source)
 }
 ```
 
-**Extension Method Rules**:
 - Place in `Trumpf.Coparoo.Playwright.Extensions` project
 - Always validate `source` parameter with null check
 - Ensure element is scrolled into view for actions (`.ScrollIntoViewIfNeededAsync()`)
 - Return meaningful defaults (e.g., empty string instead of null)
 - Document with XML comments including usage examples
 
-### Test Writing Guidelines
-
-```csharp
-[TestMethod]
-public async Task DemonstrateFeature_Headless()
-{
-    var tab = new MyAppTab(headless: true);
-    
-    try
-    {
-        await tab.Open();
-        
-        // Use interface-based navigation
-        var settingsPage = tab.Goto<ISettings>();
-        
-        // Use fluent extension methods
-        await settingsPage.EnableNotifications.Check();
-        
-        // Use FluentAssertions for readability
-        (await settingsPage.EnableNotifications.IsChecked).Should().BeTrue();
-        
-        // Navigate between pages
-        tab.Goto<IPreferences>();
-    }
-    finally
-    {
-        await tab.Close();
-    }
-}
-```
-
-**Test Rules**:
-- Always use `try/finally` to ensure `tab.Close()` is called
-- Use interface types for page references (e.g., `ISettings` not `Settings`)
-- Prefer `tab.Goto<TPage>()` for explicit navigation
-- Use `tab.On<TPage>()` for accessing current page without navigation
-- Add delays with `await Task.Delay()` only in headed tests for visualization
-- Use FluentAssertions for assertions (`.Should().BeTrue()`, `.Should().Be()`)
-
 ## Project Structure
-
-### Solution Organization
 
 ```
 Trumpf.Coparoo.Playwright/               # Core framework (.NET Standard 2.0)
-??? Root/
-?   ??? TabObject/                       # Browser tab abstraction
-?   ??? PageObject/                      # Page abstraction
-?   ??? ControlObject/                   # Control abstraction
-??? Search/                              # By selectors and locator helpers
-??? Internal/                            # Framework internals (not for public use)
-
 Trumpf.Coparoo.Playwright.Controls/      # Built-in controls (.NET Standard 2.0)
-??? Button.cs, Checkbox.cs, TextBox.cs   # Standard HTML controls
-??? Table.cs, DropDown.cs, etc.
-
 Trumpf.Coparoo.Playwright.Extensions/    # Extension methods (.NET Standard 2.0)
-??? IUIObjectActionExtensions.cs         # Click, Fill, etc.
-??? IUIObjectStateExtensions.cs          # IsVisible, IsEnabled, etc.
-??? TabObjectExtensions.cs               # Tab-specific helpers
-
 Trumpf.Coparoo.Playwright.Tests/         # Unit tests (.NET 8)
 Trumpf.Coparoo.Playwright.Controls.Tests/ # Control tests (.NET 8)
 Trumpf.Coparoo.Playwright.Demo/          # Demo project (.NET 8)
 ```
 
-### File Naming Conventions
-
-- Interfaces: `IInterfaceName.cs` (e.g., `ISettings.cs`)
-- Implementations: `TypeName.cs` (e.g., `Settings.cs`)
-- Tests: `TypeNameTests.cs` (e.g., `ByTests.cs`)
-- Extensions: `TypeNameExtensions.cs` (e.g., `IUIObjectActionExtensions.cs`)
-
-## Common Scenarios
-
-### Adding a New Control Type
-
-1. Create interface in `Trumpf.Coparoo.Playwright/Interfaces/`
-2. Implement in `Trumpf.Coparoo.Playwright.Controls/`
-3. Add extension methods if needed in `Extensions/`
-4. Add tests in `Controls.Tests/`
-
-### Adding a New PageObject
-
-1. Define interface (e.g., `IMyPage.cs`)
-2. Implement class inheriting `PageObject` and interface
-3. Define `SearchPattern` with stable locator
-4. Expose controls as properties using `Find<T>()`
-5. Register relationship in `TabObject` using `ChildOf<,>()`
-
-### Creating a Custom TabObject
-
-1. Inherit from `TabObject`
-2. Override `Url` property
-3. Override `Creator()` to configure Playwright browser
-4. Register page relationships in constructor with `ChildOf<,>()`
-5. Optionally expose configuration options (headless, slowMo, etc.)
-
-## Dependencies and Packages
-
-### Core Dependencies
-- **Microsoft.Playwright**: 1.54.0 - Browser automation
-- **System.Linq.Async**: 6.0.1 - Async LINQ operations
-
-### Testing Dependencies
-- **MSTest.TestFramework**: For unit tests
-- **FluentAssertions**: For readable assertions
-
-### Package Management
+- Target .NET Standard 2.0 for library projects (Core, Controls, Extensions)
+- Use .NET 8 for test and demo projects
 - Version management via **MinVer** from Git tags
-- No hardcoded versions in projects (except dependencies)
-- NuGet packages: Core, Controls, Extensions
+- Core dependencies: **Microsoft.Playwright** 1.54.0, **System.Linq.Async** 6.0.1
 
 ## Anti-Patterns to Avoid
 
-? **Don't** hardcode page relationships - use `ChildOf<,>()`
-? **Don't** use concrete page types in tests - use interfaces
-? **Don't** create UI object instances with `new` - use `Find<T>()`
-? **Don't** forget XML documentation on public APIs
-? **Don't** use spaces in combined selectors - use `.And()`
-? **Don't** skip null checks in extension methods
-? **Don't** leave tabs open after tests - always call `Close()`❌ **Don't** expose `ILocator` or `IPage` in public properties of PageObjects/ControlObjects — wrap them as typed controls via `Find<T>()`
-? **Do** register page relationships dynamically
-? **Do** use interface-based navigation
-? **Do** use `Find<T>()` for child controls
-? **Do** document all public APIs
-? **Do** use `.And()` for selector combination
-? **Do** validate parameters in extension methods
-? **Do** clean up resources in `finally` blocks
+❌ Hardcode page relationships — use `ChildOf<,>()`
+❌ Use concrete page types in tests — use interfaces
+❌ Create UI object instances with `new` — use `Find<T>()`
+❌ Expose `ILocator` or `IPage` in public properties of PageObjects/ControlObjects — wrap as typed controls via `Find<T>()`
+❌ Use spaces in combined selectors — use `.And()`
+❌ Skip null checks in extension methods
+❌ Skip XML documentation on public APIs
 
-## Performance Considerations
-
-- Use `IsVisibleAsync()` checks before unnecessary navigation
-- Batch multiple locator queries when possible
-- Prefer `By.TestId()` for fastest, most stable selectors
-- Cache control properties (framework handles this automatically)
-- Use headless mode for CI/CD pipelines
-
-## Debugging Tips
-
-- Use `WriteTree()` to visualize page object hierarchy
-- Add `await Task.Delay()` in headed tests to observe interactions
-- Use `.HighlightAsync()` extension to visually identify elements
-- Enable Playwright traces for detailed execution logs
-- Set `headless: false` in TabObject constructor for visual debugging
-
-## Questions or Clarifications
-
-When unsure about:
-- **Architecture**: Follow the TabObject ? PageObject ? ControlObject hierarchy
-- **Interfaces**: Always create interfaces for cross-team usage
-- **Locators**: Prefer `data-testid` attributes, then CSS selectors
-- **Navigation**: Use `Goto<T>()` for explicit navigation, `On<T>()` for access
-- **Documentation**: When in doubt, add more documentation
-
-## Contributing Guidelines
+## Contributing
 
 1. All new features require XML documentation
 2. Add unit tests for new functionality
 3. Follow existing code style and patterns
 4. Update README.md if adding major features
 5. Ensure builds pass before submitting changes
-6. Target .NET Standard 2.0 for library projects (Core, Controls, Extensions)
-7. Use .NET 8 for test and demo projects
 
----
+## Related Documentation
 
-**Remember**: The goal is to write tests that read like natural language and remain robust against UI changes. The Coparoo pattern achieves this through abstraction layers and interface-based design.
+- [README.md](../README.md) — Quick start and overview
+- [PATTERN.md](../PATTERN.md) — Coparoo pattern theory (DOM structure, search optimization, PageObject vs ControlObject)
+- [DECOUPLING.md](../DECOUPLING.md) — Interface-based decoupling for cooperative projects
+- [DEMO.md](../DEMO.md) — Step-by-step code walkthrough
+- [CHEATSHEET.md](../CHEATSHEET.md) — Concise test-writing reference for library consumers
+- [Demo Project README](../Trumpf.Coparoo.Playwright.Demo/README.md) — Full working demo with dynamic relationships

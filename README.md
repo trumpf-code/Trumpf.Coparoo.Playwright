@@ -4,6 +4,19 @@
 ## Description
 *Trumpf.Coparoo.Playwright is a .NET library for C# that helps you write fast, maintainable, robust and fluent Playwright-driven web tests based on the **co**ntrol/**pa**ge/**ro**ot-**o**bject (Coparoo) pattern.*
 
+## Built for the AI Era
+
+Coparoo's structured patterns make it **ideal for AI coding agents** (GitHub Copilot, Cursor, etc.):
+
+- **Rigid hierarchy** — Tab → Page → Control gives AI a clear, repeatable structure to follow. No guessing.
+- **Interface-first** — AI generates tests from interfaces alone (`ISettings`, `ICheckbox`), without touching locators or DOM details.
+- **No raw locators in tests** — The framework prevents AI from hallucinating CSS selectors or XPaths in test code.
+- **Self-documenting** — `tab.Goto<ISettings>().SaveButton.ClickAsync()` is natural language. Easy to generate, easy to review.
+- **Resilient to UI changes** — AI-generated tests survive redesigns because only page implementations change, never tests.
+- **Constrained by design** — The framework's guardrails (typed controls, `Find<T>()`, no `new`) make it structurally hard for AI to produce brittle code.
+
+Whether you write tests by hand or let an AI agent generate them, Coparoo ensures they stay robust and maintainable.
+
 ## Quick Start Example
 An animated walkthrough of a minimal multi-page setup (dynamic relationships, interface-based navigation, checkbox + button interactions):
 

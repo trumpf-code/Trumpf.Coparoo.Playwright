@@ -17,12 +17,12 @@
     <Authors>Alexander Kaiser</Authors>
     <Company>TRUMPF Werkzeugmaschinen GmbH + Co. KG</Company>
     <Product>Trumpf Coparoo Web</Product>
-    <Description>Trumpf.Coparoo.Playwright.Extensions contains extension methods that enhance the core Trumpf.Coparoo.Playwright API with convenience helpers for UI, control, and tab objects (e.g. waiting, visibility, attribute access, interactions, Playwright locator shortcuts).</Description>
+    <Description>Extension methods for Trumpf.Coparoo.Playwright that add fluent helpers for interaction, state checks, and Playwright locator shortcuts on UI/control/tab objects. Designed for readable, AI-friendly test code.</Description>
     <Summary>Extension method collection for Trumpf.Coparoo.Playwright that adds fluent helpers for interaction, state checks and Playwright locator shortcuts on UI/control/tab objects.</Summary>
     <Copyright>TRUMPF Werkzeugmaschinen GmbH + Co. KG</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>Playwright, browser, automation, PageObject, test, ui, extensions, helpers</PackageTags>
+    <PackageTags>Playwright, browser, automation, PageObject, test, ui, extensions, helpers, AI, copilot, code-generation</PackageTags>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageProjectUrl>https://github.com/trumpf-code/Trumpf.Coparoo.Playwright</PackageProjectUrl>
     <PackageIcon>logo640.png</PackageIcon>
