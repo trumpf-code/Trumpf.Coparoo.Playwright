@@ -16,6 +16,7 @@ jobs:
         configuration: [Debug, Release]
     runs-on: windows-latest
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
       Solution_Name: Trumpf.Coparoo.Playwright.sln
       Test_Project_Folder: Trumpf.Coparoo.Playwright.Tests
       Test_Project_Path: Trumpf.Coparoo.Playwright.Tests\Trumpf.Coparoo.Playwright.Tests.csproj
