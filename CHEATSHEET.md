@@ -50,6 +50,85 @@ MyApp.UITests/              # UI tests → references MyApp.PageObjects
 MyApp.IntegrationTests/     # Integration tests → also references MyApp.PageObjects
 ```
 
+### Domain-Aligned Subfolders
+
+As page model projects grow, organize PageObjects and ControlObjects into domain-aligned subfolders. Keep namespaces flat — subfolder structure is purely for discoverability:
+
+```
+PageObjects/
+├── Shell/           # MainShell, HeaderNavigation, ChatWindow
+├── Dashboard/       # IndexPage
+└── Landing/         # AboutPage
+
+ControlObjects/
+├── Shell/           # MainFooter, SettingsDropdown
+└── Configuration/   # ConfigActionBar, ModuleSelector, RevisionInfo
+```
+
+## TestId Contract Project (Decoupling Page Objects from Productive Code)
+
+Page objects should **never** reference the productive UI project directly. Instead, extract all `data-testid` constants into a dedicated **contract project** that both the productive UI and the page objects reference. This ensures:
+
+- Page objects depend only on string constants, not on UI controllers, Blazor components, or any runtime type.
+- The productive UI and tests can evolve independently — renaming a controller class never breaks tests.
+- The contract project has **zero dependencies**, keeping it lightweight and fast to compile.
+
+```
+MyApp.UI.TestIds/           # Contract: data-testid string constants only (no dependencies)
+MyApp.UI.Blazor/            # Productive UI → references TestIds
+MyApp.PageObjects/          # Page objects → references TestIds (NOT Blazor)
+MyApp.UITests/              # Tests → references PageObjects
+```
+
+### Defining Constants
+
+Group constants by page or component in flat static classes:
+
+```csharp
+namespace MyApp.UI.TestIds;
+
+public static class LoginPageTestIds
+{
+    public const string PAGE = "login-page";
+    public const string USERNAME_INPUT = "login-username";
+    public const string PASSWORD_INPUT = "login-password";
+    public const string SUBMIT_BUTTON = "login-submit";
+}
+```
+
+### Using in Productive UI (e.g., in Blazor)
+
+Reference the contract constants directly in `.razor` files via a global `@using` in `_Imports.razor` — no intermediate inner class needed:
+
+```razor
+@* _Imports.razor *@
+@using MyApp.UI.TestIds
+
+@* LoginPage.razor — reference constants directly *@
+<form data-testid="@LoginPageTestIds.PAGE">
+    <input data-testid="@LoginPageTestIds.USERNAME_INPUT" />
+</form>
+```
+
+### No Magic Strings in Tests
+
+Every `data-testid` value that originates from the application must be defined in the contract project — including values used in CSS attribute selectors within test code. Generic HTML/Bootstrap selectors (tag names, CSS classes) may remain as inline strings.
+
+```csharp
+// ✅ Good — test IDs from constants
+page.Locator($"[data-testid^='{AlarmClusterTestIds.CARD}']");
+page.Locator($"[data-testid='{TicketOverviewTestIds.TABLE}'] tbody tr");
+await Assertions.Expect(card).ToHaveAttributeAsync("data-testid", AlarmClusterTestIds.CARD_SELECTED);
+
+// ❌ Bad — hardcoded test IDs in tests
+page.Locator("[data-testid^='alarm-cluster-card']");
+page.Locator("[data-testid='ticket-table'] tbody tr");
+
+// ✅ OK — generic CSS selectors can remain inline
+card.Locator(".badge").First;
+page.Locator(".alarms-split-right tr");
+```
+
 ## Interface-Based Decoupling (Advanced)
 
 When page object implementations ship with the system under test (SUT) and tests are deployed separately, use interface-based decoupling. This is useful when:
@@ -140,9 +219,14 @@ public async Task DemonstrateFeature_Headless()
 ❌ Accessing `ILocator` or `IPage` directly in tests — interact through PageObject/ControlObject APIs
 ❌ Creating UI objects with `new` — use `Find<T>()` or `FindAll<T>()`
 ❌ Hardcoding page relationships — use `ChildOf<,>()` in TabObject
+❌ Referencing the productive UI project from page objects — use a TestId contract project (see above)
+❌ Hardcoding `data-testid` strings in page objects or tests — use constants from the contract project
 ❌ Forgetting `tab.Close()` — always wrap in `try/finally`
 ❌ Exposing `ILocator` in public properties of PageObjects/ControlObjects — wrap as typed controls via `Find<T>()`
+❌ Putting app-specific TestIds or CSS in a shared controls library — keep those in the page model project
 ❌ Using `Task.Delay()` in tests — use dynamic waits (see below)
+❌ Mirroring TestId constants via inner `TestIds` classes in controllers — reference contract constants directly in `.razor` files
+❌ Interpolating untrusted values into `:has-text()` selectors — use `Locator.Filter()` instead
 
 ## Dynamic Waits (Avoiding Fixed Delays)
 
