@@ -16,7 +16,6 @@ jobs:
         configuration: [Debug, Release]
     runs-on: windows-latest
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
       Solution_Name: Trumpf.Coparoo.Playwright.sln
       Test_Project_Folder: Trumpf.Coparoo.Playwright.Tests
       Test_Project_Path: Trumpf.Coparoo.Playwright.Tests\Trumpf.Coparoo.Playwright.Tests.csproj
@@ -29,19 +28,19 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
     # Install the .NET Core workload
     - name: Install .NET Core
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 8.0.x
 
     # Add MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v2
+      uses: microsoft/setup-msbuild@v3
 
     # Build the solution
     - name: Build
@@ -150,7 +149,7 @@ jobs:
     # Upload test results if the previous test step failed
     - name: Upload Test Results on Failure
       if: failure()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: test-results-${{ matrix.configuration }}
         path: ${{ env.Test_Results_Dir }}\*.trx
@@ -166,7 +165,7 @@ jobs:
     # Upload the NuGet packages as artifacts
     - name: Upload NuGet Package
       if: matrix.configuration == 'Release' && success()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: nuget-packages
         path: ${{ env.Package_Output_Dir }}\*.nupkg
