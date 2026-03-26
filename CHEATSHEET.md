@@ -27,6 +27,16 @@ Concise reference for writing tests with the Trumpf.Coparoo.Playwright library.
 
 If you need a `Goto()` override to make the element appear on screen (e.g., clicking a menu item to open a page), or the element contains child controls, use `PageObject`. If the element is a self-contained widget accessed from a parent, use `ControlObject`.
 
+## Naming Conventions
+
+Class names must end with their tier suffix: `TabObject`, `PageObject`, `ControlObject`.
+
+| Tier | Class example | Interface example |
+|---|---|---|
+| Tab | `MyAppTabObject` | `IMyAppTabObject` |
+| Page | `SettingsPageObject` | `ISettingsPageObject` |
+| Control | `TypeAheadControlObject` | `ITypeAheadControlObject` |
+
 ## Navigation
 
 - **`tab.Goto<T>()`** — navigates to a page: opens the tab (if not yet open) and calls `T.Goto()` to perform whatever navigation logic the page defines.
