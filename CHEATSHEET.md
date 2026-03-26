@@ -142,6 +142,21 @@ public async Task DemonstrateFeature_Headless()
 ❌ Hardcoding page relationships — use `ChildOf<,>()` in TabObject
 ❌ Forgetting `tab.Close()` — always wrap in `try/finally`
 ❌ Exposing `ILocator` in public properties of PageObjects/ControlObjects — wrap as typed controls via `Find<T>()`
+❌ Using `Task.Delay()` in tests — use dynamic waits (see below)
+
+## Dynamic Waits (Avoiding Fixed Delays)
+
+Never use `Task.Delay()` in headless tests. Replace every fixed sleep with a wait for the specific condition the test needs next.
+
+### Wait Strategy by Scenario
+
+| Scenario | Wait approach |
+|---|---|
+| Data loads after navigation | `await page.MyTable.WaitForVisibleAsync(timeout)` |
+| Element appears after click | `await locator.WaitForAsync(new() { Timeout = ... })` |
+| Attribute/state change | `await Assertions.Expect(locator).ToHaveAttributeAsync(...)` |
+
+Define timeouts once; reference everywhere.
 
 ## Debugging
 
