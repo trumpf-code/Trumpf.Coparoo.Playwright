@@ -55,7 +55,7 @@ public class ButtonTests
         Button button = tab.Find<Button>();
 
         // Act
-        string actualButtonText = await button.Text();
+        string actualButtonText = await button.TextContentAsync();
         var isVisible = await button.IsVisibleAsync();
 
         // Log
@@ -78,7 +78,7 @@ public class ButtonTests
 
         // Act
         var button = tab.Find<Button>(By.TestId(expectedTestId));
-        var actualButtonText = await button.Text();
+        var actualButtonText = await button.TextContentAsync();
         var isVisible = await button.IsVisibleAsync();
 
         // Log

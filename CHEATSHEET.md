@@ -27,6 +27,41 @@ Concise reference for writing tests with the Trumpf.Coparoo.Playwright library.
 
 If you need a `Goto()` override to make the element appear on screen (e.g., clicking a menu item to open a page), or the element contains child controls, use `PageObject`. If the element is a self-contained widget accessed from a parent, use `ControlObject`.
 
+## Control Access Rules
+
+PageObjects and ControlObjects expose child controls as **properties** — never as wrapper methods. Tests interact with controls directly.
+
+```csharp
+// ✅ Good — control exposed as property, test interacts directly
+public Span UserName => Find<Span>(By.TestId("user-name"));
+// Test: var name = await page.UserName.TextContentAsync();
+
+// ❌ Bad — deflated method hides the control, duplicates API
+public async Task<string> GetUserNameTextAsync()
+    => await Locator.Locator("[data-testid='user-name']").TextContentAsync();
+```
+
+When multiple controls form a logical unit, group them in a **composite ControlObject**:
+
+```csharp
+// ✅ Good — composite control groups related elements
+public sealed class CurrentUserControlObject : ControlObject
+{
+    protected override By SearchPattern => By.TestId("current-user");
+    public Span DisplayName => Find<Span>(By.TestId("user-display-name"));
+    public Span Initials => Find<Span>(By.TestId("user-initials"));
+}
+
+// PageObject exposes the composite
+public CurrentUserControlObject CurrentUser
+    => Find<CurrentUserControlObject>(By.TestId("current-user"));
+
+// Test reads naturally:
+var initials = await header.CurrentUser.Initials.TextContentAsync();
+```
+
+**Rule:** If you find yourself writing `GetXyzTextAsync()`, `IsXyzVisibleAsync()`, or similar on a PageObject or ControlObject — stop. Expose the control as a property and let the caller use extension methods. When generating tests against existing page models that contain deflated methods, refactor the page model first.
+
 ## Naming Conventions
 
 Class names must end with their tier suffix: `TabObject`, `PageObject`, `ControlObject`.
@@ -237,6 +272,8 @@ public async Task DemonstrateFeature_Headless()
 ❌ Using `Task.Delay()` in tests — use dynamic waits (see below)
 ❌ Mirroring TestId constants via inner `TestIds` classes in controllers — reference contract constants directly in `.razor` files
 ❌ Interpolating untrusted values into `:has-text()` selectors — use `Locator.Filter()` instead
+❌ Deflating control interactions onto PageObjects (e.g., `GetUserNameTextAsync()`, `GetUserInitialsTextAsync()`) — expose a composite ControlObject with child controls instead, so tests read `page.CurrentUser.Initials.TextContentAsync()`
+❌ Using control-specific `Text` members — use the universal `TextContentAsync()` / `InnerTextAsync()` extension methods available on all `IUIObject`
 
 ## Dynamic Waits (Avoiding Fixed Delays)
 
