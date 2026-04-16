@@ -205,7 +205,7 @@ internal class FrameTestTab : TabObject
     {
         var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
         var browser = await playwright.Chromium.LaunchAsync(new() { Headless = headless });
-        return await browser.NewPageAsync();
+        return await CreateConfiguredPageAsync(browser);
     }
 }
 

@@ -45,6 +45,11 @@ public interface ITabObject : IPageObject
     Statistics Statistics { get; }
 
     /// <summary>
+    /// Gets the final path of the last recorded video artifact, if available.
+    /// </summary>
+    string LastRecordedVideoPath { get; }
+
+    /// <summary>
     /// Write the page object tree in the PDF format.
     /// </summary>
     /// <param name="filename">The filename to write to with extension.</param>

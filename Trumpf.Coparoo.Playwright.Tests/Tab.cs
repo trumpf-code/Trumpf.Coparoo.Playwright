@@ -41,7 +41,7 @@ public class Tab : TabObject
     {
         var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
         var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
-        return await browser.NewPageAsync();
+        return await CreateConfiguredPageAsync(browser);
     }
 
     protected override string Url => "about:blank";

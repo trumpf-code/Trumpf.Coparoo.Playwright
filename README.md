@@ -42,6 +42,34 @@ Here's the basic pattern illustrated in the demo above - notice how naturally th
 
 The library ships with built-in control wrappers for common HTML elements, making it easy to interact with various UI components. These include `Checkbox`, `Button`, `TextBox`, `DropDown`, `Table`, `RadioButton`, and many more. In the example above, checkboxes are used for the notification and auto-save settings, demonstrating how these controls provide clean, type-safe APIs for interaction without dealing with raw locators or CSS selectors.
 
+## Optional Video Recording
+
+Tabs that start their own Playwright browser/page flow can optionally enable video recording through `tab.Configuration.Video`:
+
+```csharp
+var tab = new DemoTab();
+tab.Configuration.Video.Enabled = true;
+tab.Configuration.Video.DirectoryPath = @"C:\temp\coparoo-videos";
+tab.Configuration.Video.FileName = "settings-run";
+tab.Configuration.Video.FileExtension = ".webm";
+tab.Configuration.Video.Width = 1280;
+tab.Configuration.Video.Height = 720;
+
+await tab.Open();
+// ... interact with the UI ...
+await tab.Close();
+
+Console.WriteLine(tab.LastRecordedVideoPath);
+```
+
+Notes:
+
+- `DirectoryPath` is required when recording is enabled.
+- `FileName` is optional. If omitted, Playwright keeps its generated file name.
+- `Width` and `Height` must either both be set or both be omitted.
+- The final artifact path is available via `tab.LastRecordedVideoPath` after closing the tab.
+- Video recording is only supported for tabs that create their own browser/page. CDP attach scenarios are intentionally out of scope.
+
 ## Chrome DevTools Protocol (CDP) Connection Pooling for WPF/CefSharp Applications
 
 For WPF applications using CefSharp dialogs, the library provides smart connection pooling to prevent memory leaks and improve performance. Use `ChromeDevToolsProtocolTabObject` to automatically manage Playwright connections via Chrome DevTools Protocol (CDP):
@@ -55,6 +83,9 @@ public class SettingsDialogTab : ChromeDevToolsProtocolTabObject
     
     public SettingsDialogTab() => ChildOf<SettingsPage, SettingsDialogTab>();
 }
+```
+
+CDP tabs are designed for attaching to an already running browser/page. In this usage model, Coparoo does not provide video recording for `ChromeDevToolsProtocolTabObject`.
 
 The connection pool validates and reuses existing connections, dramatically reducing memory consumption when repeatedly opening/closing dialogs. Configure pool behavior if needed:
 
