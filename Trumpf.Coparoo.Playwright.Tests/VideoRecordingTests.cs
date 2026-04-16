@@ -61,7 +61,9 @@ public class VideoRecordingTests
             await tab.Open();
             var page = await tab.Page;
             await page.SetContentAsync("<html><body><button id='run' onclick=\"document.body.dataset.state='clicked'\">Run</button></body></html>");
+            await Task.Delay(1000);
             await page.ClickAsync("#run");
+            await Task.Delay(1000);
             await tab.Close();
         }
         catch (PlaywrightException ex) when (IsMissingBrowserExecutable(ex))
@@ -88,6 +90,7 @@ public class VideoRecordingTests
             await tab.Open();
             var page = await tab.Page;
             await page.SetContentAsync("<html><body><div>record me</div></body></html>");
+            await Task.Delay(2000);
             await tab.Close();
         }
         catch (PlaywrightException ex) when (IsMissingBrowserExecutable(ex))
