@@ -16,6 +16,7 @@ using Trumpf.Coparoo.Playwright.Exceptions;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Trumpf.Coparoo.Playwright.Internal;
 using Trumpf.Coparoo.Playwright.Logging.Tree;
@@ -103,6 +104,12 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
         => ((TabObjectNode)Node).Statistics;
 
     /// <summary>
+    /// Gets the final path of the last recorded video artifact, if available.
+    /// </summary>
+    public string LastRecordedVideoPath
+        => ((TabObjectNode)Node).LastRecordedVideoPath;
+
+    /// <summary>
     /// Gets the URL.
     /// </summary>
     protected virtual string Url { get; } = null;
@@ -116,6 +123,128 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     /// This method is called lazily when the Page property is first accessed.
     /// </remarks>
     protected abstract Task<IPage> CreatePageAsync();
+
+    /// <summary>
+    /// Creates a page for the specified browser while applying tab-level configuration.
+    /// </summary>
+    /// <param name="browser">The browser used to create the page.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the created page.</returns>
+    /// <remarks>
+    /// Video recording is only supported for tabs that create their own Playwright browser/page flow.
+    /// </remarks>
+    protected async Task<IPage> CreateConfiguredPageAsync(IBrowser browser)
+    {
+        if (browser == null)
+        {
+            throw new ArgumentNullException(nameof(browser));
+        }
+
+        var videoContextOptions = CreateVideoContextOptions();
+        if (videoContextOptions != null)
+        {
+            var context = await browser.NewContextAsync(videoContextOptions).ConfigureAwait(false);
+            var pageFromContext = await context.NewPageAsync().ConfigureAwait(false);
+            ((TabObjectNode)Node).SetPage(pageFromContext, closeOwnedContextOnClose: true);
+            return pageFromContext;
+        }
+
+        var pageFromBrowser = await browser.NewPageAsync().ConfigureAwait(false);
+        ((TabObjectNode)Node).SetPage(pageFromBrowser, closeOwnedContextOnClose: false);
+        return pageFromBrowser;
+    }
+
+    /// <summary>
+    /// Creates browser context options for video recording when configured.
+    /// </summary>
+    /// <returns>The configured context options, or <see langword="null"/> when recording is disabled.</returns>
+    protected BrowserNewContextOptions CreateVideoContextOptions()
+    {
+        if (!Configuration.Video.Enabled)
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(Configuration.Video.DirectoryPath))
+        {
+            throw new InvalidOperationException(
+                $"{GetType().Name}.Configuration.Video.DirectoryPath must not be null or empty when video recording is enabled.");
+        }
+
+        if (Configuration.Video.Width.HasValue != Configuration.Video.Height.HasValue)
+        {
+            throw new InvalidOperationException(
+                $"{GetType().Name}.Configuration.Video.Width and Height must both be set or both be omitted.");
+        }
+
+        if ((Configuration.Video.Width.HasValue && Configuration.Video.Width.Value <= 0) ||
+            (Configuration.Video.Height.HasValue && Configuration.Video.Height.Value <= 0))
+        {
+            throw new InvalidOperationException(
+                $"{GetType().Name}.Configuration.Video.Width and Height must be greater than zero when specified.");
+        }
+
+        Directory.CreateDirectory(Configuration.Video.DirectoryPath);
+
+        var options = new BrowserNewContextOptions
+        {
+            RecordVideoDir = Configuration.Video.DirectoryPath
+        };
+
+        if (Configuration.Video.Width.HasValue && Configuration.Video.Height.HasValue)
+        {
+            options.RecordVideoSize = new RecordVideoSize
+            {
+                Width = Configuration.Video.Width.Value,
+                Height = Configuration.Video.Height.Value
+            };
+        }
+
+        return options;
+    }
+
+    /// <summary>
+    /// Gets the final save path for the configured video artifact, if a custom file name is requested.
+    /// </summary>
+    /// <returns>The requested save path, or <see langword="null"/> if Playwright should keep the generated file name.</returns>
+    protected string GetRequestedVideoSavePath()
+    {
+        if (!Configuration.Video.Enabled || string.IsNullOrWhiteSpace(Configuration.Video.FileName))
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(Configuration.Video.DirectoryPath))
+        {
+            throw new InvalidOperationException(
+                $"{GetType().Name}.Configuration.Video.DirectoryPath must not be null or empty when video recording is enabled.");
+        }
+
+        var fileName = Path.GetFileName(Configuration.Video.FileName);
+        if (!string.Equals(fileName, Configuration.Video.FileName, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                $"{GetType().Name}.Configuration.Video.FileName must not contain directory segments.");
+        }
+
+        if (string.IsNullOrWhiteSpace(Path.GetExtension(fileName)))
+        {
+            fileName += NormalizeVideoFileExtension(Configuration.Video.FileExtension);
+        }
+
+        return Path.Combine(Configuration.Video.DirectoryPath, fileName);
+    }
+
+    private static string NormalizeVideoFileExtension(string extension)
+    {
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            return ".webm";
+        }
+
+        return extension.StartsWith(".", StringComparison.Ordinal)
+            ? extension
+            : "." + extension;
+    }
 
     /// <summary>
     /// Resolve the root object interface to a loaded process object in the current app domain.
@@ -173,7 +302,16 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     public TTab Cast<TTab>() where TTab : ITabObject
     {
         TTab result = Resolve<TTab>();
-        result.WithPage(((TabObjectNode)Node).page);
+        var currentNode = (TabObjectNode)Node;
+        if (result is TabObject tabObject)
+        {
+            ((TabObjectNode)tabObject.Node).SetPage(currentNode.page, currentNode.CloseContextOnClose);
+        }
+        else
+        {
+            result.WithPage(currentNode.page);
+        }
+
         return result;
     }
 
@@ -217,7 +355,41 @@ public abstract class TabObject : PageObject, ITabObjectInternal, ITabObject
     /// </summary>
     public virtual async Task Close()
     {
-        await Locator.Page.CloseAsync();
+        var node = (TabObjectNode)Node;
+        if (node.page != null)
+        {
+            var video = node.page.Video;
+            var requestedVideoSavePath = video != null ? GetRequestedVideoSavePath() : null;
+            Task saveVideoTask = null;
+
+            if (video != null && !string.IsNullOrWhiteSpace(requestedVideoSavePath))
+            {
+                saveVideoTask = video.SaveAsAsync(requestedVideoSavePath);
+            }
+
+            if (node.CloseContextOnClose)
+            {
+                await node.page.Context.CloseAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                await Locator.Page.CloseAsync().ConfigureAwait(false);
+            }
+
+            if (video != null)
+            {
+                if (saveVideoTask != null)
+                {
+                    await saveVideoTask.ConfigureAwait(false);
+                    node.SetLastRecordedVideoPath(requestedVideoSavePath);
+                }
+                else
+                {
+                    node.SetLastRecordedVideoPath(await video.PathAsync().ConfigureAwait(false));
+                }
+            }
+        }
+
         opened = false;
     }
 }

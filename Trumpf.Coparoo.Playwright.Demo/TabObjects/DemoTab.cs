@@ -72,6 +72,6 @@ public sealed class DemoTab : TabObject
             SlowMo = headless ? 0 : 100
         });
 
-        return await browser.NewPageAsync();
+        return await CreateConfiguredPageAsync(browser);
     }
 }

@@ -23,6 +23,11 @@ namespace Trumpf.Coparoo.Playwright;
 public class Configuration
 {
     /// <summary>
+    /// Gets the video recording configuration.
+    /// </summary>
+    public VideoRecordingConfiguration Video { get; } = new VideoRecordingConfiguration();
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="Configuration"/> class.
     /// </summary>
     internal Configuration()

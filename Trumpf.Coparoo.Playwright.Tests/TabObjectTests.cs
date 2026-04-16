@@ -16,6 +16,8 @@ namespace Trumpf.Coparoo.Tests;
 
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.IO;
 
 using Trumpf.Coparoo.Playwright;
 using Trumpf.Coparoo.Playwright.Exceptions;
@@ -97,6 +99,65 @@ public class TabObjectTests
         FluentActions.Invoking(() => t2.On<B1>()).Should().Throw<PageObjectNotFoundException<B1>>();
     }
 
+    /// <summary>
+    /// Test method.
+    /// </summary>
+    [TestMethod]
+    public void WhenCreatingATabObject_ThenVideoRecordingIsDisabledByDefault()
+    {
+        ITabObject tab = new Tab();
+
+        tab.Configuration.Should().NotBeNull();
+        tab.Configuration.Video.Should().NotBeNull();
+        tab.Configuration.Video.Enabled.Should().BeFalse();
+        tab.Configuration.Video.FileExtension.Should().Be(".webm");
+    }
+
+    /// <summary>
+    /// Test method.
+    /// </summary>
+    [TestMethod]
+    public void WhenVideoFileNameIsConfiguredWithoutExtension_ThenTheConfiguredExtensionIsApplied()
+    {
+        var tab = new VideoConfigurationProbeTab();
+        tab.Configuration.Video.Enabled = true;
+        tab.Configuration.Video.DirectoryPath = @"C:\videos";
+        tab.Configuration.Video.FileName = "session-recording";
+        tab.Configuration.Video.FileExtension = "mp4";
+
+        tab.ProbeRequestedVideoSavePath().Should().Be(Path.Combine(@"C:\videos", "session-recording.mp4"));
+    }
+
+    /// <summary>
+    /// Test method.
+    /// </summary>
+    [TestMethod]
+    public void WhenVideoFileNameContainsDirectorySegments_ThenAnExceptionIsThrown()
+    {
+        var tab = new VideoConfigurationProbeTab();
+        tab.Configuration.Video.Enabled = true;
+        tab.Configuration.Video.DirectoryPath = @"C:\videos";
+        tab.Configuration.Video.FileName = @"nested\recording.webm";
+
+        FluentActions.Invoking(() => tab.ProbeRequestedVideoSavePath())
+            .Should().Throw<InvalidOperationException>();
+    }
+
+    /// <summary>
+    /// Test method.
+    /// </summary>
+    [TestMethod]
+    public void WhenOnlyOneVideoDimensionIsConfigured_ThenAnExceptionIsThrown()
+    {
+        var tab = new VideoConfigurationProbeTab();
+        tab.Configuration.Video.Enabled = true;
+        tab.Configuration.Video.DirectoryPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        tab.Configuration.Video.Width = 800;
+
+        FluentActions.Invoking(() => tab.ProbeCreateVideoContextOptions())
+            .Should().Throw<InvalidOperationException>();
+    }
+
     protected class T1 : Tab
     {
     }
@@ -113,5 +174,12 @@ public class TabObjectTests
     protected class B2 : PageObject, IChildOf<T2>
     {
         protected override By SearchPattern => "button";
+    }
+
+    protected class VideoConfigurationProbeTab : Tab
+    {
+        public string ProbeRequestedVideoSavePath() => GetRequestedVideoSavePath();
+
+        public BrowserNewContextOptions ProbeCreateVideoContextOptions() => CreateVideoContextOptions();
     }
 }

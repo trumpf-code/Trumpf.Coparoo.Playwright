@@ -25,6 +25,8 @@ namespace Trumpf.Coparoo.Playwright;
 internal class TabObjectNode : UIObjectNode, ITabObjectNode
 {
     internal IPage page;
+    private bool closeContextOnClose;
+    private string lastRecordedVideoPath;
 
     /// <summary>
     /// Gets the node representing this tree node in the UI, or null if not found
@@ -72,12 +74,43 @@ internal class TabObjectNode : UIObjectNode, ITabObjectNode
     public Statistics Statistics { get; } = new Statistics();
 
     /// <summary>
+    /// Gets the final path of the last recorded video artifact.
+    /// </summary>
+    public string LastRecordedVideoPath => lastRecordedVideoPath;
+
+    /// <summary>
     /// Sets the page instance directly (primarily for testing scenarios).
     /// </summary>
     /// <param name="page">The IPage instance to set.</param>
     public void SetPage(IPage page)
     {
         this.page = page;
+        closeContextOnClose = false;
+    }
+
+    /// <summary>
+    /// Sets the page instance directly together with the close behavior.
+    /// </summary>
+    /// <param name="page">The IPage instance to set.</param>
+    /// <param name="closeOwnedContextOnClose">If set to <see langword="true"/>, the page context is closed when the tab is closed.</param>
+    public void SetPage(IPage page, bool closeOwnedContextOnClose)
+    {
+        this.page = page;
+        closeContextOnClose = closeOwnedContextOnClose;
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the tab should close the owned browser context.
+    /// </summary>
+    public bool CloseContextOnClose => closeContextOnClose;
+
+    /// <summary>
+    /// Sets the final path of the last recorded video artifact.
+    /// </summary>
+    /// <param name="path">The saved video path.</param>
+    public void SetLastRecordedVideoPath(string path)
+    {
+        lastRecordedVideoPath = path;
     }
 
     /// <summary>
