@@ -85,6 +85,32 @@ await settings.EnableNotifications.Check();           // interact with a control
 await tab.On<ISettings>().SaveButton.ClickAsync();    // access control without re-navigating
 ```
 
+### When to use `Goto` vs `On`
+
+| Scenario | Method | Why |
+|---|---|---|
+| Test **starts** and must reach a page | `Goto<T>()` | You need the page's navigation logic to run |
+| A **click or action** already triggered navigation | `On<T>()` | The page is appearing; calling `Goto` would redundantly re-navigate |
+| Accessing a **second page** that's already visible | `On<T>()` | No navigation needed — the page is on screen |
+| Verifying a page **appeared** after an action | `On<T>()` + `WaitForVisibleAsync()` | Wait for the result, don't cause it |
+
+**Rule of thumb:** `Goto` = *make it happen*. `On` = *it already happened, give me a reference*.
+
+```csharp
+// ✅ Good — Goto at test entry point, need navigation
+await tab.Open();
+var dashboard = await tab.Goto<DashboardPageObject>();
+
+// ✅ Good — On after a click that already triggered navigation
+await dashboard.SettingsLink.ClickAsync();
+var settings = tab.On<SettingsPageObject>();
+await settings.WaitForVisibleAsync();
+
+// ❌ Bad — Goto after a click redundantly navigates
+await dashboard.SettingsLink.ClickAsync();
+var settings = await tab.Goto<SettingsPageObject>(); // DON'T — click already did it
+```
+
 ## Project Organization
 
 Define your TabObjects, PageObjects, and ControlObjects in a **separate project** from your test project. This allows them to be published as a NuGet package and consumed by multiple test suites — e.g., UI tests living alongside the UI code, integration tests in a different repository, or E2E tests maintained by a separate team.
