@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- project information -->
+    <TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
+    <DocumentationFile>bin\$(Configuration)\$(AssemblyName).xml</DocumentationFile>
+
+    <!-- debugging information -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugType>embedded</DebugType>
+    <Optimize>false</Optimize>
+    <LangVersion>10.0</LangVersion>
+
+    <!-- nupkg information -->
+    <PackageId>Trumpf.Coparoo.Playwright.Controls.Bootstrap</PackageId>
+    <Title>Trumpf.Coparoo.Playwright.Controls.Bootstrap Library for .NET</Title>
+    <Authors>Alexander Kaiser</Authors>
+    <Company>TRUMPF Werkzeugmaschinen GmbH + Co. KG</Company>
+    <Product>Trumpf Coparoo Web</Product>
+    <Description>Pre-built Bootstrap control objects for Trumpf.Coparoo.Playwright. Type-safe wrappers for Bootstrap 5 components (alerts, cards, dropdowns, spinners, progress bars, collapsible sections) that integrate seamlessly with Playwright-based web UI tests.</Description>
+    <Summary>Bootstrap control objects for Trumpf.Coparoo.Playwright. This package includes ready-to-use control implementations for Bootstrap 5 components: alerts, cards, card headings, chart panels, collapsible sections, dropdown selectors, info cards, progress bar segments, and spinners.</Summary>
+    <Copyright>TRUMPF Werkzeugmaschinen GmbH + Co. KG</Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>Playwright, browser, automation, controls, Bootstrap, PageObject, test, ui, web, HTML, AI, copilot, code-generation</PackageTags>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageProjectUrl>https://github.com/trumpf-code/Trumpf.Coparoo.Playwright</PackageProjectUrl>
+    <PackageIcon>logo640.png</PackageIcon>
+    <!-- Version is managed by MinVer from Git tags -->
+    <RepositoryUrl>https://github.com/trumpf-code/Trumpf.Coparoo.Playwright</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.Playwright" />
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Threading.Tasks" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Playwright" Version="1.54.0" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net10.0'))" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Trumpf.Coparoo.Playwright\Trumpf.Coparoo.Playwright.csproj" />
+    <ProjectReference Include="..\Trumpf.Coparoo.Playwright.Controls\Trumpf.Coparoo.Playwright.Controls.csproj" />
+    <ProjectReference Include="..\Trumpf.Coparoo.Playwright.Extensions\Trumpf.Coparoo.Playwright.Extensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\Resources\logo640.png" Pack="true" PackagePath="" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>
