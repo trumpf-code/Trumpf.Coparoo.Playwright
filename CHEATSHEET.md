@@ -72,6 +72,80 @@ Class names must end with their tier suffix: `TabObject`, `PageObject`, `Control
 | Page | `SettingsPageObject` | `ISettingsPageObject` |
 | Control | `TypeAheadControlObject` | `ITypeAheadControlObject` |
 
+### Variable Naming
+
+Use **full, descriptive variable names** — never abbreviate page object or control object variables. Abbreviated names hurt readability and make tests harder to understand at a glance.
+
+```csharp
+// ✅ Good — full names
+var userManagement = await tab.Goto<UserManagementPageObject>();
+var patManagement = await tab.Goto<PatManagementPageObject>();
+var tenantManagement = await tab.Goto<TenantManagementPageObject>();
+
+// ❌ Bad — abbreviated names
+var userMgmt = await tab.Goto<UserManagementPageObject>();
+var umPage = await tab.Goto<UserManagementPageObject>();
+var patMgmt = await tab.Goto<PatManagementPageObject>();
+var tmPage = await tab.Goto<TenantManagementPageObject>();
+```
+
+## XML Documentation
+
+Every PageObject, ControlObject, and TabObject class **must** have complete XML documentation. This applies to the class itself and all its public members.
+
+### Required Documentation
+
+| Element | Required |
+|---|---|
+| Class declaration | `<summary>` describing what UI area or widget the class represents |
+| Public control properties (`Find<T>(...)`) | `<summary>` describing what the control is for |
+| Public methods | `<summary>` describing what the method does |
+| `Goto()` overrides | `<summary>` describing the navigation steps performed |
+
+### Examples
+
+```csharp
+/// <summary>
+/// Represents the application header bar containing navigation links,
+/// tenant selector, theme toggle, and the current user display.
+/// </summary>
+public sealed class HeaderNavigationPageObject : PageObject
+{
+    protected override By SearchPattern => By.TestId("header-nav");
+
+    /// <summary>
+    /// Logo link that navigates to the home page when clicked.
+    /// </summary>
+    public Link LogoLink => Find<Link>(By.TestId("logo-link"));
+
+    /// <summary>
+    /// Button that opens the tenant selector dropdown.
+    /// </summary>
+    public Button TenantButton => Find<Button>(By.TestId("tenant-button"));
+
+    /// <summary>
+    /// Navigates to the header by scrolling to the top of the page.
+    /// </summary>
+    public override async Task Goto() { /* ... */ }
+}
+```
+
+```csharp
+/// <summary>
+/// Reusable dropdown selector control with search-and-filter capability.
+/// Used across configuration and filter panels.
+/// </summary>
+public sealed class TypeAheadControlObject : ControlObject
+{
+    protected override By SearchPattern => By.TestId("typeahead");
+
+    /// <summary>
+    /// Text input field where the user types to filter options.
+    /// </summary>
+    public TextInput SearchInput => Find<TextInput>(By.TestId("typeahead-input"));
+}
+```
+
 ## Navigation
 
 - **`tab.Goto<T>()`** — navigates to a page: opens the tab (if not yet open) and calls `T.Goto()` to perform whatever navigation logic the page defines.
@@ -259,30 +333,183 @@ By.TagName("input").And(By.Id("username")).And(By.ClassName("x")) // order: tag 
 [TestMethod]
 public async Task DemonstrateFeature_Headless()
 {
-    var tab = new MyAppTab(headless: true);
-    try
+    await using var session = await TestSession.CreateAsync();
+
+    var tab = session.CreateTab();
+    await tab.Open();
+    var settingsPage = tab.Goto<ISettings>();
+    await settingsPage.EnableNotifications.Check();
+    (await settingsPage.EnableNotifications.IsChecked).Should().BeTrue();
+    tab.Goto<IPreferences>();
+    // tab is closed automatically when the session is disposed
+}
+```
+
+## Writing Maintainable Tests
+
+Tests break when UI implementation changes. The key to maintainability is ensuring every UI interaction goes through the page model so that when the UI changes, you fix **one method** — not dozens of tests.
+
+### Rule: No Raw `IPage` or `ILocator` in Tests or Scenarios
+
+Test methods and reusable scenario classes must never access `tab.Page`, `page.Locator(...)`, `page.GetByTestId(...)`, or any raw Playwright API. All interactions flow through PageObject/ControlObject methods.
+
+```csharp
+// ❌ Bad — raw IPage access in a test/scenario
+var page = await tab.Page;
+await page.ReloadAsync(new PageReloadOptions { ... });
+await page.Locator("[data-testid='remove-user-123']").ClickAsync();
+var dialog = page.GetByTestId("confirm-dialog");
+await dialog.Locator("button:has-text('Remove')").ClickAsync();
+
+// ✅ Good — page model encapsulates the flow
+await userManagement.ReloadAndWaitForUsersAsync();
+await userManagement.RemoveUserAsync(userId);
+```
+
+### Rule: Encapsulate Multi-Step UI Flows in Page Model Methods
+
+When a test performs multiple sequential Playwright interactions to achieve one logical action (e.g. fill form → click create → read modal → dismiss), wrap the entire flow in a single page model method.
+
+```csharp
+// ❌ Bad — multi-step flow duplicated across tests
+await nameInput.FillAsync(patName);
+await firstCheckbox.ClickAsync();
+await createButton.ClickAsync();
+var modal = page.GetByTestId("token-modal");
+await modal.WaitForAsync(...);
+var token = await page.GetByTestId("token-value").TextContentAsync();
+await page.GetByTestId("close-modal").ClickAsync();
+
+// ✅ Good — one method, one responsibility
+await patManagement.FillNameAsync(patName);
+await patManagement.ClickFirstPolicyCheckboxAsync();
+var token = await patManagement.CreateAndReadTokenAsync();
+```
+
+### Rule: State Queries Belong on the Page Model
+
+Boolean checks like "is this button visible?", "is this element enabled?", or "does this row exist?" belong on the page object — not inline in tests.
+
+```csharp
+// ❌ Bad — raw locator count check in a test
+(await page.Locator("[data-testid='remove-user-123']").CountAsync()).Should().Be(0);
+
+// ✅ Good — semantic method on the page object
+(await userManagement.IsRemoveButtonVisibleAsync(userId)).Should().BeFalse();
+```
+
+### When to Add a Method vs Use Existing Controls
+
+- **Add a method** when the interaction involves multiple steps, conditional logic, or waits that would be duplicated across tests.
+- **Use existing controls** when a single control property + extension method is sufficient (e.g. `await page.SaveButton.ClickAsync()`).
+
+## Tab Lifecycle — Auto-Cleanup over try/finally
+
+Manual `try/finally` blocks for `tab.Close()` are error-prone and create massive boilerplate. Instead, have your test fixture or session track created tabs and close them automatically via `IAsyncDisposable`.
+
+```csharp
+// ❌ Bad — try/finally in every test
+var tab = CreateTab();
+try
+{
+    await tab.Open();
+    // ... test body ...
+}
+finally
+{
+    try { await tab.Close(); } catch { }
+}
+
+// ✅ Good — session tracks tabs and closes them on dispose
+await using var session = await TestSession.CreateAsync();
+var tab = session.CreateTab();   // tracked internally
+await tab.Open();
+// ... test body ...
+// tab.Close() called automatically in session.DisposeAsync()
+```
+
+Implement this by having your session/fixture maintain a list of created tabs and close them all in `DisposeAsync()`:
+
+```csharp
+public sealed class TestSession : IAsyncDisposable
+{
+    private readonly List<TabObject> _trackedTabs = new();
+
+    public MyTabObject CreateTab()
     {
-        await tab.Open();
-        var settingsPage = tab.Goto<ISettings>();
-        await settingsPage.EnableNotifications.Check();
-        (await settingsPage.EnableNotifications.IsChecked).Should().BeTrue();
-        tab.Goto<IPreferences>();
+        var tab = new MyTabObject(/* ... */);
+        _trackedTabs.Add(tab);
+        return tab;
     }
-    finally
+
+    public async ValueTask DisposeAsync()
     {
-        await tab.Close();
+        foreach (var tab in _trackedTabs)
+        {
+            try { await tab.Close(); } catch { }
+        }
+        _trackedTabs.Clear();
     }
 }
 ```
 
 ## Test Rules
 
-- Always use `try/finally` to ensure `tab.Close()` is called
+- Use `await using` on your test session/fixture so tabs are closed automatically
 - Use interface types for page references (`ISettings` not `Settings`)
 - Test code must only interact with PageObjects and ControlObjects — never use `ILocator` or `IPage` directly in test methods
 - Don't create UI object instances with `new` — use `Find<T>()`
 - Use FluentAssertions (`.Should().BeTrue()`)
 - Add `await Task.Delay()` only in headed tests for visualization
+
+## Structuring Page Objects by Visual Region
+
+When a PageObject accumulates many flat properties spanning different visual regions of the UI (e.g., a header with a nav bar, tenant picker, and user area), it becomes hard to navigate and no longer mirrors the layout. Decompose it into ControlObjects that match what the user sees.
+
+**Signal to refactor:** A PageObject has 15+ flat control properties, and they belong to visually distinct regions.
+
+```csharp
+// ❌ Bad — flat list mixes unrelated UI regions
+public sealed class HeaderPageObject : PageObject
+{
+    public Link LogoLink => Find<Link>(By.TestId("logo"));
+    public Button ThemeToggle => Find<Button>(By.TestId("theme-toggle"));
+    public Button TenantButton => Find<Button>(By.TestId("tenant-btn"));
+    public TextInput TenantSearch => Find<TextInput>(By.TestId("tenant-search"));
+    public Link HomeLink => Find<Link>(By.TestId("home-link"));
+    public Link FactsLink => Find<Link>(By.TestId("facts-link"));
+    public Span UserInitials => Find<Span>(By.TestId("user-initials"));
+    // ... 20 more properties spanning 4 different UI regions
+}
+
+// ✅ Good — grouped by visual region
+public sealed class HeaderPageObject : PageObject
+{
+    // Top bar (always visible)
+    public Link LogoLink => Find<Link>(By.TestId("logo"));
+    public Button ThemeToggle => Find<Button>(By.TestId("theme-toggle"));
+
+    // Sub-regions as ControlObjects
+    public TenantPickerControlObject TenantPicker
+        => Find<TenantPickerControlObject>(By.TestId("tenant-picker"));
+    public NavBarControlObject NavBar
+        => Find<NavBarControlObject>(By.TestId("nav-bar"));
+
+    // Current user
+    public Span UserInitials => Find<Span>(By.TestId("user-initials"));
+}
+
+// Tests read like the visual layout:
+await header.TenantPicker.SelectTenantAsync("production");
+await header.NavBar.FactsLink.ClickAsync();
+var initials = await header.UserInitials.TextContentAsync();
+```
+
+**Guidelines:**
+- Each ControlObject wraps a visually distinct region with its own `SearchPattern`
+- A developer looking at the UI should intuitively know which sub-object to use
+- Convenience methods on the parent (e.g., `SelectTenantAsync`) can delegate to the sub-object for common flows
+- Don't over-decompose: if all properties belong to a single visual region, a flat PageObject is fine
 
 ## Anti-Patterns
 
@@ -292,13 +519,17 @@ public async Task DemonstrateFeature_Headless()
 ❌ Hardcoding page relationships — use `ChildOf<,>()` in TabObject
 ❌ Referencing the productive UI project from page objects — use a TestId contract project (see above)
 ❌ Hardcoding `data-testid` strings in page objects or tests — use constants from the contract project
-❌ Forgetting `tab.Close()` — always wrap in `try/finally`
+❌ Writing `try/finally { tab.Close() }` in every test — use auto-cleanup via `IAsyncDisposable` session/fixture
+❌ Flat PageObjects with 15+ properties spanning multiple visual regions — decompose into ControlObjects by region
 ❌ Exposing `ILocator` in public properties of PageObjects/ControlObjects — wrap as typed controls via `Find<T>()`
 ❌ Putting app-specific TestIds or CSS in a shared controls library — keep those in the page model project
 ❌ Using `Task.Delay()` in tests — use dynamic waits (see below)
+❌ Duplicating multi-step UI flows across tests/scenarios — extract to a page model method so UI changes require fixing one place
 ❌ Mirroring TestId constants via inner `TestIds` classes in controllers — reference contract constants directly in `.razor` files
 ❌ Interpolating untrusted values into `:has-text()` selectors — use `Locator.Filter()` instead
 ❌ Deflating control interactions onto PageObjects (e.g., `GetUserNameTextAsync()`, `GetUserInitialsTextAsync()`) — expose a composite ControlObject with child controls instead, so tests read `page.CurrentUser.Initials.TextContentAsync()`
+❌ Abbreviating variable names (e.g., `userMgmt`, `umPage`, `tmPage`) — use full descriptive names (`userManagement`, `tenantManagement`)
+❌ Omitting XML documentation on PageObject/ControlObject classes, properties, or methods — every public member must have a `<summary>`
 ❌ Using control-specific `Text` members — use the universal `TextContentAsync()` / `InnerTextAsync()` extension methods available on all `IUIObject`
 
 ## Dynamic Waits (Avoiding Fixed Delays)

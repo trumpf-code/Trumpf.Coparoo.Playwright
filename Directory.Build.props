@@ -1,4 +1,11 @@
 <Project>
+  <!-- Shared settings for library projects (excludes test and demo projects) -->
+  <PropertyGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests')) AND '$(MSBuildProjectName)' != 'Trumpf.Coparoo.Playwright.Demo'">
+    <!-- Generate XML documentation and treat missing docs as errors -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
   <!-- Only include MinVer for library projects, not test projects -->
   <ItemGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">
     <!-- MinVer package for automatic Git-based versioning -->
@@ -8,7 +15,7 @@
     </PackageReference>
   </ItemGroup>
 
-  
+
   <PropertyGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">
     <!-- MinVer configuration for automatic versioning from Git tags -->
     <MinVerTagPrefix></MinVerTagPrefix>
