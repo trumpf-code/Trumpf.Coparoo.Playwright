@@ -62,6 +62,27 @@ var initials = await header.CurrentUser.Initials.TextContentAsync();
 
 **Rule:** If you find yourself writing `GetXyzTextAsync()`, `IsXyzVisibleAsync()`, or similar on a PageObject or ControlObject — stop. Expose the control as a property and let the caller use extension methods. When generating tests against existing page models that contain deflated methods, refactor the page model first.
 
+### Concrete vs Interface in `Find<T>()`
+
+Use `Find<ConcreteType>()` when the concrete type lives in the **same assembly** as the caller. Use `Find<IInterface>()` only when the implementation lives in a **different assembly** and you need decoupling (see [Interface-Based Decoupling](#interface-based-decoupling-advanced)).
+
+```csharp
+// ✅ Good — concrete type argument; return type can be the interface
+public IBody Content => Find<Body>();
+
+// ✅ Also good — concrete return type works too
+public Body Content => Find<Body>();
+
+// ✅ Good — test uses interface because implementation is in a separate assembly
+var settings = tab.Goto<ISettings>();
+
+// ❌ Bad — interface as the generic argument for a type in the same assembly
+// This triggers assembly scanning; if the assembly isn't loaded yet, resolution fails
+public IBody Content => Find<IBody>();
+```
+
+**Why:** `Find<IInterface>()` relies on runtime assembly scanning (`AppDomain.CurrentDomain.GetAssemblies()`) to discover which concrete class implements the interface. If the assembly containing the implementation hasn't been loaded by the CLR yet (due to lazy loading), the resolver won't find it. `Find<ConcreteType>()` skips scanning entirely — the CLR loads the type directly. The return type doesn't matter — only the **generic argument** to `Find<T>()` determines whether scanning occurs.
+
 ## Naming Conventions
 
 Class names must end with their tier suffix: `TabObject`, `PageObject`, `ControlObject`.
@@ -78,15 +99,14 @@ Use **full, descriptive variable names** — never abbreviate page object or con
 
 ```csharp
 // ✅ Good — full names
-var userManagement = await tab.Goto<UserManagementPageObject>();
-var patManagement = await tab.Goto<PatManagementPageObject>();
-var tenantManagement = await tab.Goto<TenantManagementPageObject>();
+var settings = await tab.Goto<SettingsPageObject>();
+var dashboard = await tab.Goto<DashboardPageObject>();
+var userProfile = await tab.Goto<UserProfilePageObject>();
 
 // ❌ Bad — abbreviated names
-var userMgmt = await tab.Goto<UserManagementPageObject>();
-var umPage = await tab.Goto<UserManagementPageObject>();
-var patMgmt = await tab.Goto<PatManagementPageObject>();
-var tmPage = await tab.Goto<TenantManagementPageObject>();
+var sett = await tab.Goto<SettingsPageObject>();
+var dbPage = await tab.Goto<DashboardPageObject>();
+var upPage = await tab.Goto<UserProfilePageObject>();
 ```
 
 ## XML Documentation
@@ -107,7 +127,7 @@ Every PageObject, ControlObject, and TabObject class **must** have complete XML 
 ```csharp
 /// <summary>
 /// Represents the application header bar containing navigation links,
-/// tenant selector, theme toggle, and the current user display.
+/// workspace selector, theme toggle, and the current user display.
 /// </summary>
 public sealed class HeaderNavigationPageObject : PageObject
 {
@@ -119,9 +139,9 @@ public sealed class HeaderNavigationPageObject : PageObject
     public Link LogoLink => Find<Link>(By.TestId("logo-link"));
 
     /// <summary>
-    /// Button that opens the tenant selector dropdown.
+    /// Button that opens the workspace selector dropdown.
     /// </summary>
-    public Button TenantButton => Find<Button>(By.TestId("tenant-button"));
+    public Button WorkspaceButton => Find<Button>(By.TestId("workspace-button"));
 
     /// <summary>
     /// Navigates to the header by scrolling to the top of the page.
@@ -362,8 +382,8 @@ var dialog = page.GetByTestId("confirm-dialog");
 await dialog.Locator("button:has-text('Remove')").ClickAsync();
 
 // ✅ Good — page model encapsulates the flow
-await userManagement.ReloadAndWaitForUsersAsync();
-await userManagement.RemoveUserAsync(userId);
+await userList.ReloadAndWaitForItemsAsync();
+await userList.RemoveItemAsync(itemId);
 ```
 
 ### Rule: Encapsulate Multi-Step UI Flows in Page Model Methods
@@ -381,9 +401,9 @@ var token = await page.GetByTestId("token-value").TextContentAsync();
 await page.GetByTestId("close-modal").ClickAsync();
 
 // ✅ Good — one method, one responsibility
-await patManagement.FillNameAsync(patName);
-await patManagement.ClickFirstPolicyCheckboxAsync();
-var token = await patManagement.CreateAndReadTokenAsync();
+await createForm.FillNameAsync(itemName);
+await createForm.SelectFirstOptionAsync();
+var result = await createForm.SubmitAndReadResultAsync();
 ```
 
 ### Rule: State Queries Belong on the Page Model
@@ -395,7 +415,7 @@ Boolean checks like "is this button visible?", "is this element enabled?", or "d
 (await page.Locator("[data-testid='remove-user-123']").CountAsync()).Should().Be(0);
 
 // ✅ Good — semantic method on the page object
-(await userManagement.IsRemoveButtonVisibleAsync(userId)).Should().BeFalse();
+(await itemList.IsRemoveButtonVisibleAsync(itemId)).Should().BeFalse();
 ```
 
 ### When to Add a Method vs Use Existing Controls
@@ -464,7 +484,7 @@ public sealed class TestSession : IAsyncDisposable
 
 ## Structuring Page Objects by Visual Region
 
-When a PageObject accumulates many flat properties spanning different visual regions of the UI (e.g., a header with a nav bar, tenant picker, and user area), it becomes hard to navigate and no longer mirrors the layout. Decompose it into ControlObjects that match what the user sees.
+When a PageObject accumulates many flat properties spanning different visual regions of the UI (e.g., a header with a nav bar, project picker, and user area), it becomes hard to navigate and no longer mirrors the layout. Decompose it into ControlObjects that match what the user sees.
 
 **Signal to refactor:** A PageObject has 15+ flat control properties, and they belong to visually distinct regions.
 
@@ -474,10 +494,10 @@ public sealed class HeaderPageObject : PageObject
 {
     public Link LogoLink => Find<Link>(By.TestId("logo"));
     public Button ThemeToggle => Find<Button>(By.TestId("theme-toggle"));
-    public Button TenantButton => Find<Button>(By.TestId("tenant-btn"));
-    public TextInput TenantSearch => Find<TextInput>(By.TestId("tenant-search"));
+    public Button ProjectButton => Find<Button>(By.TestId("project-btn"));
+    public TextInput ProjectSearch => Find<TextInput>(By.TestId("project-search"));
     public Link HomeLink => Find<Link>(By.TestId("home-link"));
-    public Link FactsLink => Find<Link>(By.TestId("facts-link"));
+    public Link ReportsLink => Find<Link>(By.TestId("reports-link"));
     public Span UserInitials => Find<Span>(By.TestId("user-initials"));
     // ... 20 more properties spanning 4 different UI regions
 }
@@ -490,8 +510,8 @@ public sealed class HeaderPageObject : PageObject
     public Button ThemeToggle => Find<Button>(By.TestId("theme-toggle"));
 
     // Sub-regions as ControlObjects
-    public TenantPickerControlObject TenantPicker
-        => Find<TenantPickerControlObject>(By.TestId("tenant-picker"));
+    public ProjectPickerControlObject ProjectPicker
+        => Find<ProjectPickerControlObject>(By.TestId("project-picker"));
     public NavBarControlObject NavBar
         => Find<NavBarControlObject>(By.TestId("nav-bar"));
 
@@ -500,15 +520,15 @@ public sealed class HeaderPageObject : PageObject
 }
 
 // Tests read like the visual layout:
-await header.TenantPicker.SelectTenantAsync("production");
-await header.NavBar.FactsLink.ClickAsync();
+await header.ProjectPicker.SelectProjectAsync("production");
+await header.NavBar.ReportsLink.ClickAsync();
 var initials = await header.UserInitials.TextContentAsync();
 ```
 
 **Guidelines:**
 - Each ControlObject wraps a visually distinct region with its own `SearchPattern`
 - A developer looking at the UI should intuitively know which sub-object to use
-- Convenience methods on the parent (e.g., `SelectTenantAsync`) can delegate to the sub-object for common flows
+- Convenience methods on the parent (e.g., `SelectProjectAsync`) can delegate to the sub-object for common flows
 - Don't over-decompose: if all properties belong to a single visual region, a flat PageObject is fine
 
 ## Anti-Patterns
@@ -528,7 +548,7 @@ var initials = await header.UserInitials.TextContentAsync();
 ❌ Mirroring TestId constants via inner `TestIds` classes in controllers — reference contract constants directly in `.razor` files
 ❌ Interpolating untrusted values into `:has-text()` selectors — use `Locator.Filter()` instead
 ❌ Deflating control interactions onto PageObjects (e.g., `GetUserNameTextAsync()`, `GetUserInitialsTextAsync()`) — expose a composite ControlObject with child controls instead, so tests read `page.CurrentUser.Initials.TextContentAsync()`
-❌ Abbreviating variable names (e.g., `userMgmt`, `umPage`, `tmPage`) — use full descriptive names (`userManagement`, `tenantManagement`)
+❌ Abbreviating variable names (e.g., `settMgr`, `dbPage`, `upPage`) — use full descriptive names (`settings`, `dashboard`)
 ❌ Omitting XML documentation on PageObject/ControlObject classes, properties, or methods — every public member must have a `<summary>`
 ❌ Using control-specific `Text` members — use the universal `TextContentAsync()` / `InnerTextAsync()` extension methods available on all `IUIObject`
 

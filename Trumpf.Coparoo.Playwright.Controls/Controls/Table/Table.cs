@@ -35,17 +35,17 @@ public class Table : ControlObject, ITable
     /// <summary>
     /// Gets the table head control object.
     /// </summary>
-    public IHead Header => Find<IHead>();
+    public IHead Header => Find<Head>();
 
     /// <summary>
     /// Gets the table body control object.
     /// </summary>
-    public IBody Content => Find<IBody>();
+    public IBody Content => Find<Body>();
 
     /// <summary>
     /// Gets the table foot control object.
     /// </summary>
-    public IFoot Footer => Find<IFoot>();
+    public IFoot Footer => Find<Foot>();
 
     /// <summary>
     /// Gets a sorted enumeration of all row control objects (including header, body and footer rows).
