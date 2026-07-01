@@ -1,11 +1,11 @@
 ﻿// Copyright 2016 - 2025 TRUMPF Werkzeugmaschinen GmbH + Co. KG.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +14,7 @@
 
 namespace Trumpf.Coparoo.Tests;
 
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Trumpf.Coparoo.Playwright;
@@ -44,7 +44,7 @@ public class TabObjectTests
         t1.GetType().Should().Be(typeof(T1));
         b1.Should().NotBeNull();
         b1.GetType().Should().Be(typeof(B1));
-        
+
         t2.Should().NotBeNull();
         t2.GetType().Should().Be(typeof(T2));
         b2.Should().NotBeNull();
@@ -72,7 +72,7 @@ public class TabObjectTests
         t1.GetType().Should().Be(typeof(T1));
         t2.GetType().Should().Be(typeof(T2));
         t3.GetType().Should().Be(typeof(T1));
-        
+
         // Verify that page objects can be accessed through the casted tab objects
         var b1 = t3.On<B1>();
         b1.Should().NotBeNull();

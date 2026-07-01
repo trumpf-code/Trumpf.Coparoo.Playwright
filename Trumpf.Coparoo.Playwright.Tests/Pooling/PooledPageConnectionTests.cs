@@ -1,11 +1,11 @@
 // Copyright 2016 - 2025 TRUMPF Werkzeugmaschinen GmbH + Co. KG.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,16 +26,18 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
         public void Constructor_ThrowsArgumentNullException_WhenCacheKeyIsNull()
         {
             // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() =>
-                new PooledPageConnection(null, "endpoint", "page", null, null, null));
+            Action act = () =>
+                new PooledPageConnection(null, "endpoint", "page", null, null, null);
+            act.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
         public void Constructor_ThrowsArgumentNullException_WhenPlaywrightIsNull()
         {
             // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() =>
-                new PooledPageConnection("key", "endpoint", "page", null, null, null));
+            Action act = () =>
+                new PooledPageConnection("key", "endpoint", "page", null, null, null);
+            act.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
@@ -45,7 +47,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
             var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             var page = await browser.NewPageAsync();
-            
+
             var connection = new PooledPageConnection(
                 "test-key",
                 "http://localhost:12345",
@@ -55,15 +57,15 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                 page);
 
             var initialLastUsed = connection.LastUsed;
-            
+
             // Act - Wait and then update
             await Task.Delay(100);
             connection.UpdateLastUsed();
 
             // Assert
-            Assert.IsTrue(connection.LastUsed > initialLastUsed,
+            connection.LastUsed.Should().BeAfter(initialLastUsed,
                 "LastUsed timestamp should be updated to a later time");
-            
+
             // Cleanup
             await connection.DisposeAsync();
         }
@@ -75,7 +77,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
             var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             var page = await browser.NewPageAsync();
-            
+
             var connection = new PooledPageConnection(
                 "test-key",
                 "http://localhost:12345",
@@ -88,7 +90,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             await connection.DisposeAsync();
 
             // Assert - Page should be closed
-            Assert.IsTrue(page.IsClosed, "Page should be closed after dispose");
+            page.IsClosed.Should().BeTrue("Page should be closed after dispose");
         }
 
         [TestMethod]
@@ -98,11 +100,11 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
             var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             var page = await browser.NewPageAsync();
-            
+
             var cacheKey = "test-cache-key";
             var endpoint = "http://localhost:12345";
             var pageUrl = "test-page-url";
-            
+
             var connection = new PooledPageConnection(
                 cacheKey,
                 endpoint,
@@ -112,15 +114,15 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                 page);
 
             // Assert
-            Assert.AreEqual(cacheKey, connection.CacheKey);
-            Assert.AreEqual(endpoint, connection.ChromeDevToolsProtocolEndpoint);
-            Assert.AreEqual(pageUrl, connection.PageUrl);
-            Assert.AreSame(playwright, connection.Playwright);
-            Assert.AreSame(browser, connection.Browser);
-            Assert.AreSame(page, connection.Page);
-            Assert.IsTrue(connection.CreatedAt <= DateTime.UtcNow);
-            Assert.IsTrue(connection.LastUsed <= DateTime.UtcNow);
-            
+            connection.CacheKey.Should().Be(cacheKey);
+            connection.ChromeDevToolsProtocolEndpoint.Should().Be(endpoint);
+            connection.PageUrl.Should().Be(pageUrl);
+            connection.Playwright.Should().BeSameAs(playwright);
+            connection.Browser.Should().BeSameAs(browser);
+            connection.Page.Should().BeSameAs(page);
+            connection.CreatedAt.Should().BeOnOrBefore(DateTime.UtcNow);
+            connection.LastUsed.Should().BeOnOrBefore(DateTime.UtcNow);
+
             // Cleanup
             await connection.DisposeAsync();
         }

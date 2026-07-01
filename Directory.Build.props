@@ -9,7 +9,7 @@
   <!-- Only include MinVer for library projects, not test projects -->
   <ItemGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">
     <!-- MinVer package for automatic Git-based versioning -->
-    <PackageReference Include="MinVer" Version="6.0.0">
+    <PackageReference Include="MinVer" Version="7.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

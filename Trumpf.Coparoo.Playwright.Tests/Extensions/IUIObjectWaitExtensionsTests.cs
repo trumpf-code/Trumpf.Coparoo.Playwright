@@ -14,7 +14,7 @@
 
 namespace Trumpf.Coparoo.Tests.Extensions;
 
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Trumpf.Coparoo.Playwright;
 using Trumpf.Coparoo.Playwright.Extensions;

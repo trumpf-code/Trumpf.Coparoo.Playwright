@@ -14,7 +14,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Trumpf.Coparoo.Playwright.Controls;
-using FluentAssertions;
+using AwesomeAssertions;
 using System.Linq;
 using System.Diagnostics;
 using Trumpf.Coparoo.Playwright.Extensions;

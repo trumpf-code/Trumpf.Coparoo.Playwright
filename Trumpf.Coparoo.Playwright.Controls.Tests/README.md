@@ -27,7 +27,7 @@ This project contains comprehensive tests for all pre-built control objects in t
 
 - **MSTest** - Test framework
 - **AwesomeAssertions** - Enhanced assertion library
-- **FluentAssertions** - Fluent assertion extensions
+- **AwesomeAssertions** - Fluent assertion extensions
 - **Microsoft.Playwright** - Browser automation
 
 ## Running Tests

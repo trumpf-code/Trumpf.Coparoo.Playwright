@@ -168,12 +168,12 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
 
                 // With pooling, all three should share the SAME connection
                 var stats = pool.GetStatistics();
-                Assert.AreEqual(initialStats.TotalConnections + 1, stats.TotalConnections, 
+                stats.TotalConnections.Should().Be(initialStats.TotalConnections + 1,
                     "Pool should have only 1 new connection for all 3 tabs with same identifier");
 
-                Assert.IsNotNull(page1);
-                Assert.IsNotNull(page2);
-                Assert.IsNotNull(page3);
+                page1.Should().NotBeNull();
+                page2.Should().NotBeNull();
+                page3.Should().NotBeNull();
 
                 await tab1.Close();
                 await tab2.Close();
@@ -215,8 +215,8 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                     }
                     
                     var page = await tab.Page;
-                    Assert.IsNotNull(page);
-                    Assert.IsFalse(page.IsClosed);
+                    page.Should().NotBeNull();
+                    page.IsClosed.Should().BeFalse();
                     
                     await tab.Close();
                     
@@ -224,7 +224,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                 }
                 
                 var finalStats = pool.GetStatistics();
-                Assert.AreEqual(initialStats.TotalConnections + 1, finalStats.TotalConnections,
+                finalStats.TotalConnections.Should().Be(initialStats.TotalConnections + 1,
                     "Pool should have exactly 1 connection reused for all 3 sequential opens");
             }
             finally
@@ -250,8 +250,8 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                 // - "http://localhost:9222::custom_identifier"
                 // - "http://localhost:9222::different"
                 
-                Assert.IsNotNull(tab1);
-                Assert.IsNotNull(tab2);
+                tab1.Should().NotBeNull();
+                tab2.Should().NotBeNull();
             }
             finally
             {
@@ -303,9 +303,9 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                 }
 
                 // Basic metadata assertions
-                Assert.AreEqual("test-key", connection.CacheKey);
-                Assert.AreEqual("http://localhost:9222", connection.ChromeDevToolsProtocolEndpoint);
-                Assert.AreEqual("stats-test", connection.PageUrl);
+                connection.CacheKey.Should().Be("test-key");
+                connection.ChromeDevToolsProtocolEndpoint.Should().Be("http://localhost:9222");
+                connection.PageUrl.Should().Be("stats-test");
 
                 if (!thresholdsMet)
                 {
@@ -314,8 +314,8 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                     var finalAge = connection.GetAge();
                     await connection.DisposeAsync();
 
-                    Assert.IsTrue(finalIdle >= required, $"IdleTime too small: {finalIdle.TotalMilliseconds} ms (expected ≥ {required.TotalMilliseconds} ms)");
-                    Assert.IsTrue(finalAge >= required, $"Age too small: {finalAge.TotalMilliseconds} ms (expected ≥ {required.TotalMilliseconds} ms)");
+                    (finalIdle >= required).Should().BeTrue($"IdleTime too small: {finalIdle.TotalMilliseconds} ms (expected ≥ {required.TotalMilliseconds} ms)");
+                    (finalAge >= required).Should().BeTrue($"Age too small: {finalAge.TotalMilliseconds} ms (expected ≥ {required.TotalMilliseconds} ms)");
                     return;
                 }
 
@@ -351,7 +351,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
             await pool.ClearAllAsync();
             var stats = pool.GetStatistics();
             
-            Assert.AreEqual(0, stats.TotalConnections);
+            stats.TotalConnections.Should().Be(0);
 
             // Clean up our manual connection
             await connection.DisposeAsync();
@@ -399,11 +399,11 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                 await tab.Open();
                 var page = await tab.Page;
                 
-                Assert.IsNotNull(page);
-                Assert.IsFalse(page.IsClosed);
+                page.Should().NotBeNull();
+                page.IsClosed.Should().BeFalse();
                 
                 // Verify we found the page with the expected URL
-                Assert.IsTrue(page.Url.Contains("bing.com", StringComparison.OrdinalIgnoreCase),
+                page.Url.Should().ContainEquivalentOf("bing.com",
                     $"Expected URL containing 'bing.com' but got '{page.Url}'");
                 
                 await tab.Close();
@@ -429,7 +429,7 @@ namespace Trumpf.Coparoo.Playwright.Tests.Pooling
                 var tab = new TestChromeDevToolsProtocolTabFindExisting("http://localhost:9999", nonExistentUrl);
                 
                 // Verify FindExistingPageByUrl is true
-                Assert.IsNotNull(tab);
+                tab.Should().NotBeNull();
             }
             finally
             {

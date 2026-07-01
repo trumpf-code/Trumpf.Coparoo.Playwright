@@ -479,7 +479,7 @@ public sealed class TestSession : IAsyncDisposable
 - Use interface types for page references (`ISettings` not `Settings`)
 - Test code must only interact with PageObjects and ControlObjects — never use `ILocator` or `IPage` directly in test methods
 - Don't create UI object instances with `new` — use `Find<T>()`
-- Use FluentAssertions (`.Should().BeTrue()`)
+- Use AwesomeAssertions (`.Should().BeTrue()`)
 - Add `await Task.Delay()` only in headed tests for visualization
 
 ## Structuring Page Objects by Visual Region

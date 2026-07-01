@@ -1,11 +1,11 @@
 // Copyright 2016 - 2025 TRUMPF Werkzeugmaschinen GmbH + Co. KG.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +15,7 @@
 namespace Trumpf.Coparoo.Tests.Search;
 
 using System;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Trumpf.Coparoo.Playwright;
 
@@ -266,12 +266,12 @@ public class ByTests
         locator.Should().Contain("[data-testid=\"submit-btn\"]");
         locator.Should().Contain("[disabled]");
         locator.Should().Contain(":hover");
-        
+
         // Verify order
         var buttonIndex = locator.IndexOf("button");
         var idIndex = locator.IndexOf("#submit");
         var classIndex = locator.IndexOf(".primary");
-        
+
         buttonIndex.Should().BeLessThan(idIndex);
         idIndex.Should().BeLessThan(classIndex);
     }
@@ -291,12 +291,12 @@ public class ByTests
         // Check
         var locator = result.ToLocator();
         locator.Should().StartWith("button");
-        
+
         var buttonIndex = locator.IndexOf("button");
         var idIndex = locator.IndexOf("#submit");
         var classIndex = locator.IndexOf(".primary");
         var hoverIndex = locator.IndexOf(":hover");
-        
+
         buttonIndex.Should().BeLessThan(idIndex);
         idIndex.Should().BeLessThan(classIndex);
         classIndex.Should().BeLessThan(hoverIndex);

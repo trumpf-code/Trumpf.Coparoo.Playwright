@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Trumpf.Coparoo.Playwright;
 using Trumpf.Coparoo.Playwright.Controls;
@@ -54,11 +54,11 @@ public class VideoTests
 
         // Act
         var count = await video.CountAsync();
-        var isVisible = await video.IsVisibleAsync();
 
         // Check
         count.Should().Be(1);
-        isVisible.Should().BeTrue();
+        // Use Playwright's auto-retrying web-first assertion to avoid layout/render races (IsVisibleAsync is a non-retrying snapshot).
+        await Assertions.Expect(video.Locator).ToBeVisibleAsync();
     }
 
     /// <summary>
@@ -90,11 +90,11 @@ public class VideoTests
         var video = tab.Find<Video>(By.TestId("hero-video"));
 
         // Act
-        var isVisible = await video.IsVisibleAsync();
         var poster = await video.GetPosterAsync();
 
         // Check
-        isVisible.Should().BeTrue();
+        // Use Playwright's auto-retrying web-first assertion to avoid layout/render races (IsVisibleAsync is a non-retrying snapshot).
+        await Assertions.Expect(video.Locator).ToBeVisibleAsync();
         poster.Should().Be("p.jpg");
     }
 
