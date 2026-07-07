@@ -224,13 +224,15 @@ public async Task<int> GetPolicyCheckboxCountAsync()
 public IAsyncEnumerable<Checkbox> PolicyCheckboxes => FindAll<Checkbox>();
 // Test: (await page.PolicyCheckboxes.CountAsync()).Should().BeGreaterThan(0);
 
-// ✅ Good — thin wait wrapper only when the list can render empty transiently
-public async Task WaitForPolicyChecksAsync()
-    => await Assertions.Expect(PolicyChecks.Locator.Locator("input[type='checkbox']"))
+// ✅ Good — thin wait wrapper when the list is empty only until its data first loads
+public async Task WaitForRowsAsync()
+    => await Assertions.Expect(RowContainer.Locator.Locator("tr"))
         .Not.ToHaveCountAsync(0, new() { Timeout = DefaultTimeout });
 ```
 
 The built-in `Table` control already models this: `table.Rows` is an `IAsyncEnumerable<IRow>`, so `await table.Rows.CountAsync()` reads like the UI — reach for that shape before writing a `GetRowCountAsync()`.
+
+Reaching into `.Locator` for the wait is fine — an auto-retrying count assertion needs a Playwright locator, which `FindAll<T>()` (an `IAsyncEnumerable`) can't supply, and `COPA-CTL-002` only bans *exposing* raw locators, not using them internally. The wait above is race-safe **only** for a list that stays populated once it appears. If the list can *re-clear* after first rendering — e.g. a page that self-navigates on load — the assertion can pass and then go stale; capture the count atomically inside the browser (`Page.WaitForFunctionAsync`) instead, and mark it with a `// COPA-CTL-004: justified — …` comment.
 
 ---
 
