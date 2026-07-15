@@ -22,7 +22,7 @@ public sealed class Settings : PageObject, ISettings
         if (!await this.IsVisibleAsync())
         {
             await On<IShell>().Menu.NavigateToAsync(this);
-            await this.WaitForVisibleAsync();
+            await this.Visible().WaitForAsync();
         }
     }
 }

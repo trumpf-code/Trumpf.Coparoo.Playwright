@@ -87,7 +87,7 @@ Reach a page with `tab.Goto<T>()` (runs its navigation logic); get an already-vi
 | Test starts and must reach a page | `Goto<T>()` |
 | A click/action already triggered navigation | `On<T>()` |
 | Accessing a second page already on screen | `On<T>()` |
-| Verifying a page appeared after an action | `On<T>()` + `WaitForVisibleAsync()` |
+| Verifying a page appeared after an action | `On<T>()` + `Visible().WaitForAsync()` |
 
 ```csharp
 // ✅ Good — Goto at the entry point; On after a click already navigated
@@ -95,7 +95,7 @@ await tab.Open();
 var dashboard = await tab.Goto<DashboardPageObject>();
 await dashboard.SettingsLink.ClickAsync();
 var settings = tab.On<SettingsPageObject>();
-await settings.WaitForVisibleAsync();
+await settings.Visible().WaitForAsync();
 
 // ❌ Bad — Goto after a click redundantly re-navigates
 await dashboard.SettingsLink.ClickAsync();
@@ -386,11 +386,27 @@ Replace every fixed `Task.Delay()` with a wait for the specific condition the te
 
 | Scenario | Wait approach |
 |---|---|
-| Data loads after navigation | `await page.MyTable.WaitForVisibleAsync(timeout)` |
+| Data loads after navigation | `await page.MyTable.Visible().WaitForAsync(timeout)` |
 | Element appears after click | `await locator.WaitForAsync(new() { Timeout = ... })` |
 | Attribute / state change | `await Assertions.Expect(locator).ToHaveAttributeAsync(...)` |
 
 Define timeouts once; reference everywhere.
+
+### `COPA-TST-005` · `web-first-state-waits`
+
+After an action whose effect lands asynchronously (e.g. a Blazor Server SignalR round-trip), assert the resulting element state with a web-first state handle (`ctrl.Enabled().WaitForAsync()`) — never a one-shot `IsXxxAsync()` snapshot, which samples the pre-update DOM and flakes under latency (passes locally at ~1 ms, fails remotely at ~100 ms). One-shot `IsXxxAsync()` stays valid for already-settled or negative reads.
+
+```csharp
+// ❌ Bad — snapshot races the async enable
+await form.ThresholdSlider.SetAsync("70%");
+(await form.SaveButton.IsEnabledAsync()).Should().BeTrue();
+
+// ✅ Good — web-first wait retries until the state lands
+await form.ThresholdSlider.SetAsync("70%");
+await form.SaveButton.Enabled().WaitForAsync();
+```
+
+State handle: `ctrl.Enabled()` / `.Checked()` / `.Editable()` / `.Visible()` / `.Attached()`, each exposing `.WaitForAsync()` (state holds) and `.WaitForNotAsync()` (state clears — disabled / unchecked / read-only / hidden / detached). One-shot reads use the `IsXxxAsync()` query extensions. Pass an explicit timeout for known-slow (remote) waits.
 
 ---
 
@@ -486,6 +502,7 @@ Canonical IDs are immutable once assigned (retire, never renumber); the kebab sl
 | `COPA-TST-002` | `interface-page-refs` | Interface types for page references | Test Hygiene |
 | `COPA-TST-003` | `auto-tab-cleanup` | Close tabs via `IAsyncDisposable`, not per-test `try/finally` | Test Hygiene |
 | `COPA-TST-004` | `dynamic-waits` | Wait for the specific condition, no fixed `Task.Delay()` | Test Hygiene |
+| `COPA-TST-005` | `web-first-state-waits` | Assert state via a web-first `ctrl.Enabled().WaitForAsync()` handle, not a one-shot `IsXxxAsync()` snapshot | Test Hygiene |
 
 ## Further Reading
 

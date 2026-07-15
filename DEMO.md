@@ -39,7 +39,7 @@ Equipped with this class, we are ready to automate the first and last step of th
     {
         var tab = new MyTab();              // create the root page object
         tab.Open();                         // open the web page in new tab
-        await tab.WaitForVisibleAsync();    // wait until the tab exists
+        await tab.Visible().WaitForAsync();  // wait until the tab exists
         await tab.Close();                  // close the tab and browser
     }
 
@@ -122,7 +122,7 @@ Now that we have defined a root, control and page object, we can automate the th
     {
         MyTab myTab = new MyTab();              // create the root page object
         myTab.Open();                           // open a new tab browser with the address
-        await myTab.On<Menu>().WaitForVisibleAsync();   // wait until the menu is displayed
+        await myTab.On<Menu>().Visible().WaitForAsync();   // wait until the menu is displayed
         myTab.On<Menu>().Events.Click();        // on the menu click the events link
         await myTab.Close();                    // kill the browser
     }
@@ -186,7 +186,7 @@ The navigation action of the sign-in form needs, e.g., be defined in `SignInForm
         if (!await this.IsVisibleAsync())       // no actions if the page is already displayed
         {
             Goto<Header>().SignIn.Click();      // click the sign in button
-            await this.WaitForVisibleAsync();   // wait for the SignInForm to be displayed
+            await this.Visible().WaitForAsync();   // wait for the SignInForm to be displayed
         }
     }
 

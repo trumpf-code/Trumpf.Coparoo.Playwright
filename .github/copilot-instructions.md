@@ -8,7 +8,7 @@ Trumpf.Coparoo.Playwright is a .NET library that implements the **Co**ntrol/**Pa
 
 The framework follows a three-tier hierarchy:
 1. **TabObject** - Represents a browser tab/application root
-2. **PageObject** - Represents individual pages/views  
+2. **PageObject** - Represents individual pages/views
 3. **ControlObject** - Represents UI elements (buttons, checkboxes, inputs, etc.)
 
 ### Choosing Between PageObject and ControlObject
@@ -100,13 +100,13 @@ All `.cs` files must start with the Apache 2.0 license header:
 
 ```csharp
 // Copyright 2016 - 2025 TRUMPF Werkzeugmaschinen GmbH + Co. KG.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -122,7 +122,7 @@ All `.cs` files must start with the Apache 2.0 license header:
 public class MyAppTab : TabObject
 {
     protected override string Url => "https://example.com";
-    
+
     protected override async Task<IPage> Creator()
     {
         // Browser setup logic
@@ -130,7 +130,7 @@ public class MyAppTab : TabObject
         var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
         return await browser.NewPageAsync();
     }
-    
+
     public MyAppTab()
     {
         // Register dynamic page relationships (decouples teams)
@@ -152,11 +152,11 @@ public class MyAppTab : TabObject
 public sealed class Settings : PageObject, ISettings
 {
     protected override By SearchPattern => By.TestId("settings-page");
-    
+
     // Control properties using Find<T>
     public Checkbox EnableNotifications => Find<Checkbox>(By.TestId("enable-notifications"));
     public Button SaveButton => Find<Button>(By.TestId("save-button"));
-    
+
     // Override Goto for custom navigation logic
     public override async Task Goto()
     {
@@ -164,7 +164,7 @@ public sealed class Settings : PageObject, ISettings
         {
             // Navigate via menu or other mechanism
             await On<IShell>().Menu.NavigateToAsync(this);
-            await this.WaitForVisibleAsync();
+            await this.Visible().WaitForAsync();
         }
     }
 }
@@ -185,7 +185,7 @@ public sealed class Settings : PageObject, ISettings
 public sealed class CustomButton : ControlObject, ICustomButton
 {
     protected override By SearchPattern => By.TagName("button").And(By.ClassName("custom-btn"));
-    
+
     public async Task<bool> IsEnabledAsync()
     {
         return await this.IsEnabledAsync();
